@@ -1,5 +1,7 @@
 # StateSpaceReconstruction.jl
 
+[![Build Status](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl.svg?branch=master)](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl)
+
 Julia package for state space reconstruction (SSR) of time series data.
 
 ## Features

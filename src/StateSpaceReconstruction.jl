@@ -3,7 +3,7 @@ module StateSpaceReconstruction
 using Reexport
 using Parameters
 
-include("Timeseries.jl")
+include("TimeSeries.jl")
 include("Embeddings.jl")
 include("Partitioning.jl")
 
