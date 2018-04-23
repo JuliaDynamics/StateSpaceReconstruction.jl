@@ -41,6 +41,10 @@ build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
+      Pkg.clone("https://github.com/kahaaga/Simplices.jl", \"Simplices\"); Pkg.build(\"Simplices\")"
+  - C:\projects\julia\bin\julia -e "versioninfo();
+      Pkg.clone("https://github.com/kahaaga/SimplexSplitting.jl", \"SimplexSplitting\"); Pkg.build(\"SimplexSplitting\")"
+  - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"StateSpaceReconstruction\"); Pkg.build(\"StateSpaceReconstruction\")"
 
 test_script:
