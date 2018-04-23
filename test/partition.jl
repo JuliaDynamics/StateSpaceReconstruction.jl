@@ -15,10 +15,8 @@ end
     E_4D = embed([rand(30) for i = 1:4])
 
     T_3D = triangulate(E_3D)
-    @show T_3D
     @test typeof(T_3D) == Triangulation
 
     T_4D = triangulate(E_4D)
-    @show T_4D
     @test typeof(T_4D) == Triangulation
 end

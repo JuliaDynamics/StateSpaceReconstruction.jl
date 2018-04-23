@@ -23,3 +23,11 @@ end
 
     @test all(E3.points[:, 1:3] .== E4.points)
 end
+
+@testset "Invariantizing embeddings" begin
+    E1 = embed([diff(rand(50)) for i = 1:4], [1, 2, 3, 3], [1, -1, -1, 0])
+
+    inv_E1 =  invariantize(E1)
+
+    @test typeof(inv_E1) == InvariantEmbedding
+end
