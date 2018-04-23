@@ -25,6 +25,10 @@ include("partitioning/triangulation.jl")
 
 export
     Partition,
+	# Triangulation related
     Triangulation, triangulate,
+	maybeintersecting_simplices,
+
+	# Rectangular binning
     EquidistantBinning, bin_equidistant
 end
