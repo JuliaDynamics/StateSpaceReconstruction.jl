@@ -3,11 +3,12 @@ using Reexport
 
 using Parameters
 using ..TimeSeries: SingleTimeSeries
+using Simplices: Delaunay.delaunayn
+using SimplexSplitting: centroids_radii2, heaviside0
 
-export Embedding,
-        GenericEmbedding, embed
 
 abstract type Embedding end
+
 
 """
 An embedding of a set of points.
@@ -89,4 +90,14 @@ embed(ts::Vector{Vector{Int}}) = embed(
 	[SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)],
 	[i for i in 1:length(ts)],
 	[0 for i in 1:length(ts)])
+
+
+include("embedding/invariantize.jl")
+
+
+export
+    Embedding,
+    GenericEmbedding, embed,
+    InvariantEmbedding, invariantize, is_invariant_under_linearmap
+
 end
