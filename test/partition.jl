@@ -11,14 +11,27 @@
 end
 
 @testset "Simplex triangulation" begin
-    E_3D = embed([rand(30) for i = 1:3])
-    E_4D = embed([rand(30) for i = 1:4])
 
-    T_3D = triangulate(E_3D)
-    @show T_3D
-    @test typeof(T_3D) == Triangulation
+	@testset "Triangulation" begin
+        E_3D = embed([rand(30) for i = 1:3])
+        E_4D = embed([rand(30) for i = 1:4])
 
-    T_4D = triangulate(E_4D)
-    @show T_4D
-    @test typeof(T_4D) == Triangulation
+        T_3D = triangulate(E_3D)
+        @test typeof(T_3D) == Triangulation
+
+        T_4D = triangulate(E_4D)
+        @test typeof(T_4D) == Triangulation
+    end
+
+    @testset "LinearlyInvariantTriangulation" begin
+        E_3D = invariantize(embed([rand(30) for i = 1:3]))
+        E_4D = invariantize(embed([rand(30) for i = 1:4]))
+
+        T_3D = triangulate(E_3D)
+        @test typeof(T_3D) == LinearlyInvariantTriangulation
+
+        T_4D = triangulate(E_4D)
+        @test typeof(T_4D) == LinearlyInvariantTriangulation
+
+    end
 end

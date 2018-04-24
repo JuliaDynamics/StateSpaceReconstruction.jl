@@ -4,7 +4,8 @@ using Reexport
 using Parameters
 using ..Embeddings:
 			Embedding,
-			GenericEmbedding
+			GenericEmbedding,
+			LinearlyInvariantEmbedding
 using GroupSlices:
 			groupslices,
 			firstinds,
@@ -25,8 +26,12 @@ include("partitioning/triangulation.jl")
 
 export
     Partition,
-	# Triangulation related
-    Triangulation, triangulate,
+	# Triangulation type and subtypes
+    Triangulation,
+	LinearlyInvariantTriangulation,
+
+	# Methods that dispatches on Triangulation subtypes
+	triangulate,
 	maybeintersecting_simplices,
 
 	# Rectangular binning
