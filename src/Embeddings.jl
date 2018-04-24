@@ -1,11 +1,21 @@
 using Reexport
 @reexport module Embeddings
 
+using RecipesBase
 using Parameters
-using ..TimeSeries: SingleTimeSeries
+
 using Simplices: Delaunay.delaunayn
 using SimplexSplitting: centroids_radii2, heaviside0
-using RecipesBase
+
+using ..TimeSeries: SingleTimeSeries
+
+export
+    Embedding,
+    GenericEmbedding,
+    LinearlyInvariantEmbedding,
+    embed,
+    invariantize,
+    is_invariant_under_linearmap
 
 
 abstract type Embedding end
@@ -56,7 +66,7 @@ hull of the preceding points.
 `dim::Int`
     The dimension of the embedding
 """
-@with_kw struct InvariantEmbedding <: Embedding
+@with_kw struct LinearlyInvariantEmbedding <: Embedding
     points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
     ts::Vector{SingleTimeSeries{Float64}} = Vector{SingleTimeSeries{Float64}}(0)
     ts_inds::Vector{Int} = Int[]
@@ -138,7 +148,7 @@ include("embedding/invariantize.jl")
 end
 
 
-@recipe function f(E::InvariantEmbedding)
+@recipe function f(E::LinearlyInvariantEmbedding)
     if E.dim > 3
         warn("Embedding dim > 3, plotting three first axes")
         pts = E.points[:, 1:3]
@@ -150,10 +160,5 @@ end
     X, Y, Z
 end
 
-export
-    Embedding,
-    GenericEmbedding, embed,
-    InvariantEmbedding, invariantize, is_invariant_under_linearmap,
-    plot
 
 end

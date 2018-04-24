@@ -130,7 +130,7 @@ function bin_equidistant(embedding::GenericEmbedding, n_bins::Int)
 end
 
 
-function bin_equidistant(embedding::InvariantEmbedding, n_bins::Int)
+function bin_equidistant(embedding::LinearlyInvariantEmbedding, n_bins::Int)
     emb = embedding.points
     dim = embedding.dim
     n_pts = size(emb, 1)
