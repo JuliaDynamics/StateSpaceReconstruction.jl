@@ -27,7 +27,8 @@ include("partitioning/triangulation.jl")
 export
     Partition,
 	# Triangulation type and subtypes
-    Triangulation,
+	Triangulation,
+    GenericTriangulation,
 	LinearlyInvariantTriangulation,
 
 	# Methods that dispatches on Triangulation subtypes

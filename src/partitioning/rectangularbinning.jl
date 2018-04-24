@@ -86,19 +86,9 @@ function indexin_rows(A1::Array{Float64, 2}, A2::Array{Float64, 2})
     return inds
 end
 
-function indexin_rows(A1::Array{Int, 2}, A2::Array{Int, 2})
-    inds = []
-    for j = 1:size(A1, 1)
-        for i = 1:size(A2, 1)
-            if all(A1[j, :] .== A2[i, :])
-                push!(inds, i)
-            end
-        end
-    end
-    return inds
-end
+indexin_rows(A1::Array{Int, 2}, A2::Array{Int, 2}) = indexin_rows(float.(A1), float.(A2))
 
-function bin_equidistant(embedding::GenericEmbedding, n_bins::Int)
+function bin_equidistant(embedding::Embedding, n_bins::Int)
     emb = embedding.points
     dim = embedding.dim
     n_pts = size(emb, 1)
@@ -128,39 +118,6 @@ function bin_equidistant(embedding::GenericEmbedding, n_bins::Int)
                 group_inds = group_inds,
                 all_inds = all_inds)
 end
-
-
-function bin_equidistant(embedding::LinearlyInvariantEmbedding, n_bins::Int)
-    emb = embedding.points
-    dim = embedding.dim
-    n_pts = size(emb, 1)
-
-    bottom = [minimum(emb[:, i]) for i in 1:dim]
-    top = [maximum(emb[:, i]) for i in 1:dim]
-    bottom = bottom - (top - bottom) / 100
-    top = top + (top - bottom) / 100
-    stepsizes = (top - bottom) / n_bins
-
-    # Indices of the bins. The coordinates of each point of the original
-    # embedding are assigned an integer number indicating which bin along
-    # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
-
-    @inbounds for i = 1:n_pts
-        inds_nonempty_bins[i, :] = ceil((emb[i, :] - bottom) ./ stepsizes)
-    end
-
-    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
-    bininfo = EquidistantBinning(
-                dim = dim,
-                n_pts = n_pts,
-                bottom = bottom, top = top, stepsizes = stepsizes,
-                inds_nonempty_bins = inds_nonempty_bins,
-                first_inds = first_inds,
-                group_inds = group_inds,
-                all_inds = all_inds)
-end
-
 
 bin_equidistant(pts::AbstractArray{Float64, 2}, n_bins::Int) = bin_equidistant(Embedding(pts), b_bins)
 bin_equidistant(pts::AbstractArray{Int, 2}, n_bins::Int) = bin_equidistant(float.(pts), b_bins)
