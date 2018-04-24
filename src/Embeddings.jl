@@ -5,6 +5,7 @@ using Parameters
 using ..TimeSeries: SingleTimeSeries
 using Simplices: Delaunay.delaunayn
 using SimplexSplitting: centroids_radii2, heaviside0
+using RecipesBase
 
 
 abstract type Embedding end
@@ -123,7 +124,6 @@ embed(ts::Vector{Vector{Int}}) = embed(
 include("embedding/invariantize.jl")
 
 
-using RecipesBase
 
 @recipe function f(E::GenericEmbedding)
     if E.dim > 3
