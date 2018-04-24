@@ -14,7 +14,10 @@ refine_variable_k!(t, target_radius)
 ```
 
 """
-@with_kw mutable struct Triangulation <: Partition
+
+abstract type Triangulation <: Partition end
+
+@with_kw mutable struct GenericTriangulation <: Triangulation
     embedding::Embedding = Embedding()
     # The vertices of the triangulation
     points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
@@ -38,7 +41,7 @@ refine_variable_k!(t, target_radius)
 end
 
 
-@with_kw mutable struct LinearlyInvariantTriangulation <: Partition
+@with_kw mutable struct LinearlyInvariantTriangulation <: Triangulation
     embedding::Embedding = Embedding()
     # The vertices of the triangulation
     points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
@@ -115,7 +118,7 @@ function triangulate(E::GenericEmbedding)
     o = orientations(points, simplex_inds)
     o_im = orientations(impoints, simplex_inds)
 
-    Triangulation(
+    GenericTriangulation(
         embedding = E,
         points = points,
         impoints = impoints,
