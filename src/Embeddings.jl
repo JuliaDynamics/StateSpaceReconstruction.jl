@@ -1,7 +1,6 @@
 using Reexport
 @reexport module Embeddings
 
-using Requires
 using Parameters
 using ..TimeSeries: SingleTimeSeries
 using Simplices: Delaunay.delaunayn
