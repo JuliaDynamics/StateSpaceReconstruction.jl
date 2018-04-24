@@ -1,35 +1,8 @@
-"""
-An embedding in which the last point is guaranteed to lie within the convex
-hull of the preceding points.
-
-`points::Array{Float64, 2}`
-    The points furnishing the embedding
-
-`ts::Vector{Vector{Float64}}`
-    The time series used to construct the embedding. One for each column of `embedding`.
-
-`ts_inds::Vector{Int}`
-    Which time series are in which column of `embedding`?
-
-`embedding_lags::Vector{Int}`
-    Embedding lag for each column of `embedding`
-
-`dim::Int`
-    The dimension of the embedding
-"""
-@with_kw struct InvariantEmbedding <: Embedding
-    points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
-    ts::Vector{SingleTimeSeries{Float64}} = Vector{SingleTimeSeries{Float64}}(0)
-    ts_inds::Vector{Int} = Int[]
-    embedding_lags::Vector{Int} = Int[]
-    dim::Int = 0
-end
 
 """
-    is_invariant_under_linearmap(embedding::Embedding)
+    is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
 
-Does the last point of the embedding fall inside the convex hull of the
-preceding points?
+Does the last point lie inside the convex hull of the preceding points?
 """
 function is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
     lastpoint = pts[end, :]
@@ -50,23 +23,27 @@ function is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
     dists_lastpoint_and_centroids = sum((lastpoint_matrix - centroids).^2, 2)
     distdifferences = radii.^2 - dists_lastpoint_and_centroids
 
-    # Find the row indices of the simplices that possibly contain the last point (meaning that
-    # dist(simplex_i, lastpoint) <= radius(simplex), so the circumsphere of the simplex
-    # contains the last point.
-    valid_simplex_indices = find(heaviside0(distdifferences) .* collect(1:size(triangulation[2], 1)))
+    #=
+    Find the row indices of the simplices that possibly contain the last point
+    (meaning that dist(simplex_i, lastpoint) <= radius(simplex), so that the
+    circumsphere of the simplex contains the last point.
+    =#
+    valid_simplex_indices = find(heaviside0(distdifferences) .*
+                              collect(1:size(triangulation[2], 1)))
 
     n_validsimplices = size(valid_simplex_indices, 1)
 
-    # Loop over valid simplices and check whether the corresponding simplex actually
+    # Loop over valid simplices and check whether the corresponding simplex
     # contains the last point.
     i = 1
     lastpoint_contained = false
 
-    # Continue checking if simplices contain the last point until some simplex contains it.
-    # Then the point must necessarily be inside the convex hull of the triangulation formed
-    # by those simplices.
+    #=
+    Continue checking if simplices contain the last point until some simplex
+    contains it. Then the point must necessarily be inside the convex hull of
+    the triangulation formed by those simplices.
+    =#
     while i <= n_validsimplices && !lastpoint_contained
-        # Subsample the valid simplex and compute its orientation
         simplex = pts[simplex_indices[valid_simplex_indices[i], :], :]
         orientation_simplex = det([ones(dim + 1, 1) simplex])
 
@@ -80,15 +57,17 @@ function is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
             j = j + 1
         end
 
-        # If the last convex expansion coefficient is positive, the last point is contained
-        # in the triangulation (because all the previous coefficients must have been nonnegative)
+        #=
+        If the last convex expansion coefficient is positive, the last point is
+        contained in the triangulation (because all the previous coefficients
+        must have been nonnegative)
+        =#
         if beta >= 0
             lastpoint_contained = true
         end
 
         i = i + 1
     end
-    # If the last point is contained in the triangulation, the set is invariant.
     return lastpoint_contained
 end
 
@@ -110,7 +89,7 @@ If `remove_points = false`, incrementally move last point of the embedding
 towards the origin until it lies within the convex hull of all preceding points.
 """
 function invariantize(emb::GenericEmbedding; max_increments = 20)
-   pts = emb.points
+   pts = emb.points[:, :]
    if size(unique(pts, 1)) < size(pts)
       warn("Embedding points are not unique. Returning nothing.")
       return nothing
@@ -123,23 +102,20 @@ function invariantize(emb::GenericEmbedding; max_increments = 20)
    # lies inside the convex hull of the preceding points.
    =#
    embedding_center = sum(pts, 1)/size(pts, 1)
-   lastpoint = pts[end, :]
-   direction = embedding_center.' - lastpoint
+   lastpoint = deepcopy(pts[end, :])
+   dir = embedding_center.' - lastpoint
 
    pts_removed = 0
    is_invariant = false
    percent_moved = 0.0
-
+   dist_reduced = 0
    while !is_invariant && pts_removed <= max_increments
-      pts_removed += 1
-
-      if is_invariant_under_linearmap(pts[1:(size(pts, 1) - pts_removed), :])
+      if is_invariant_under_linearmap(pts)
          is_invariant = true
       else
          percent_moved += 1
-         warn("Moved point $percent_moved % towards origin to fit inside
-               convex hull of previous points")
-         pts[end, :] = lastpoint + direction*(percent_moved / 100)
+         warn("Moved last point $percent_moved % of the distance to convex hull origin.")
+         pts[end, :] = lastpoint + dir*(percent_moved / 100)
       end
    end
 
