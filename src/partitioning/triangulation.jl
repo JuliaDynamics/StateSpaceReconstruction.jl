@@ -126,7 +126,8 @@ function triangulate(E::GenericEmbedding)
         orientations_im = o_im)
 end
 
-triangulate(pts::AbstractArray{Float64, 2}) = triangulate(Embedding(pts))
+triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
+
 
 
 """

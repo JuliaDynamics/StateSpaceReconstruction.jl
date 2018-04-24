@@ -130,6 +130,23 @@ embed(ts::Vector{Vector{Int}}) = embed(
 	[i for i in 1:length(ts)],
 	[0 for i in 1:length(ts)])
 
+"""
+Default embedding of a `npts`-by-`dim` array of points.
+"""
+embed(A::AbstractArray{Float64, 2}) = embed(
+    	[A[:, i] for i = 1:size(A, 2)],
+    	[i for i in 1:size(A, 2)],
+    	[0 for i in 1:size(A, 2)])
+
+embed(A::AbstractArray{Int, 2}) = embed(float.(A))
+
+embed(A::AbstractArray{Float64, 2}, ts_inds::Vector{Int}, embedding_lags::Vector{Int}) =
+    embed([A[:, i] for i = 1:size(A, 2)], ts_inds, embedding_lags)
+
+embed(A::AbstractArray{Int, 2}, ts_inds::Vector{Int}, embedding_lags::Vector{Int}) =
+        embed([float.(A[:, i]) for i = 1:size(A, 2)], ts_inds, embedding_lags)
+
+
 
 include("embedding/invariantize.jl")
 
