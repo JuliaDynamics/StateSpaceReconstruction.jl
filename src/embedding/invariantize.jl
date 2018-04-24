@@ -120,7 +120,7 @@ function invariantize(emb::GenericEmbedding; max_increments = 20)
    end
 
    if is_invariant
-      return InvariantEmbedding(
+      return LinearlyInvariantEmbedding(
             points = pts[1:size(pts, 1), :],
             ts = emb.ts,
             ts_inds = emb.ts_inds,
@@ -129,6 +129,6 @@ function invariantize(emb::GenericEmbedding; max_increments = 20)
          )
    else
       warn("Could not make embedding invariant. Returning nothing.")
-      return InvariantEmbedding()
+      return LinearlyInvariantEmbedding()
    end
 end
