@@ -1,6 +1,7 @@
 using Reexport
 @reexport module Embeddings
 
+using Requires
 using Parameters
 using ..TimeSeries: SingleTimeSeries
 using Simplices: Delaunay.delaunayn
@@ -35,6 +36,34 @@ An embedding of a set of points.
     embedding_lags::Vector{Int} = Int[]
     dim::Int = 0
 end
+
+"""
+An embedding in which the last point is guaranteed to lie within the convex
+hull of the preceding points.
+
+`points::Array{Float64, 2}`
+    The points furnishing the embedding
+
+`ts::Vector{Vector{Float64}}`
+    The time series used to construct the embedding. One for each column of `embedding`.
+
+`ts_inds::Vector{Int}`
+    Which time series are in which column of `embedding`?
+
+`embedding_lags::Vector{Int}`
+    Embedding lag for each column of `embedding`
+
+`dim::Int`
+    The dimension of the embedding
+"""
+@with_kw struct InvariantEmbedding <: Embedding
+    points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
+    ts::Vector{SingleTimeSeries{Float64}} = Vector{SingleTimeSeries{Float64}}(0)
+    ts_inds::Vector{Int} = Int[]
+    embedding_lags::Vector{Int} = Int[]
+    dim::Int = 0
+end
+
 
 
 """
@@ -95,9 +124,37 @@ embed(ts::Vector{Vector{Int}}) = embed(
 include("embedding/invariantize.jl")
 
 
+using RecipesBase
+
+@recipe function f(E::GenericEmbedding)
+    if E.dim > 3
+        warn("Embedding dim > 3, plotting three first axes")
+        pts = E.points[:, 1:3]
+    end
+    pts = E.points
+    X = pts[:, 1]
+    Y = pts[:, 2]
+    Z = pts[:, 3]
+    X, Y, Z
+end
+
+
+@recipe function f(E::InvariantEmbedding)
+    if E.dim > 3
+        warn("Embedding dim > 3, plotting three first axes")
+        pts = E.points[:, 1:3]
+    end
+    pts = E.points
+    X = pts[:, 1]
+    Y = pts[:, 2]
+    Z = pts[:, 3]
+    X, Y, Z
+end
+
 export
     Embedding,
     GenericEmbedding, embed,
-    InvariantEmbedding, invariantize, is_invariant_under_linearmap
+    InvariantEmbedding, invariantize, is_invariant_under_linearmap,
+    plot
 
 end

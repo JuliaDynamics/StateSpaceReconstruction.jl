@@ -4,7 +4,8 @@ using Reexport
 using Parameters
 using ..Embeddings:
 			Embedding,
-			GenericEmbedding
+			GenericEmbedding,
+			InvariantEmbedding
 using GroupSlices:
 			groupslices,
 			firstinds,
