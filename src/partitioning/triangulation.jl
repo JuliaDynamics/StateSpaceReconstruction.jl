@@ -77,3 +77,43 @@ function triangulate(E::Embedding)
 end
 
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(Embedding(pts))
+
+
+"""
+Find the indices of the simplices in the original triangulation that potentially
+intersect with the image simplex with index `image_i`.
+"""
+function maybeintersecting_simplices(t::Triangulation, image_i::Int)
+    inds_potential_simplices = Int[]
+
+    n_simplices = length(t.radii)
+
+    @inbounds for i = 1:n_simplices
+        dist_difference = ((t.centroids_im[image_i] - t.centroids[i]).' *
+                            (t.centroids_im[image_i] - t.centroids[i]) - (t.radii_im[image_i] + t.radii[i])^2)[1]
+        if dist_difference < 0
+            push!(inds_potential_simplices, i)
+        end
+    end
+    return inds_potential_simplices
+end
+
+
+"""
+Find the indices of the image simplices in `t` that potentially intersect with
+the original simplex with index `orig_i`.
+"""
+function maybeintersecting_imsimplices(t::Triangulation, orig_i::Int)
+    inds_potential_simplices = Int[]
+
+    n_simplices = length(t.radii)
+
+    @inbounds for i = 1:n_simplices
+        dist_difference = ((t.centroids[orig_i] - t.centroids_im[i]).' *
+                            (t.centroids[orig_i] - t.centroids_im[i]) - (t.radii[orig_i] + t.radii_im[i])^2)[1]
+        if dist_difference < 0
+            push!(inds_potential_simplices, i)
+        end
+    end
+    return inds_potential_simplices
+end
