@@ -19,6 +19,9 @@ stepsizes::Vector{Float64}
 inds_nonempty_bins::Array{Int, 2}
     Indices of nonempty bins. One bin per row.
 
+positive_measure_bins::Array{Int, 2}
+    Unique rows of inds_nonempty_bins.
+
 first_inds::Vector{Int}
     Row indices of `inds_nonempty_bins` for which the unique rows of `inds_nonempty_bins`
     first appears.
@@ -34,16 +37,17 @@ all_inds::Vector{Int}
     particular bin.
 """
 
-@with_kw struct EquidistantBinning <: Partition
-    dim::Int = 0
-    n_pts::Int = 0
-    bottom::Vector{Float64} = Float64[]
-    top::Vector{Float64} = Float64[]
-    stepsizes::Vector{Float64} = Float64[]
-    inds_nonempty_bins::Array{Int, 2} = Array{Int, 2}(0, 0)
-    first_inds::Vector{Int} = Int[]
-    group_inds::Vector{Vector{Int}} = Vector{Vector{Int}}(0)
-    all_inds::Vector{Int} = Int[]
+struct EquidistantBinning <: Partition
+    dim::Int
+    n_pts::Int
+    bottom::Vector{Float64}
+    top::Vector{Float64}
+    stepsizes::Vector{Float64}
+    inds_nonempty_bins::Array{Int, 2}
+    positive_measure_bins::Array{Int, 2}
+    first_inds::Vector{Int}
+    group_inds::Vector{Vector{Int}}
+    all_inds::Vector{Int}
 end
 
 
@@ -105,18 +109,21 @@ function bin_equidistant(embedding::Embedding, n_bins::Int)
     inds_nonempty_bins = zeros(Int, n_pts, dim)
 
     @inbounds for i = 1:n_pts
-        inds_nonempty_bins[i, :] = ceil((emb[i, :] - bottom) ./ stepsizes)
+        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
     end
 
     first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
     bininfo = EquidistantBinning(
-                dim = dim,
-                n_pts = n_pts,
-                bottom = bottom, top = top, stepsizes = stepsizes,
-                inds_nonempty_bins = inds_nonempty_bins,
-                first_inds = first_inds,
-                group_inds = group_inds,
-                all_inds = all_inds)
+                dim,
+                n_pts,
+                bottom,
+                top,
+                stepsizes,
+                inds_nonempty_bins,
+                unique(inds_nonempty_bins, 1),
+                first_inds,
+                group_inds,
+                all_inds)
 end
 
 bin_equidistant(pts::AbstractArray{Float64, 2}, n_bins::Int) = bin_equidistant(Embedding(pts), b_bins)
