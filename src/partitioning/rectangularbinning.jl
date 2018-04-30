@@ -19,7 +19,7 @@ stepsizes::Vector{Float64}
 inds_nonempty_bins::Array{Int, 2}
     Indices of nonempty bins. One bin per row.
 
-positive_measure_bins::Array{Int, 2}
+unique_nonempty_bins::Array{Int, 2}
     Unique rows of inds_nonempty_bins.
 
 first_inds::Vector{Int}
@@ -44,7 +44,7 @@ struct EquidistantBinning <: Partition
     top::Vector{Float64}
     stepsizes::Vector{Float64}
     inds_nonempty_bins::Array{Int, 2}
-    positive_measure_bins::Array{Int, 2}
+    unique_nonempty_bins::Array{Int, 2}
     first_inds::Vector{Int}
     group_inds::Vector{Vector{Int}}
     all_inds::Vector{Int}
