@@ -126,5 +126,5 @@ function bin_equidistant(embedding::Embedding, n_bins::Int)
                 all_inds)
 end
 
-bin_equidistant(pts::AbstractArray{Float64, 2}, n_bins::Int) = bin_equidistant(Embedding(pts), b_bins)
-bin_equidistant(pts::AbstractArray{Int, 2}, n_bins::Int) = bin_equidistant(float.(pts), b_bins)
+bin_equidistant(pts::AbstractArray{Float64, 2}, n_bins::Int) = bin_equidistant(embed(pts), n_bins)
+bin_equidistant(pts::AbstractArray{Int, 2}, n_bins::Int) = bin_equidistant(float.(pts), n_bins)
