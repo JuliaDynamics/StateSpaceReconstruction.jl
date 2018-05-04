@@ -92,9 +92,14 @@ end
 
 indexin_rows(A1::Array{Int, 2}, A2::Array{Int, 2}) = indexin_rows(float.(A1), float.(A2))
 
-function bin_equidistant(embedding::Embedding, n_bins::Int)
-    emb = embedding.points
-    dim = embedding.dim
+"""
+    bin_equidistant(E::Embedding, n_bins::Int)
+
+Bin an embedding into `n_bins` rectangular, regularly sized boxes.
+"""
+function bin_equidistant(E::Embedding, n_bins::Int)
+    emb = E.points
+    dim = E.dim
     n_pts = size(emb, 1)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
@@ -126,5 +131,115 @@ function bin_equidistant(embedding::Embedding, n_bins::Int)
                 all_inds)
 end
 
-bin_equidistant(pts::AbstractArray{Float64, 2}, n_bins::Int) = bin_equidistant(embed(pts), n_bins)
-bin_equidistant(pts::AbstractArray{Int, 2}, n_bins::Int) = bin_equidistant(float.(pts), n_bins)
+"""
+Bin an `embedding` into rectangular boxes, specifying the bin size along each dimension
+with `stepsizes`.
+"""
+function bin_equidistant(E::GenericEmbedding, stepsizes::Vector{Float64})
+    emb = E.points
+    dim = E.dim
+    n_pts = size(emb, 1)
+
+    bottom = [minimum(emb[:, i]) for i in 1:dim]
+    top = [maximum(emb[:, i]) for i in 1:dim]
+    bottom = bottom - (top - bottom) / 100
+    top = top + (top - bottom) / 100
+
+    # Indices of the bins. The coordinates of each point of the original
+    # embedding are assigned an integer number indicating which bin along
+    # the respective dimension it falls into.
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
+
+    @inbounds for i = 1:n_pts
+        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
+    end
+
+    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
+    bininfo = EquidistantBinning(
+                dim,
+                n_pts,
+                bottom,
+                top,
+                stepsizes,
+                inds_nonempty_bins,
+                unique(inds_nonempty_bins, 1),
+                first_inds,
+                group_inds,
+                all_inds)
+end
+
+"""
+Bin an `embedding` into rectangular boxes with regular lengths, with box dimensions given
+as a fraction (0< `boxsize_frac` < 1) of the data values along the associated coordinate
+axis.
+"""
+function bin_equidistant(E::GenericEmbedding, boxsize_frac::Float64)
+    emb = E.points
+    dim = E.dim
+    n_pts = size(emb, 1)
+
+    bottom = [minimum(emb[:, i]) for i in 1:dim]
+    top = [maximum(emb[:, i]) for i in 1:dim]
+    bottom = bottom - (top - bottom) / 100
+    top = top + (top - bottom) / 100
+    stepsizes = (top - bottom) * boxsize_frac
+
+    # Indices of the bins. The coordinates of each point of the original
+    # embedding are assigned an integer number indicating which bin along
+    # the respective dimension it falls into.
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
+
+    @inbounds for i = 1:n_pts
+        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
+    end
+
+    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
+    bininfo = EquidistantBinning(
+                dim,
+                n_pts,
+                bottom,
+                top,
+                stepsizes,
+                inds_nonempty_bins,
+                unique(inds_nonempty_bins, 1),
+                first_inds,
+                group_inds,
+                all_inds)
+end
+
+"""
+Bin an `embedding` into rectangular boxes, specifying the bin size along each dimension
+with `stepsizes`.
+"""
+function bin_equidistant(E::Embedding, stepsizes::Vector{Float64})
+    emb = E.points
+    dim = E.dim
+    n_pts = size(emb, 1)
+
+    bottom = [minimum(emb[:, i]) for i in 1:dim]
+    top = [maximum(emb[:, i]) for i in 1:dim]
+    bottom = bottom - (top - bottom) / 100
+    top = top + (top - bottom) / 100
+
+    # Indices of the bins. The coordinates of each point of the original
+    # embedding are assigned an integer number indicating which bin along
+    # the respective dimension it falls into.
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
+
+    @inbounds for i = 1:n_pts
+        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
+    end
+
+    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
+    bininfo = EquidistantBinning(
+                dim,
+                n_pts,
+                bottom,
+                top,
+                stepsizes,
+                inds_nonempty_bins,
+                unique(inds_nonempty_bins, 1),
+                first_inds,
+                group_inds,
+                all_inds)
+end
