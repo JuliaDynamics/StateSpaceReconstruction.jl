@@ -111,7 +111,7 @@ function bin_equidistant(E::Embedding, n_bins::Int)
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
+    inds_nonempty_bins = zeros{Int}(n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
@@ -148,7 +148,7 @@ function bin_equidistant(E::GenericEmbedding, stepsizes::Vector{Float64})
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
+    inds_nonempty_bins = zeros{Int}(n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
@@ -187,7 +187,7 @@ function bin_equidistant(E::GenericEmbedding, boxsize_frac::Float64)
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
+    inds_nonempty_bins = zeros{Int}(n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
