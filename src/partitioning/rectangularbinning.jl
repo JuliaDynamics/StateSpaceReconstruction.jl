@@ -75,11 +75,11 @@ function unique_rows_info(embedding)
     first_inds = firstinds(groupslices(embedding, 1))
     group_inds = groupinds(groupslices(embedding, 1))
     all_inds = indexin_rows(embedding, unique(embedding, 1))
-    first_inds, group_inds, Int.(all_inds)
+    first_inds, group_inds, all_inds
 end
 
 function indexin_rows(A1::Array{Float64, 2}, A2::Array{Float64, 2})
-    inds = []
+    inds = Int[]
     for j = 1:size(A1, 1)
         for i = 1:size(A2, 1)
             if all(A1[j, :] .== A2[i, :])
@@ -187,7 +187,7 @@ function bin_equidistant(E::GenericEmbedding, boxsize_frac::Float64)
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros{Int}(n_pts, dim)
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
