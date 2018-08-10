@@ -78,7 +78,7 @@ function unique_rows_info(embedding)
     first_inds, group_inds, all_inds
 end
 
-function indexin_rows(A1::Array{Float64, 2}, A2::Array{Float64, 2})
+function indexin_rows(A1::Array{T, 2}, A2::Array{T, 2}) where {T<:Number}
     inds = Int[]
     for j = 1:size(A1, 1)
         for i = 1:size(A2, 1)
@@ -90,7 +90,6 @@ function indexin_rows(A1::Array{Float64, 2}, A2::Array{Float64, 2})
     return inds
 end
 
-indexin_rows(A1::Array{Int, 2}, A2::Array{Int, 2}) = indexin_rows(float.(A1), float.(A2))
 
 """
     bin_equidistant(E::Embedding, n_bins::Int)
