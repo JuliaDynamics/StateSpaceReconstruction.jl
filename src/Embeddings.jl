@@ -12,6 +12,7 @@ using ..TimeSeries: SingleTimeSeries
 export
     Embedding,
     GenericEmbedding,
+    SimpleEmbedding,
     LinearlyInvariantEmbedding,
     embed,
     invariantize,
@@ -45,6 +46,10 @@ An embedding of a set of points.
     ts_inds::Vector{Int} = Int[]
     embedding_lags::Vector{Int} = Int[]
     dim::Int = 0
+end
+
+struct SimpleEmbedding <: Embedding
+    points::Array{Float64, 2}
 end
 
 """

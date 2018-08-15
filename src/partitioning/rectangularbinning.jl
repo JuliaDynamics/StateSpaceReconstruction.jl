@@ -98,8 +98,7 @@ Bin an embedding into `n_bins` rectangular, regularly sized boxes.
 """
 function bin_equidistant(E::Embedding, n_bins::Int)
     emb = E.points
-    dim = E.dim
-    n_pts = size(emb, 1)
+    n_pts, dim = size(emb, 1), size(emb, 2)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
     top = [maximum(emb[:, i]) for i in 1:dim]
@@ -110,7 +109,7 @@ function bin_equidistant(E::Embedding, n_bins::Int)
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros{Int}(n_pts, dim)
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
@@ -136,8 +135,7 @@ with `stepsizes`.
 """
 function bin_equidistant(E::GenericEmbedding, stepsizes::Vector{Float64})
     emb = E.points
-    dim = E.dim
-    n_pts = size(emb, 1)
+    n_pts, dim = size(emb, 1), size(emb, 2)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
     top = [maximum(emb[:, i]) for i in 1:dim]
@@ -174,8 +172,7 @@ axis.
 """
 function bin_equidistant(E::GenericEmbedding, boxsize_frac::Float64)
     emb = E.points
-    dim = E.dim
-    n_pts = size(emb, 1)
+    n_pts, dim = size(emb, 1), size(emb, 2)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
     top = [maximum(emb[:, i]) for i in 1:dim]
@@ -212,8 +209,7 @@ with `stepsizes`.
 """
 function bin_equidistant(E::Embedding, stepsizes::Vector{Float64})
     emb = E.points
-    dim = E.dim
-    n_pts = size(emb, 1)
+    n_pts, dim = size(emb, 1), size(emb, 2)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
     top = [maximum(emb[:, i]) for i in 1:dim]
@@ -223,7 +219,7 @@ function bin_equidistant(E::Embedding, stepsizes::Vector{Float64})
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros{Int}(n_pts, dim)
+    inds_nonempty_bins = zeros(Int, n_pts, dim)
 
     @inbounds for i = 1:n_pts
         inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)

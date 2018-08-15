@@ -35,6 +35,8 @@ export
 	triangulate,
 	maybeintersecting_simplices,
 
+    unique_rows_info,
+
 	# Rectangular binning
     EquidistantBinning, bin_equidistant
 end
