@@ -149,8 +149,8 @@ function Base.summary(t::T) where {T<:Triangulation}
     npts = size(t.embedding.points, 1)
     nsimplices = size(t.simplex_inds, 1)
     dim = size(t.embedding.points, 2)
-    T = typeof(t.embedding)
-    return "$dim-dimensional $(T) with $nsimplices simplices constructed from a $npts-pt $T"
+    embeddingtype = typeof(t.embedding)
+    return "$dim-dimensional $(T) with $nsimplices simplices constructed from a $npts-pt $embeddingtype"
 end
 
 function matstring(t::T) where {T<:Triangulation}
@@ -163,7 +163,7 @@ function matstring(t::T) where {T<:Triangulation}
     summaries = [join(":"*String(fields_str[i])*summary(getfield(t, fields[i]))*"\n") for i = 1:length(fields_str)] |> join
     infoline = "The following fields are available:\n"
 
-    return summary(t)*"\n"*infoline*summaries
+    return summary(t)*"\n\n"*infoline*summaries
 end
 
 Base.show(io::IO, t::T) where {T<:Triangulation} = println(io, matstring(t))
