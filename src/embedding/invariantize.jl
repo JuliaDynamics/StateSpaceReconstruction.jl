@@ -88,7 +88,7 @@ allowed to remove can be set by providing the named argument `max_point_remove`.
 If `remove_points = false`, incrementally move last point of the embedding
 towards the origin until it lies within the convex hull of all preceding points.
 """
-function invariantize(emb::GenericEmbedding; max_increments = 20, verbose = false)
+function invariantize(emb::T where {T <: Embedding}; max_increments = 20, verbose = false)
    pts = emb.points[:, :]
    if size(unique(pts, 1)) < size(pts)
       warn("Embedding points are not unique. Returning nothing.")

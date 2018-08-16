@@ -1,8 +1,6 @@
 """
 A triangulation of a cloud of embedded points into disjoint simplices.
 
-The triangulation is mutable, so that the following will work:
-
 ```julia
 # Triangulate a set of random points in 3D space.
 t = triangulate(rand(20, 3))
@@ -14,57 +12,73 @@ refine_variable_k!(t, target_radius)
 ```
 
 """
+abstract type AbstractTriangulation <: Partition end
 
-abstract type Triangulation <: Partition end
 
-@with_kw mutable struct GenericTriangulation <: Triangulation
-    embedding::Embedding = Embedding()
-    # The vertices of the triangulation
-    points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
+#embedding(t::AbstractTriangulation) = t.embedding
+#dimension(t::AbstractTriangulation) = dimension(t.embedding)
+#npoints(t::AbstractTriangulation) = npoints(t.embedding)
+#radii(t::AbstractTriangulation) = t.radii
+#volumes(t::AbstractTriangulation) = t.volumes
+#orientations(t::AbstractTriangulation) = t.orientations
 
-    # The image vertices of the triangulation
-    impoints::Array{Float64, 2} = Array{Float64, 2}(0, 0)
+"""
+    `Triangulation <: AbstractTriangulation`
 
-    # Array of indices referencing the vertices furnishing each simplex, expressed both in terms
-    # of the original points and their images under the linear forward map.
-    simplex_inds::Array{Int, 2} = Array{Float64, 2}(0, 0)
-
-    # Some properties of the simplices furnishing the triangulation
-    centroids::Array{Float64, 2} = Array{Float64, 2}(0, 0)
-    radii::Vector{Float64} = Float64[]
-    centroids_im::Array{Float64, 2}  = Array{Float64, 2}(0, 0)
-    radii_im::Vector{Float64} = Float64[]
-    orientations::Vector{Float64} = Float64[]
-    orientations_im::Vector{Float64} = Float64[]
-    volumes::Vector{Float64} = Float64[]
-    volumes_im::Vector{Float64} = Float64[]
+A triangulation type. Has the following fields:
+1. `embedding::Embedding`.
+2. `points::Array{Float64, 2}`. The vertices of the triangulation (a subset of the points
+    of the embedding).
+3. `impoints::Array{Float64, 2}`. The image vertices of the triangulation.
+4. `simplex_inds::Array{Int, 2}`. # Array of indices referencing the vertices furnishing
+    each simplex, expressed both in terms of the original points and their images under
+    the linear forward map.
+5. `centroids::Array{Float64, 2}`. Centroids of the simplices.
+6. `radii::Vector{Float64}`. Radii of the simplices.
+7. `centroids_im::Array{Float64, 2}`. Centroids of the image simplices.
+8. `radii_im::Vector{Float64}`. Radii of the image simplices.
+9. `orientations::Vector{Float64}`. Orientations of the simplices.
+10. `orientations_im::Vector{Float64}`. Orientations of the image simplices.
+11. `volumes::Vector{Float64}`. Volumes of the simplices.
+12. `volumes_im::Vector{Float64}`. Volumes of the image simplices.
+"""
+struct Triangulation <: AbstractTriangulation
+    embedding::Embedding
+    points::Array{Float64, 2}
+    impoints::Array{Float64, 2}
+    simplex_inds::Array{Int, 2}
+    centroids::Array{Float64, 2}
+    centroids_im::Array{Float64, 2}
+    radii::Vector{Float64}
+    radii_im::Vector{Float64}
+    orientations::Vector{Float64}
+    orientations_im::Vector{Float64}
+    volumes::Vector{Float64}
+    volumes_im::Vector{Float64}
 end
 
 
-@with_kw mutable struct LinearlyInvariantTriangulation <: Triangulation
-    embedding::Embedding = Embedding()
-    # The vertices of the triangulation
-    points::Array{Float64, 2} = Array{Float64, 2}(0, 0)
 
-    # The image vertices of the triangulation
-    impoints::Array{Float64, 2} = Array{Float64, 2}(0, 0)
+export dimension, npoints, radii, volumes, orientations
 
-    #=
-    Array of indices referencing the vertices furnishing each simplex,
-    expressed both in terms of the original points and their images under the
-    linear forward map.
-    =#
-    simplex_inds::Array{Int, 2} = Array{Float64, 2}(0, 0)
-
-    # Some properties of the simplices furnishing the triangulation
-    centroids::Array{Float64, 2} = Array{Float64, 2}(0, 0)
-    radii::Vector{Float64} = Float64[]
-    centroids_im::Array{Float64, 2}  = Array{Float64, 2}(0, 0)
-    radii_im::Vector{Float64} = Float64[]
-    orientations::Vector{Float64} = Float64[]
-    orientations_im::Vector{Float64} = Float64[]
-    volumes::Vector{Float64} = Float64[]
-    volumes_im::Vector{Float64} = Float64[]
+"""
+    LinearlyInvariantTriangulation <: Triangulation`
+A triangulation for which we have made sure the point corresponding to the last time
+    index falls within the convex hull of the other points.
+"""
+struct LinearlyInvariantTriangulation <: AbstractTriangulation
+    embedding::Embedding
+    points::Array{Float64, 2}
+    impoints::Array{Float64, 2}
+    simplex_inds::Array{Int, 2}
+    centroids::Array{Float64, 2}
+    centroids_im::Array{Float64, 2}
+    radii::Vector{Float64}
+    radii_im::Vector{Float64}
+    orientations::Vector{Float64}
+    orientations_im::Vector{Float64}
+    volumes::Vector{Float64}
+    volumes_im::Vector{Float64}
 end
 
 
@@ -90,24 +104,21 @@ function triangulate(E::LinearlyInvariantEmbedding)
     o = orientations(points, simplex_inds)
     o_im = orientations(impoints, simplex_inds)
 
-    LinearlyInvariantTriangulation(
-        embedding = E,
-        points = points,
-        impoints = impoints,
-        simplex_inds = simplex_inds,
-        centroids = c,
-        radii = r,
-        volumes = vol,
-        centroids_im = c_im,
-        radii_im = r_im,
-        volumes_im = vol_im,
-        orientations = o,
-        orientations_im = o_im)
+    LinearlyInvariantTriangulation(E,
+        points,
+        impoints,
+        simplex_inds,
+        c,
+        c_im,
+        r,
+        r_im,
+        o,
+        o_im,
+        vol,
+        vol_im)
 end
 
-
-
-function triangulate(E::GenericEmbedding)
+function triangulate(E::Embedding)
     points = E.points[1:end-1, :]
     simplex_inds = delaunay_triang(points)
     impoints = E.points[2:end, :]
@@ -118,24 +129,44 @@ function triangulate(E::GenericEmbedding)
     o = orientations(points, simplex_inds)
     o_im = orientations(impoints, simplex_inds)
 
-    GenericTriangulation(
-        embedding = E,
-        points = points,
-        impoints = impoints,
-        simplex_inds = simplex_inds,
-        centroids = c,
-        radii = r,
-        volumes = vol,
-        centroids_im = c_im,
-        radii_im = r_im,
-        volumes_im = vol_im,
-        orientations = o,
-        orientations_im = o_im)
+    Triangulation(E,
+        points,
+        impoints,
+        simplex_inds,
+        c,
+        c_im,
+        r,
+        r_im,
+        o,
+        o_im,
+        vol,
+        vol_im)
 end
 
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
 
+function Base.summary(t::T) where {T<:Triangulation}
+    npts = size(t.embedding.points, 1)
+    nsimplices = size(t.simplex_inds, 1)
+    dim = size(t.embedding.points, 2)
+    T = typeof(t.embedding)
+    return "$dim-dimensional $(T) with $nsimplices simplices constructed from a $npts-pt $T"
+end
 
+function matstring(t::T) where {T<:Triangulation}
+    fields = fieldnames(t)
+    fields_str = String.(fields)
+    maxlength = maximum([length(str) for str in fields_str]) + 2
+    fields_str = [fields_str[i] *
+                repeat(" ", maxlength - length(fields_str[i])) for i = 1:length(fields_str)]
+
+    summaries = [join(":"*String(fields_str[i])*summary(getfield(t, fields[i]))*"\n") for i = 1:length(fields_str)] |> join
+    infoline = "The following fields are available:\n"
+
+    return summary(t)*"\n"*infoline*summaries
+end
+
+Base.show(io::IO, t::T) where {T<:Triangulation} = println(io, matstring(t))
 
 """
 Find the indices of the simplices in the original triangulation that potentially

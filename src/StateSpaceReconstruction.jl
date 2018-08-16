@@ -13,7 +13,7 @@ include("Partitioning.jl")
 abstract type SSR end
 
 struct GenericSSR
-    embedding::GenericEmbedding
+    embedding::Embedding
     partitions::Vector{Partition}
 end
 

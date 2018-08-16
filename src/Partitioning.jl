@@ -3,9 +3,10 @@ using Reexport
 
 using Parameters
 using ..Embeddings:
+			AbstractEmbedding,
 			Embedding,
-			GenericEmbedding,
-			LinearlyInvariantEmbedding
+			LinearlyInvariantEmbedding,
+			SimpleEmbedding
 using GroupSlices:
 			groupslices,
 			firstinds,
@@ -27,8 +28,8 @@ include("partitioning/triangulation.jl")
 export
     Partition,
 	# Triangulation type and subtypes
-	Triangulation,
-    GenericTriangulation,
+	AbstractTriangulation,
+    Triangulation,
 	LinearlyInvariantTriangulation,
 
 	# Methods that dispatches on Triangulation subtypes
@@ -38,5 +39,10 @@ export
     unique_rows_info,
 
 	# Rectangular binning
-    EquidistantBinning, bin_equidistant
+    EquidistantBinning,
+	bin_equidistant,
+	RectangularBinning,
+	    dimension, npoints, lowerbound, upperbound, stepsizes, indices_nonempty_bins,
+	    unique_nonempty_bins, firstinds, groupinds, allinds
+
 end
