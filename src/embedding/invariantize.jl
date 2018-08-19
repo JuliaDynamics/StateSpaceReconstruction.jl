@@ -1,10 +1,10 @@
 
 """
-    is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
+    invariant_under_forwardlinearmap(pts::AbstractArray{Float64, 2}) -> Bool
 
 Does the last point lie inside the convex hull of the preceding points?
 """
-function is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
+function invariant_under_forwardlinearmap(pts::AbstractArray{Float64, 2})
     lastpoint = pts[end, :]
     dim = size(pts, 2)
 
@@ -71,7 +71,8 @@ function is_invariant_under_linearmap(pts::AbstractArray{Float64, 2})
     return lastpoint_contained
 end
 
-
+invariant_under_forwardlinearmap(E::T) where T<:AbstractEmbedding =
+   invariant_under_forwardlinearmap(E.points)
 
 """
    invariantize_embedding(
@@ -88,7 +89,7 @@ allowed to remove can be set by providing the named argument `max_point_remove`.
 If `remove_points = false`, incrementally move last point of the embedding
 towards the origin until it lies within the convex hull of all preceding points.
 """
-function invariantize(emb::T where {T <: Embedding}; max_increments = 20, verbose = false)
+function invariantize(emb::T; max_increments = 20, verbose = false) where T<:AbstractEmbedding
    pts = emb.points[:, :]
    if size(unique(pts, 1)) < size(pts)
       warn("Embedding points are not unique. Returning nothing.")
@@ -96,9 +97,9 @@ function invariantize(emb::T where {T <: Embedding}; max_increments = 20, verbos
    end
 
    #=
-   # Keep track of the embedding's centerpoint and the original position of the
+   # Keep track of the embedding's center point and the original position of the
    # last point in the embedding, so we can move the last point along a line
-   # from its orinal position towards the embedding's center, until the point
+   # from its original position towards the embedding's center, until the point
    # lies inside the convex hull of the preceding points.
    =#
    embedding_center = sum(pts, 1)/size(pts, 1)
@@ -110,7 +111,7 @@ function invariantize(emb::T where {T <: Embedding}; max_increments = 20, verbos
    percent_moved = 0.0
    dist_reduced = 0
    while !is_invariant && pts_removed <= max_increments
-      if is_invariant_under_linearmap(pts)
+      if invariant_under_forwardlinearmap(pts)
          is_invariant = true
       else
          percent_moved += 1
@@ -123,11 +124,11 @@ function invariantize(emb::T where {T <: Embedding}; max_increments = 20, verbos
 
    if is_invariant
       return LinearlyInvariantEmbedding(
-            points = pts[1:size(pts, 1), :],
-            ts = emb.ts,
-            ts_inds = emb.ts_inds,
-            embedding_lags = emb.embedding_lags,
-            dim = emb.dim
+            pts[1:size(pts, 1), :],
+            emb.which_ts,
+            emb.in_which_pos,
+            emb.at_what_lags,
+            emb.dim
          )
    else
       warn("Could not make embedding invariant. Returning nothing.")

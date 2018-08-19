@@ -39,7 +39,8 @@ export
     unique_rows_info,
 
 	# Rectangular binning
-	RectangularBinning,
+	AbstractRectangularBinning,
+    RectangularBinning,
 	bin_rectangular,
 	    dimension, npoints, lowerbound, upperbound, stepsizes, indices_nonempty_bins,
 	    unique_nonempty_bins, firstinds, groupinds, allinds
