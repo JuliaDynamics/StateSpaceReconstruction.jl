@@ -148,10 +148,10 @@ function unique_rows_info(embedding::Array{Float64, 2})
 end
 
 
-function unique_rows_info(embedding::Array{Int, 2})
-    first_inds = firstinds(groupslices(embedding, 1))
-    group_inds = groupinds(groupslices(embedding, 1))
-    all_inds = indexin_rows(embedding, unique(embedding, 1))
+function unique_rows_info(A::Array{Int, 2})
+    first_inds = firstinds(groupslices(A, 1))
+    group_inds = groupinds(groupslices(A, 1))
+    all_inds = indexin_rows(A, unique(A, 1))
     first_inds, group_inds, all_inds
 end
 
@@ -168,16 +168,84 @@ function indexin_rows(A1::Array{T, 2}, A2::Array{T, 2}) where {T<:Number}
 end
 
 """
+    `bin_rectangular(E::T where T<:Embedding, stepsizes::Vector{Float64}) -> RectangularBinning`
+
+Bin an `embedding` into rectangular boxes, specifying the bin size along each dimension
+with `stepsizes`.
+"""
+function bin_rectangular(E::T, stepsizes::Vector{Float64}) where T<:AbstractEmbedding
+    emb = transpose(E.points)
+    n_pts, dim = size(emb, 2), size(emb, 1)
+
+    bottom = [minimum(emb[:, i]) for i in 1:dim]
+    top = [maximum(emb[:, i]) for i in 1:dim]
+    bottom = bottom - (top - bottom) / 100
+    top = top + (top - bottom) / 100
+
+    # Indices of the bins. The coordinates of each point of the original
+    # embedding are assigned an integer number indicating which bin along
+    # the respective dimension it falls into.
+    inds_nonempty_bins = zeros(Int, dim, n_pts)
+
+    @inbounds for i = 1:n_pts
+        inds_nonempty_bins[:, i] = ceil.(Int, (emb[:, i] .- bottom) ./ stepsizes)
+    end
+
+    slices = groupslices(inds_nonempty_bins, 2)
+    first_inds = firstinds(slices)
+    group_inds = groupinds(slices)
+
+    unique_inds_nonempty_bins = unique(inds_nonempty_bins, 2)
+    all_inds = radical_mad_improvement(inds_nonempty_bins, unique_inds_nonempty_bins)
+
+    RectangularBinning(
+                dim,
+                n_pts,
+                bottom,
+                top,
+                stepsizes,
+                transpose(inds_nonempty_bins),
+                transpose(unique_inds_nonempty_bins),
+                first_inds,
+                group_inds,
+                all_inds)
+end
+
+
+function radical_mad_improvement(A, U)
+    a = [A[:,i] for i in 1:size(A, 2)]
+    u = [U[:,i] for i in 1:size(U, 2)]
+    inds = Int[]
+    npts = length(a)
+    npts_unique = length(u)
+    uvec = Vector{Int}(3)
+    avec = Vector{Int}(3)
+
+    nfound = 0
+    for j = 1:npts
+        for i = 1:npts_unique
+            if a[j] == u[i]
+                nfound += 1
+                #print("""\tUnique point #$i found in pos $j.
+                #        Setting the $nfound-th entry of inds to $i""")
+                push!(inds, i)
+            end
+        end
+    end
+    inds
+end
+
+"""
     bin_rectangular(E::Embedding, n_bins::Int) -> RectangularBinning
 
 Bin an embedding into `n_bins` rectangular, regularly sized boxes.
 """
 function bin_rectangular(E::T, n_bins::Int) where T<:AbstractEmbedding
-    emb = E.points
-    n_pts, dim = size(emb, 1), size(emb, 2)
+    emb = transpose(E.points)
+    n_pts, dim = size(emb, 2), size(emb, 1)
 
-    bottom = [minimum(emb[:, i]) for i in 1:dim]
-    top = [maximum(emb[:, i]) for i in 1:dim]
+    bottom = [minimum(emb[i, :]) for i in 1:dim]
+    top = [maximum(emb[i, :]) for i in 1:dim]
     bottom = bottom - (top - bottom) / 100
     top = top + (top - bottom) / 100
     stepsizes = (top - bottom) / n_bins
@@ -185,25 +253,34 @@ function bin_rectangular(E::T, n_bins::Int) where T<:AbstractEmbedding
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
+    inds_nonempty_bins = zeros(Int, dim, n_pts)
 
     @inbounds for i = 1:n_pts
-        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
+        inds_nonempty_bins[:, i] = ceil.(Int, (emb[:, i] .- bottom) ./ stepsizes)
     end
 
-    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
+    slices = groupslices(inds_nonempty_bins, 2)
+    first_inds = firstinds(slices)
+    group_inds = groupinds(slices)
+
+    unique_inds_nonempty_bins = unique(inds_nonempty_bins, 2)
+    all_inds = radical_mad_improvement(inds_nonempty_bins, unique_inds_nonempty_bins)
+
     bininfo = RectangularBinning(
                 dim,
                 n_pts,
                 bottom,
                 top,
                 stepsizes,
-                inds_nonempty_bins,
-                unique(inds_nonempty_bins, 1),
+                transpose(inds_nonempty_bins),
+                transpose(unique_inds_nonempty_bins),
                 first_inds,
                 group_inds,
                 all_inds)
+
+    return bininfo
 end
+
 
 """
     bin_rectangular(E::Embedding, boxsize_frac::Float64) -> RectangularBinning
@@ -213,8 +290,8 @@ as a fraction (0 < `boxsize_frac` < 1) of the data values along the associated c
 axis.
 """
 function bin_rectangular(E::T, boxsize_frac::Float64) where T<:AbstractEmbedding
-    emb = E.points
-    n_pts, dim = size(emb, 1), size(emb, 2)
+    emb = transpose(E.points)
+    n_pts, dim = size(emb, 2), size(emb, 1)
 
     bottom = [minimum(emb[:, i]) for i in 1:dim]
     top = [maximum(emb[:, i]) for i in 1:dim]
@@ -225,59 +302,27 @@ function bin_rectangular(E::T, boxsize_frac::Float64) where T<:AbstractEmbedding
     # Indices of the bins. The coordinates of each point of the original
     # embedding are assigned an integer number indicating which bin along
     # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
+    inds_nonempty_bins = zeros(Int, dim, n_pts)
 
     @inbounds for i = 1:n_pts
-        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
+        inds_nonempty_bins[:, i] = ceil.(Int, (emb[:, i] .- bottom) ./ stepsizes)
     end
 
-    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
-    bininfo = RectangularBinning(
+    slices = groupslices(inds_nonempty_bins, 2)
+    first_inds = firstinds(slices)
+    group_inds = groupinds(slices)
+
+    unique_inds_nonempty_bins = unique(inds_nonempty_bins, 2)
+    all_inds = radical_mad_improvement(inds_nonempty_bins, unique_inds_nonempty_bins)
+
+    RectangularBinning(
                 dim,
                 n_pts,
                 bottom,
                 top,
                 stepsizes,
-                inds_nonempty_bins,
-                unique(inds_nonempty_bins, 1),
-                first_inds,
-                group_inds,
-                all_inds)
-end
-
-"""
-    `bin_rectangular(E::T where T<:Embedding, stepsizes::Vector{Float64}) -> RectangularBinning`
-
-Bin an `embedding` into rectangular boxes, specifying the bin size along each dimension
-with `stepsizes`.
-"""
-function bin_rectangular(E::T, stepsizes::Vector{Float64}) where T<:AbstractEmbedding
-    emb = E.points
-    n_pts, dim = size(emb, 1), size(emb, 2)
-
-    bottom = [minimum(emb[:, i]) for i in 1:dim]
-    top = [maximum(emb[:, i]) for i in 1:dim]
-    bottom = bottom - (top - bottom) / 100
-    top = top + (top - bottom) / 100
-
-    # Indices of the bins. The coordinates of each point of the original
-    # embedding are assigned an integer number indicating which bin along
-    # the respective dimension it falls into.
-    inds_nonempty_bins = zeros(Int, n_pts, dim)
-
-    @inbounds for i = 1:n_pts
-        inds_nonempty_bins[i, :] = ceil.(Int, (emb[i, :] - bottom) ./ stepsizes)
-    end
-
-    first_inds, group_inds, all_inds = unique_rows_info(inds_nonempty_bins)
-    bininfo = RectangularBinning(
-                dim,
-                n_pts,
-                bottom,
-                top,
-                stepsizes,
-                inds_nonempty_bins,
-                unique(inds_nonempty_bins, 1),
+                transpose(inds_nonempty_bins),
+                transpose(unique_inds_nonempty_bins),
                 first_inds,
                 group_inds,
                 all_inds)
