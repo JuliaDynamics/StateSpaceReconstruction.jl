@@ -1,3 +1,5 @@
+__precompile__(true)
+
 module StateSpaceReconstruction
 
 using Reexport
@@ -8,14 +10,14 @@ include("Embeddings.jl")
 include("Partitioning.jl")
 
 
-dimension(e::T where T<:AbstractEmbedding) = size(e.points, 2)
-npoints(e::T where T<:AbstractEmbedding) = size(e.points, 1)
-points(e::T where T <:AbstractEmbedding) = e.points
-ntimeseries(e::T where T<:AbstractEmbedding) = length(e.which_ts)
-timeseries(e::T where T<:AbstractEmbedding) = e.which_ts
-which_ts(e::T where T<:AbstractEmbedding) = e.which_ts
-in_which_pos(e::T where T<:AbstractEmbedding) = e.in_which_pos
-at_what_lags(e::T where T<:AbstractEmbedding) = e.at_what_lags
+dimension(e::AbstractEmbedding) = size(e.points, 2)
+npoints(e::AbstractEmbedding) = size(e.points, 1)
+points(e::AbstractEmbedding) = e.points
+ntimeseries(e::AbstractEmbedding) = length(e.which_ts)
+timeseries(e::AbstractEmbedding) = e.which_ts
+which_ts(e::AbstractEmbedding) = e.which_ts
+in_which_pos(e::AbstractEmbedding) = e.in_which_pos
+at_what_lags(e::AbstractEmbedding) = e.at_what_lags
 
 
 # There might be many different types of state space reconstructions,

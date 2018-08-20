@@ -67,7 +67,7 @@ A triangulation for which we have made sure the point corresponding to the last 
     index falls within the convex hull of the other points.
 """
 struct LinearlyInvariantTriangulation <: AbstractTriangulation
-    embedding::Embedding
+    embedding::AbstractEmbedding
     points::Array{Float64, 2}
     impoints::Array{Float64, 2}
     simplex_inds::Array{Int, 2}
@@ -118,7 +118,7 @@ function triangulate(E::LinearlyInvariantEmbedding)
         vol_im)
 end
 
-function triangulate(E::Embedding)
+function triangulate(E::AbstractEmbedding)
     points = E.points[1:end-1, :]
     simplex_inds = delaunay_triang(points)
     impoints = E.points[2:end, :]
@@ -145,17 +145,17 @@ end
 
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
 
-function Base.summary(t::T) where {T<:Triangulation}
+function Base.summary(t::T) where {T<:AbstractTriangulation}
     npts = size(t.embedding.points, 1)
     nsimplices = size(t.simplex_inds, 1)
     dim = size(t.embedding.points, 2)
     embeddingtype_tri = typeof(t)
     embeddingtype_emb = typeof(t.embedding)
-    return """$dim-dimensional $(embeddingtype_tri) with $nsimplices simplices constructed from
-            a $npts-pt $embeddingtype_emb"""
+    return """$dim-dimensional $(embeddingtype_tri) with $nsimplices simplices constructed
+            from a $npts-pt $embeddingtype_emb"""
 end
 
-function matstring(t::T) where {T<:Triangulation}
+function matstring(t::T) where {T<:AbstractTriangulation}
     fields = fieldnames(t)
     fields_str = String.(fields)
     maxlength = maximum([length(str) for str in fields_str]) + 2
@@ -168,7 +168,7 @@ function matstring(t::T) where {T<:Triangulation}
     return summary(t)#*"\n\n"*infoline*summaries
 end
 
-Base.show(io::IO, t::T) where {T<:Triangulation} = println(io, matstring(t))
+Base.show(io::IO, t::T) where {T<:AbstractTriangulation} = println(io, matstring(t))
 
 """
 Find the indices of the simplices in the original triangulation that potentially
