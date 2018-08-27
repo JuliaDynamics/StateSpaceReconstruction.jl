@@ -20,10 +20,9 @@ using SimplexSplitting:
 
 abstract type Partition end
 
-
 include("partitioning/rectangularbinning.jl")
 include("partitioning/triangulation.jl")
-include("partitioning/assign_bin_labels.jl")
+include("partitioning/visitation_frequency_marginals.jl")
 
 export
 Partition,
@@ -41,10 +40,10 @@ unique_rows_info,
 # Rectangular binning
 AbstractRectangularBinning,
 RectangularBinning,
-assign_bin_labels,
-bin_rectangular,
 dimension,
-npoints
+npoints,
+assign_bin_labels,
+marginal_visitation_freq
 
 
 end
