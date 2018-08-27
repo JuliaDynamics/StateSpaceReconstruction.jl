@@ -7,9 +7,14 @@
 Given an array of integer tuples (represented as column vectors of the array),
 estimate marginal or joint visitation frequencies. The argument
 `along_which_axes` controls which axes to take the marginal visitation
-frequencies along. Setting `along_which_axes` to a range 1:D, where
+frequencies along.
+
+Setting `along_which_axes` to a range 1:D, where
 D is the dimension of the corresponding state space, corresponds to
 taking the joint visitation frequency.
+
+`npts` is the number of points
+in the embedding, which is used as a normalization factor.
 """
 function marginal_visitation_freq(
         along_which_axes::Union{Vector{Int}, AbstractUnitRange{Int}},

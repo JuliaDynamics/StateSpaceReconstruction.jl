@@ -28,22 +28,36 @@
     end
 end
 
-@testset "Rectangular binning" begin
-    n_pts = 30
-    n_bins = 4
-    E1 = embed([rand(n_pts) for i = 1:3])
-    b1 = bin_rectangular(E1, n_bins) # bin sizes
-    b2 = bin_rectangular(E1, 0.1) # bin sizes as fraction of ranges along each coord. axis
-    b3 = bin_rectangular(E1, [0.1, 0.1, 0.2])
+@testset "Marginal visitation frequency" begin
+    o = rand(100, 3)
+    x, y = o[:, 1], o[:, 2]
+    E = embed([x, y], [2, 2, 1], [1, 0, 0])
+    n_bins = [4, 3, 4]
+    # Which bins get visited by every point of the orbit?
+    visited_bins_inds = assign_bin_labels(E, n_bins)
+    along_which_axes = [1, 2]
+    npts = size(E, 1)
+    m = marginal_visitation_freq(along_which_axes, visited_bins_inds, npts)
 
-    @test typeof(b1) <: RectangularBinning
-    @test typeof(b2) <: RectangularBinning
-    @test typeof(b3) <: RectangularBinning
-
-    E2 = embed([collect(1:10) for i = 1:3])
-    b2 = bin_rectangular(E2, n_pts)
-    @test typeof(b2) <: RectangularBinning
+    @test sum(m) ≈ 1
 end
+
+# @testset "Rectangular binning" begin
+#     n_pts = 30
+#     n_bins = 4
+#     E1 = embed([rand(n_pts) for i = 1:3])
+#     b1 = bin_rectangular(E1, n_bins) # bin sizes
+#     b2 = bin_rectangular(E1, 0.1) # bin sizes as fraction of ranges along each coord. axis
+#     b3 = bin_rectangular(E1, [0.1, 0.1, 0.2])
+#
+#     @test typeof(b1) <: RectangularBinning
+#     @test typeof(b2) <: RectangularBinning
+#     @test typeof(b3) <: RectangularBinning
+#
+#     E2 = embed([collect(1:10) for i = 1:3])
+#     b2 = bin_rectangular(E2, n_pts)
+#     @test typeof(b2) <: RectangularBinning
+# end
 
 @testset "Simplex triangulation" begin
     n_pts = 30
