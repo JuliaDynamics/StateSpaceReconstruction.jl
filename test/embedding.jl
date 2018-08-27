@@ -4,8 +4,8 @@
     E2 = embed(ts, [1, 2, 3], [1, -1, -1])
 
     @test all(E1.points[:, 1:3] .== E2.points)
-    @test typeof(E1) == GenericEmbedding
-    @test typeof(E2) == GenericEmbedding
+    @test typeof(E1) <: AbstractEmbedding
+    @test typeof(E2) <: AbstractEmbedding
 end
 
 
@@ -23,10 +23,10 @@ end
     @test all(E1.points[:, 1:3] .== E2.points)
     @test all(E3.points[:, 1:3] .== E4.points)
 
-    @test typeof(E1) == GenericEmbedding
-    @test typeof(E2) == GenericEmbedding
-    @test typeof(E3) == GenericEmbedding
-    @test typeof(E4) == GenericEmbedding
+    @test typeof(E1) <: AbstractEmbedding
+    @test typeof(E2) <: AbstractEmbedding
+    @test typeof(E3) <: AbstractEmbedding
+    @test typeof(E4) <: AbstractEmbedding
 end
 
 @testset "Invariantizing embeddings" begin
@@ -47,17 +47,17 @@ end
     embedding_lags = [1, 0, -2]
 
     # Vector of vectors
-    @test typeof(embed(u)) == GenericEmbedding
-    @test typeof(embed(v)) == GenericEmbedding
-    @test typeof(embed(u, ts_inds, embedding_lags)) == GenericEmbedding
-    @test typeof(embed(v, ts_inds, embedding_lags)) == GenericEmbedding
+    @test typeof(embed(u)) <: AbstractEmbedding
+    @test typeof(embed(v)) <: AbstractEmbedding
+    @test typeof(embed(u, ts_inds, embedding_lags)) <: AbstractEmbedding
+    @test typeof(embed(v, ts_inds, embedding_lags)) <: AbstractEmbedding
 
     # Arrays
-    @test typeof(embed(A)) == GenericEmbedding
-    @test typeof(embed(A, ts_inds, embedding_lags)) == GenericEmbedding
+    @test typeof(embed(A)) <: AbstractEmbedding
+    @test typeof(embed(A, ts_inds, embedding_lags)) <: AbstractEmbedding
 
-    @test typeof(embed(float.(B))) == GenericEmbedding
-    @test typeof(embed(float.(B), ts_inds, embedding_lags)) == GenericEmbedding
+    @test typeof(embed(float.(B))) <: AbstractEmbedding
+    @test typeof(embed(float.(B), ts_inds, embedding_lags)) <: AbstractEmbedding
 
 end
 

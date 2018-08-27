@@ -52,10 +52,10 @@ end
         E_4D = embed([rand(n_pts) for i = 1:4])
 
         T_3D = triangulate(E_3D)
-        @test typeof(T_3D) == GenericTriangulation
+        @test typeof(T_3D) <: AbstractTriangulation
 
         T_4D = triangulate(E_4D)
-        @test typeof(T_4D) == GenericTriangulation
+        @test typeof(T_4D) <: AbstractTriangulation
     end
 
     @testset "LinearlyInvariantTriangulation" begin

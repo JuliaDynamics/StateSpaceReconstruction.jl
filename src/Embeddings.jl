@@ -1,4 +1,3 @@
-using Reexport
 @reexport module Embeddings
 
 using RecipesBase
@@ -6,28 +5,27 @@ using Parameters
 
 using Simplices: Delaunay.delaunayn
 using SimplexSplitting: centroids_radii2, heaviside0
-
 using ..TimeSeries: SingleTimeSeries
 
-export
-    AbstractEmbedding,
-    Embedding,
-    SimpleEmbedding,
-    LinearlyInvariantEmbedding,
-    embed,
-    invariantize,
-    invariant_under_forwardlinearmap
 
 """ Abstract Embedding type. """
 abstract type AbstractEmbedding end
 
 
-function Base.summary(E::T) where T<:AbstractEmbedding
-    npts = size(E.points, 1)
-    dim = E.dim
-    binningtype = typeof(E)
-    return "$npts-point $dim-dimensional $(binningtype)."
+dimension(E::AbstractEmbedding) = size(e.points, 2)
+npoints(E::AbstractEmbedding) = size(e.points, 1)
+points(E::AbstractEmbedding) = e.points
+ntimeseries(E::AbstractEmbedding) = length(e.which_ts)
+timeseries(E::AbstractEmbedding) = e.which_ts
+which_ts(E::AbstractEmbedding) = e.which_ts
+in_which_pos(E::AbstractEmbedding) = e.in_which_pos
+at_what_lags(E::AbstractEmbedding) = e.at_what_lags
 
+function Base.summary(E::T) where T<:AbstractEmbedding
+    npts = npoints(E)
+    D = dimension(E)
+    binningtype = typeof(E)
+    return "$npts-point $D-dimensional $(binningtype)."
 end
 
 function matstring(E::T) where T<:AbstractEmbedding
@@ -166,8 +164,6 @@ embed(A::AbstractArray{Float64, 2}, in_which_pos::Vector{Int}, at_what_lags::Vec
 embed(A::AbstractArray{Int, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
         embed([float.(A[:, i]) for i = 1:size(A, 2)], in_which_pos, at_what_lags)
 
-export embed
-
 include("embedding/invariantize.jl")
 
 
@@ -185,4 +181,21 @@ include("embedding/invariantize.jl")
 end
 
 
-end
+export
+AbstractEmbedding,
+Embedding,
+SimpleEmbedding,
+LinearlyInvariantEmbedding,
+embed,
+npoints,
+dimension,
+which_ts,
+in_which_pos,
+at_what_lags,
+points,
+ntimeseries,
+timeseries,
+invariantize,
+invariant_under_forwardlinearmap
+
+end #module end
