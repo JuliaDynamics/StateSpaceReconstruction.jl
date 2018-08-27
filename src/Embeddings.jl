@@ -22,8 +22,8 @@ in_which_pos(E::AbstractEmbedding) = e.in_which_pos
 at_what_lags(E::AbstractEmbedding) = e.at_what_lags
 
 function Base.summary(E::T) where T<:AbstractEmbedding
-    npts = npoints(E)
-    D = dimension(E)
+    npts = size(E.points, 1)
+    D = size(E.points, 2)
     binningtype = typeof(E)
     return "$npts-point $D-dimensional $(binningtype)."
 end
