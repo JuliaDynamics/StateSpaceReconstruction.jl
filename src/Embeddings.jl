@@ -11,15 +11,16 @@ using ..TimeSeries: SingleTimeSeries
 """ Abstract Embedding type. """
 abstract type AbstractEmbedding end
 
-
-dimension(E::AbstractEmbedding) = size(e.points, 2)
-npoints(E::AbstractEmbedding) = size(e.points, 1)
-points(E::AbstractEmbedding) = e.points
-ntimeseries(E::AbstractEmbedding) = length(e.which_ts)
-timeseries(E::AbstractEmbedding) = e.which_ts
-which_ts(E::AbstractEmbedding) = e.which_ts
-in_which_pos(E::AbstractEmbedding) = e.in_which_pos
-at_what_lags(E::AbstractEmbedding) = e.at_what_lags
+Base.size(E::AbstractEmbedding, i::Int) = size(E.points, i)
+Base.size(E::AbstractEmbedding) = size(E.points)
+dimension(E::AbstractEmbedding) = size(E.points, 2)
+npoints(E::AbstractEmbedding) = size(E.points, 1)
+points(E::AbstractEmbedding) = E.points
+ntimeseries(E::AbstractEmbedding) = length(E.which_ts)
+timeseries(E::AbstractEmbedding) = E.which_ts
+which_ts(E::AbstractEmbedding) = E.which_ts
+in_which_pos(E::AbstractEmbedding) = E.in_which_pos
+at_what_lags(E::AbstractEmbedding) = E.at_what_lags
 
 function Base.summary(E::T) where T<:AbstractEmbedding
     npts = size(E.points, 1)
@@ -73,7 +74,7 @@ struct LinearlyInvariantEmbedding <: AbstractEmbedding
 end
 
 function Base.summary(E::LinearlyInvariantEmbedding)
-    npts = size(E.points, 1)
+    npts = size(E, 1)
     dim = E.dim
     binningtype = typeof(E)
     return """$npts-point $dim-dimensional $(binningtype).
