@@ -1,5 +1,5 @@
 @testset "Alignment with and without zero-lagged vector matches" begin
-    ts = [SingleTimeSeries(rand(10)) for i = 1:3]
+    ts = [rand(12) for i = 1:3]
     E1 = embed(ts, [1, 2, 3, 3], [1, -1, -1, 0])
     E2 = embed(ts, [1, 2, 3], [1, -1, -1])
 
@@ -30,10 +30,15 @@ end
 end
 
 @testset "Invariantizing embeddings" begin
-    E1 = embed([diff(rand(30)) for i = 1:4], [1, 2, 3, 3], [1, -1, -1, 0])
+    pos = [1, 2, 3, 3]
+    lags = [1, -1, -1, 0]
+    E1 = embed([diff(rand(30)) for i = 1:4], pos, lags)
+    E2 = embed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
     inv_E1 =  invariantize(E1)
+    inv_E2 =  invariantize(E2)
 
-    @test typeof(inv_E1) == LinearlyInvariantEmbedding
+    @test typeof(inv_E1) == LinearlyInvariantEmbedding{Float64}
+    @test typeof(inv_E2) == LinearlyInvariantEmbedding{Int}
 end
 
 

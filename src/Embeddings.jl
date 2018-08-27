@@ -42,7 +42,7 @@ function matstring(E::T) where T<:AbstractEmbedding
     return summary(E)#*"\n\n"*infoline*summaries
 end
 
-Base.show(io::IO, E::T) where {T<:AbstractEmbedding} = println(io, matstring(E))
+Base.show(io::IO, E::AbstractEmbedding) = println(io, matstring(E))
 
 """
 An embedding of a set of points. Has the fields
@@ -53,25 +53,32 @@ An embedding of a set of points. Has the fields
 4. `at_what_lags::Vector{Int}`. Embedding lag for each column of `embedding`
 5. `dim::Int`. The dimension of the embedding
 """
-struct Embedding <: AbstractEmbedding
-    points::Array{Float64, 2}
-    which_ts::Vector{SingleTimeSeries{Float64}}
+struct Embedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
+    which_ts::Vector{Vector{T}}
     in_which_pos::Vector{Int}
     at_what_lags::Vector{Int}
     dim::Int
 end
 
+Embedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    Embedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
+
 """
 An embedding in which the last point is guaranteed to lie within the convex
 hull of the preceding points.
 """
-struct LinearlyInvariantEmbedding <: AbstractEmbedding
-    points::Array{Float64, 2}
-    ts::Vector{SingleTimeSeries{Float64}}
+struct LinearlyInvariantEmbedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
+    ts::Vector{Vector{T}}
     in_which_pos::Vector{Int}
     at_what_lags::Vector{Int}
     dim::Int
 end
+
+LinearlyInvariantEmbedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    LinearlyInvariantEmbedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
+
 
 function Base.summary(E::LinearlyInvariantEmbedding)
     npts = size(E, 1)
@@ -85,40 +92,12 @@ function Base.summary(E::LinearlyInvariantEmbedding)
 end
 
 """ An embedding holding only its points and no information about the embedding itself."""
-struct SimpleEmbedding <: AbstractEmbedding
-    points::Array{Float64, 2}
+struct SimpleEmbedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
 end
 
-function embed(ts::Vector{SingleTimeSeries{Float64}},
-               in_which_pos::Vector{Int},
-               at_what_lags::Vector{Int})
-    dim = length(in_which_pos)
-    minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
-    npts = length(ts[1].ts) - (maxlag + abs(minlag))
-    E = zeros(Float64, npts, dim)
-
-    for i in 1:length(in_which_pos)
-        ts_ind = in_which_pos[i]
-        TS = ts[ts_ind].ts
-        lag = at_what_lags[i]
-
-        if lag > 0
-            E[:, i] = TS[((1 + abs(minlag)) + lag):(end - maxlag) + lag]
-        elseif lag < 0
-            E[:, i] = TS[((1 + abs(minlag)) - abs(lag)):(end - maxlag - abs(lag))]
-        elseif lag == 0
-            E[:, i] = TS[(1 + abs(minlag)):(end - maxlag)]
-        end
-    end
-
-    Embedding(E, ts, in_which_pos, at_what_lags, dim)
-end
-
-embed(ts::Vector{Vector{T}} where T<:Number) = embed(
-    	[SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)],
-    	[i for i in 1:length(ts)],
-    	[0 for i in 1:length(ts)]
-)
+SimpleEmbedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    SimpleEmbedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
 
 """
 	embed(ts::Vector{Vector{T}},
@@ -147,24 +126,51 @@ Embed a set of vectors.
         `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
         lag in the second column is 0 and the lag in the third column is -1.
 """
-embed(ts::Vector{Vector{T}} where T<:Number, in_which_pos::Vector{Int}, at_what_lags::Vector{Int} where T<:Real) =
-    embed([SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)], in_which_pos, at_what_lags)
+function embed(ts::Vector{Vector{T}},
+               in_which_pos::Vector{Int},
+               at_what_lags::Vector{Int}) where {T<:Number}
+    dim = length(in_which_pos)
+    minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
+    npts = length(ts[1]) - (maxlag + abs(minlag))
+    E = zeros(T, npts, dim)
+
+    for i in 1:length(in_which_pos)
+        ts_ind = in_which_pos[i]
+        TS = ts[ts_ind]
+        lag = at_what_lags[i]
+
+        if lag > 0
+            E[:, i] = TS[((1 + abs(minlag)) + lag):(end - maxlag) + lag]
+        elseif lag < 0
+            E[:, i] = TS[((1 + abs(minlag)) - abs(lag)):(end - maxlag - abs(lag))]
+        elseif lag == 0
+            E[:, i] = TS[(1 + abs(minlag)):(end - maxlag)]
+        end
+    end
+
+    Embedding{T}(E, ts, in_which_pos, at_what_lags, dim)
+end
+
+embed(ts::Vector{Vector{T}}) where {T<:Number} = embed(
+    	[ts[i] for i = 1:length(ts)],
+    	[i for i in 1:length(ts)],
+    	[0 for i in 1:length(ts)]
+)
+
 
 """
 Default embedding of a `npts`-by-`dim` array of points.
 """
-embed(A::AbstractArray{Float64, 2}) = embed(
+embed(A::AbstractArray{T, 2}) where T <: Number = embed(
     	[A[:, i] for i = 1:size(A, 2)],
     	[i for i in 1:size(A, 2)],
     	[0 for i in 1:size(A, 2)])
 
-embed(A::AbstractArray{Int, 2}) = embed(float.(A))
-
-embed(A::AbstractArray{Float64, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
+function embed(A::AbstractArray{T, 2},
+                in_which_pos::Vector{Int},
+                at_what_lags::Vector{Int}) where T <: Number
     embed([A[:, i] for i = 1:size(A, 2)], in_which_pos, at_what_lags)
-
-embed(A::AbstractArray{Int, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
-        embed([float.(A[:, i]) for i = 1:size(A, 2)], in_which_pos, at_what_lags)
+end
 
 include("embedding/invariantize.jl")
 

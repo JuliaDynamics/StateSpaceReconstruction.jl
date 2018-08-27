@@ -195,7 +195,7 @@ end
 Find the indices of the image simplices in `t` that potentially intersect with
 the original simplex with index `orig_i`.
 """
-function maybeintersecting_imsimplices(t::Triangulation, orig_i::Int)
+function maybeintersecting_imsimplices(t::AbstractTriangulation, orig_i::Int)
     inds_potential_simplices = Int[]
 
     n_simplices = length(t.radii)

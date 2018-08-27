@@ -1,10 +1,10 @@
 
 """
-    invariant_under_forwardlinearmap(pts::AbstractArray{Float64, 2}) -> Bool
+   forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number} -> Bool
 
 Does the last point lie inside the convex hull of the preceding points?
 """
-function invariant_under_forwardlinearmap(pts::AbstractArray{Float64, 2})
+function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     lastpoint = pts[end, :]
     dim = size(pts, 2)
 
@@ -71,8 +71,8 @@ function invariant_under_forwardlinearmap(pts::AbstractArray{Float64, 2})
     return lastpoint_contained
 end
 
-invariant_under_forwardlinearmap(E::T) where T<:AbstractEmbedding =
-   invariant_under_forwardlinearmap(E.points)
+forwardlinearmap_invariant(E::T) where T<:AbstractEmbedding =
+   forwardlinearmap_invariant(E.points)
 
 """
    invariantize_embedding(
@@ -89,7 +89,8 @@ allowed to remove can be set by providing the named argument `max_point_remove`.
 If `remove_points = false`, incrementally move last point of the embedding
 towards the origin until it lies within the convex hull of all preceding points.
 """
-function invariantize(emb::T; max_increments = 20, verbose = false) where T<:AbstractEmbedding
+function invariantize(emb::AbstractEmbedding;
+                        max_increments = 20, verbose = false)
    pts = emb.points[:, :]
    if size(unique(pts, 1)) < size(pts)
       warn("Embedding points are not unique. Returning nothing.")
@@ -111,7 +112,7 @@ function invariantize(emb::T; max_increments = 20, verbose = false) where T<:Abs
    percent_moved = 0.0
    dist_reduced = 0
    while !is_invariant && pts_removed <= max_increments
-      if invariant_under_forwardlinearmap(pts)
+      if forwardlinearmap_invariant(pts)
          is_invariant = true
       else
          percent_moved += 1
