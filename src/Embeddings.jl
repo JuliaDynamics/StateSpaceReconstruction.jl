@@ -5,8 +5,6 @@ using Parameters
 
 using Simplices: Delaunay.delaunayn
 using SimplexSplitting: centroids_radii2, heaviside0
-using ..TimeSeries: SingleTimeSeries
-
 
 """ Abstract Embedding type. """
 abstract type AbstractEmbedding end
