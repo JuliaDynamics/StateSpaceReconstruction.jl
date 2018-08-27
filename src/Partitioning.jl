@@ -23,26 +23,28 @@ abstract type Partition end
 
 include("partitioning/rectangularbinning.jl")
 include("partitioning/triangulation.jl")
-
+include("partitioning/assign_bin_labels.jl")
 
 export
-    Partition,
-	# Triangulation type and subtypes
-	AbstractTriangulation,
-    Triangulation,
-	LinearlyInvariantTriangulation,
+Partition,
+# Triangulation type and subtypes
+AbstractTriangulation,
+Triangulation,
+LinearlyInvariantTriangulation,
 
-	# Methods that dispatches on Triangulation subtypes
-	triangulate,
-	maybeintersecting_simplices,
+# Methods that dispatches on Triangulation subtypes
+triangulate,
+maybeintersecting_simplices,
 
-    unique_rows_info,
+unique_rows_info,
 
-	# Rectangular binning
-	AbstractRectangularBinning,
-    RectangularBinning,
-	bin_rectangular,
-	    dimension, npoints, lowerbound, upperbound, stepsizes, indices_nonempty_bins,
-	    unique_nonempty_bins, firstinds, groupinds, allinds
+# Rectangular binning
+AbstractRectangularBinning,
+RectangularBinning,
+assign_bin_labels,
+bin_rectangular,
+dimension,
+npoints
+
 
 end
