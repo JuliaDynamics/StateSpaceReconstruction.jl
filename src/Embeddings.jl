@@ -172,7 +172,7 @@ include("embedding/invariantize.jl")
 
 
 
-@recipe function f(E::Embedding)
+@recipe function f(E::AbstractEmbedding)
     if E.dim > 3
         warn("Embedding dim > 3, plotting three first axes")
         pts = E.points[:, 1:3]
