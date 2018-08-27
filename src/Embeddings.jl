@@ -121,30 +121,31 @@ embed(ts::Vector{Vector{T}} where T<:Number) = embed(
 )
 
 """
-	embed(ts::Vector{SingleTimeSeries{Float64}},
+	embed(ts::Vector{Vector{T}},
 			in_which_pos::Vector{Int},
-			at_what_lags::Vector{Int})
+			at_what_lags::Vector{Int}) where T <: Number
 
 Embed a set of vectors.
 
 ## Arguments
-1. `which_ts::Vector{Vector{Float64}}`. This is a vector containing the time series to embed.
-    - Example: which_ts = [ts1, ts2].
-2. `in_which_pos::Vector{Int}``. The length of in_which_pos gives the dimension of the
-    embedding. The value of the ith element of in_which_pos indicates which time series in
-    the ith column of the embedding.
-    - **Example 1**: if `which_ts = [ts1, ts2]`, then we index ts1 as 1 and ts2 as 2.
-        Setting `in_which_pos = [2, 2, 1]` will result in a 3-dimensional embedding where
-        `ts2` will appear in columns 1 and 2, while `ts1` will appear in column 3.
-    - **Example 2**: If `which_ts = [ts1, ts2, ts3]`, then `in_which_pos = [2,1,2,3,3]`
-        results in a 5-dimensional embedding where `ts1`appears in column 2, `ts2` appears
-        in columns 1 and 3, while `ts3`appears in columns 4 and 5.
-3. `at_what_lags::Vector{Int}` sets the lag in each column. Must be the same length as
-    `which_ts`.
-    - **Example**: if `in_which_pos = [2, 2, 1]`, then  `at_what_lags = [1, 0, -1]` means
-        that the lag in column 1 is 1, the lag in the second column is 0 and the lag in
-        the third column is -1.
-
+1. `which_ts::Vector{Vector{T}} where T <: Number`. Contains the the time
+    series to embed.
+2. `in_which_pos::Vector{Int}``. The length of in_which_pos gives the dimension
+    of the embedding. The value of the ith element of in_which_pos indicates
+    which time series in the ith column of the embedding.
+    - **Example 1**: if `which_ts = [ts1, ts2]`, then we index ts1 as 1 and
+        ts2 as 2. Setting `in_which_pos = [2, 2, 1]` will result in a
+        3-dimensional embedding where `ts2` will appear in columns 1 and 2,
+        while `ts1` will appear in column 3.
+    - **Example 2**: If `which_ts = [ts1, ts2, ts3]`, then
+        `in_which_pos = [2, 1, 2, 3, 3]` results in a 5-dimensional embedding
+        where `ts1`appears in column 2, `ts2` appears in columns 1 and 3, while
+        `ts3`appears in columns 4 and 5.
+3. `at_what_lags::Vector{Int}` sets the lag in each column. Must be the same
+    length as `which_ts`.
+    - **Example**: if `in_which_pos = [2, 2, 1]`, then
+        `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
+        lag in the second column is 0 and the lag in the third column is -1.
 """
 embed(ts::Vector{Vector{T}} where T<:Number, in_which_pos::Vector{Int}, at_what_lags::Vector{Int} where T<:Real) =
     embed([SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)], in_which_pos, at_what_lags)
@@ -166,7 +167,6 @@ embed(A::AbstractArray{Int, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{
         embed([float.(A[:, i]) for i = 1:size(A, 2)], in_which_pos, at_what_lags)
 
 include("embedding/invariantize.jl")
-
 
 
 @recipe function f(E::AbstractEmbedding)
