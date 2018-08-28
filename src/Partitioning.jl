@@ -20,29 +20,30 @@ using SimplexSplitting:
 
 abstract type Partition end
 
-
 include("partitioning/rectangularbinning.jl")
 include("partitioning/triangulation.jl")
-
+include("partitioning/visitation_frequency_marginals.jl")
 
 export
-    Partition,
-	# Triangulation type and subtypes
-	AbstractTriangulation,
-    Triangulation,
-	LinearlyInvariantTriangulation,
+Partition,
+# Triangulation type and subtypes
+AbstractTriangulation,
+Triangulation,
+LinearlyInvariantTriangulation,
 
-	# Methods that dispatches on Triangulation subtypes
-	triangulate,
-	maybeintersecting_simplices,
+# Methods that dispatches on Triangulation subtypes
+triangulate,
+maybeintersecting_simplices,
 
-    unique_rows_info,
+unique_rows_info,
 
-	# Rectangular binning
-	AbstractRectangularBinning,
-    RectangularBinning,
-	bin_rectangular,
-	    dimension, npoints, lowerbound, upperbound, stepsizes, indices_nonempty_bins,
-	    unique_nonempty_bins, firstinds, groupinds, allinds
+# Rectangular binning
+AbstractRectangularBinning,
+RectangularBinning,
+dimension,
+npoints,
+assign_bin_labels,
+marginal_visitation_freq
+
 
 end

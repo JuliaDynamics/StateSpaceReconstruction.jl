@@ -1,4 +1,3 @@
-using Reexport
 @reexport module Embeddings
 
 using RecipesBase
@@ -7,27 +6,25 @@ using Parameters
 using Simplices: Delaunay.delaunayn
 using SimplexSplitting: centroids_radii2, heaviside0
 
-using ..TimeSeries: SingleTimeSeries
-
-export
-    AbstractEmbedding,
-    Embedding,
-    SimpleEmbedding,
-    LinearlyInvariantEmbedding,
-    embed,
-    invariantize,
-    invariant_under_forwardlinearmap
-
 """ Abstract Embedding type. """
 abstract type AbstractEmbedding end
 
+Base.size(E::AbstractEmbedding, i::Int) = size(E.points, i)
+Base.size(E::AbstractEmbedding) = size(E.points)
+dimension(E::AbstractEmbedding) = size(E.points, 2)
+npoints(E::AbstractEmbedding) = size(E.points, 1)
+points(E::AbstractEmbedding) = E.points
+ntimeseries(E::AbstractEmbedding) = length(E.which_ts)
+timeseries(E::AbstractEmbedding) = E.which_ts
+which_ts(E::AbstractEmbedding) = E.which_ts
+in_which_pos(E::AbstractEmbedding) = E.in_which_pos
+at_what_lags(E::AbstractEmbedding) = E.at_what_lags
 
 function Base.summary(E::T) where T<:AbstractEmbedding
     npts = size(E.points, 1)
-    dim = E.dim
+    D = size(E.points, 2)
     binningtype = typeof(E)
-    return "$npts-point $dim-dimensional $(binningtype)."
-
+    return "$npts-point $D-dimensional $(binningtype)."
 end
 
 function matstring(E::T) where T<:AbstractEmbedding
@@ -43,7 +40,7 @@ function matstring(E::T) where T<:AbstractEmbedding
     return summary(E)#*"\n\n"*infoline*summaries
 end
 
-Base.show(io::IO, E::T) where {T<:AbstractEmbedding} = println(io, matstring(E))
+Base.show(io::IO, E::AbstractEmbedding) = println(io, matstring(E))
 
 """
 An embedding of a set of points. Has the fields
@@ -54,28 +51,35 @@ An embedding of a set of points. Has the fields
 4. `at_what_lags::Vector{Int}`. Embedding lag for each column of `embedding`
 5. `dim::Int`. The dimension of the embedding
 """
-struct Embedding <: AbstractEmbedding
-    points::Array{Float64, 2}
-    which_ts::Vector{SingleTimeSeries{Float64}}
+struct Embedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
+    which_ts::Vector{Vector{T}}
     in_which_pos::Vector{Int}
     at_what_lags::Vector{Int}
     dim::Int
 end
+
+Embedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    Embedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
 
 """
 An embedding in which the last point is guaranteed to lie within the convex
 hull of the preceding points.
 """
-struct LinearlyInvariantEmbedding <: AbstractEmbedding
-    points::Array{Float64, 2}
-    ts::Vector{SingleTimeSeries{Float64}}
+struct LinearlyInvariantEmbedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
+    ts::Vector{Vector{T}}
     in_which_pos::Vector{Int}
     at_what_lags::Vector{Int}
     dim::Int
 end
 
+LinearlyInvariantEmbedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    LinearlyInvariantEmbedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
+
+
 function Base.summary(E::LinearlyInvariantEmbedding)
-    npts = size(E.points, 1)
+    npts = size(E, 1)
     dim = E.dim
     binningtype = typeof(E)
     return """$npts-point $dim-dimensional $(binningtype).
@@ -86,21 +90,51 @@ function Base.summary(E::LinearlyInvariantEmbedding)
 end
 
 """ An embedding holding only its points and no information about the embedding itself."""
-struct SimpleEmbedding <: AbstractEmbedding
-    points::Array{Float64, 2}
+struct SimpleEmbedding{T <: Number} <: AbstractEmbedding
+    points::Array{T, 2}
 end
 
-function embed(ts::Vector{SingleTimeSeries{Float64}},
+SimpleEmbedding(pts, which_ts, in_which_pos, at_what_lags, dim) =
+    SimpleEmbedding{T}(pts, which_ts, in_which_pos, at_what_lags, dim)
+
+"""
+	embed(ts::Vector{Vector{T}},
+			in_which_pos::Vector{Int},
+			at_what_lags::Vector{Int}) where T <: Number
+
+Embed a set of vectors.
+
+## Arguments
+1. `which_ts::Vector{Vector{T}} where T <: Number`. Contains the the time
+    series to embed.
+2. `in_which_pos::Vector{Int}``. The length of in_which_pos gives the dimension
+    of the embedding. The value of the ith element of in_which_pos indicates
+    which time series in the ith column of the embedding.
+    - **Example 1**: if `which_ts = [ts1, ts2]`, then we index ts1 as 1 and
+        ts2 as 2. Setting `in_which_pos = [2, 2, 1]` will result in a
+        3-dimensional embedding where `ts2` will appear in columns 1 and 2,
+        while `ts1` will appear in column 3.
+    - **Example 2**: If `which_ts = [ts1, ts2, ts3]`, then
+        `in_which_pos = [2, 1, 2, 3, 3]` results in a 5-dimensional embedding
+        where `ts1`appears in column 2, `ts2` appears in columns 1 and 3, while
+        `ts3`appears in columns 4 and 5.
+3. `at_what_lags::Vector{Int}` sets the lag in each column. Must be the same
+    length as `which_ts`.
+    - **Example**: if `in_which_pos = [2, 2, 1]`, then
+        `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
+        lag in the second column is 0 and the lag in the third column is -1.
+"""
+function embed(ts::Vector{Vector{T}},
                in_which_pos::Vector{Int},
-               at_what_lags::Vector{Int})
+               at_what_lags::Vector{Int}) where {T<:Number}
     dim = length(in_which_pos)
     minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
-    npts = length(ts[1].ts) - (maxlag + abs(minlag))
-    E = zeros(Float64, npts, dim)
+    npts = length(ts[1]) - (maxlag + abs(minlag))
+    E = zeros(T, npts, dim)
 
     for i in 1:length(in_which_pos)
         ts_ind = in_which_pos[i]
-        TS = ts[ts_ind].ts
+        TS = ts[ts_ind]
         lag = at_what_lags[i]
 
         if lag > 0
@@ -112,67 +146,34 @@ function embed(ts::Vector{SingleTimeSeries{Float64}},
         end
     end
 
-    Embedding(E, ts, in_which_pos, at_what_lags, dim)
+    Embedding{T}(E, ts, in_which_pos, at_what_lags, dim)
 end
 
-embed(ts::Vector{Vector{T}} where T<:Number) = embed(
-    	[SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)],
+embed(ts::Vector{Vector{T}}) where {T<:Number} = embed(
+    	[ts[i] for i = 1:length(ts)],
     	[i for i in 1:length(ts)],
     	[0 for i in 1:length(ts)]
 )
 
-"""
-	embed(ts::Vector{SingleTimeSeries{Float64}},
-			in_which_pos::Vector{Int},
-			at_what_lags::Vector{Int})
-
-Embed a set of vectors.
-
-## Arguments
-1. `which_ts::Vector{Vector{Float64}}`. This is a vector containing the time series to embed.
-    - Example: which_ts = [ts1, ts2].
-2. `in_which_pos::Vector{Int}``. The length of in_which_pos gives the dimension of the
-    embedding. The value of the ith element of in_which_pos indicates which time series in
-    the ith column of the embedding.
-    - **Example 1**: if `which_ts = [ts1, ts2]`, then we index ts1 as 1 and ts2 as 2.
-        Setting `in_which_pos = [2, 2, 1]` will result in a 3-dimensional embedding where
-        `ts2` will appear in columns 1 and 2, while `ts1` will appear in column 3.
-    - **Example 2**: If `which_ts = [ts1, ts2, ts3]`, then `in_which_pos = [2,1,2,3,3]`
-        results in a 5-dimensional embedding where `ts1`appears in column 2, `ts2` appears
-        in columns 1 and 3, while `ts3`appears in columns 4 and 5.
-3. `at_what_lags::Vector{Int}` sets the lag in each column. Must be the same length as
-    `which_ts`.
-    - **Example**: if `in_which_pos = [2, 2, 1]`, then  `at_what_lags = [1, 0, -1]` means
-        that the lag in column 1 is 1, the lag in the second column is 0 and the lag in
-        the third column is -1.
-
-"""
-embed(ts::Vector{Vector{T}} where T<:Number, in_which_pos::Vector{Int}, at_what_lags::Vector{Int} where T<:Real) =
-    embed([SingleTimeSeries(float.(ts[i])) for i = 1:length(ts)], in_which_pos, at_what_lags)
 
 """
 Default embedding of a `npts`-by-`dim` array of points.
 """
-embed(A::AbstractArray{Float64, 2}) = embed(
+embed(A::AbstractArray{T, 2}) where T <: Number = embed(
     	[A[:, i] for i = 1:size(A, 2)],
     	[i for i in 1:size(A, 2)],
     	[0 for i in 1:size(A, 2)])
 
-embed(A::AbstractArray{Int, 2}) = embed(float.(A))
-
-embed(A::AbstractArray{Float64, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
+function embed(A::AbstractArray{T, 2},
+                in_which_pos::Vector{Int},
+                at_what_lags::Vector{Int}) where T <: Number
     embed([A[:, i] for i = 1:size(A, 2)], in_which_pos, at_what_lags)
-
-embed(A::AbstractArray{Int, 2}, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
-        embed([float.(A[:, i]) for i = 1:size(A, 2)], in_which_pos, at_what_lags)
-
-export embed
+end
 
 include("embedding/invariantize.jl")
 
 
-
-@recipe function f(E::Embedding)
+@recipe function f(E::AbstractEmbedding)
     if E.dim > 3
         warn("Embedding dim > 3, plotting three first axes")
         pts = E.points[:, 1:3]
@@ -185,4 +186,21 @@ include("embedding/invariantize.jl")
 end
 
 
-end
+export
+AbstractEmbedding,
+Embedding,
+SimpleEmbedding,
+LinearlyInvariantEmbedding,
+embed,
+npoints,
+dimension,
+which_ts,
+in_which_pos,
+at_what_lags,
+points,
+ntimeseries,
+timeseries,
+invariantize,
+invariant_under_forwardlinearmap
+
+end #module end

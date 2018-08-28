@@ -145,7 +145,7 @@ end
 
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
 
-function Base.summary(t::T) where {T<:AbstractTriangulation}
+function Base.summary(t::AbstractTriangulation)
     npts = size(t.embedding.points, 1)
     nsimplices = size(t.simplex_inds, 1)
     dim = size(t.embedding.points, 2)
@@ -155,7 +155,7 @@ function Base.summary(t::T) where {T<:AbstractTriangulation}
             from a $npts-pt $embeddingtype_emb"""
 end
 
-function matstring(t::T) where {T<:AbstractTriangulation}
+function matstring(t::AbstractTriangulation)
     fields = fieldnames(t)
     fields_str = String.(fields)
     maxlength = maximum([length(str) for str in fields_str]) + 2
@@ -168,13 +168,13 @@ function matstring(t::T) where {T<:AbstractTriangulation}
     return summary(t)#*"\n\n"*infoline*summaries
 end
 
-Base.show(io::IO, t::T) where {T<:AbstractTriangulation} = println(io, matstring(t))
+Base.show(io::IO, t::AbstractTriangulation) = println(io, matstring(t))
 
 """
 Find the indices of the simplices in the original triangulation that potentially
 intersect with the image simplex with index `image_i`.
 """
-function maybeintersecting_simplices(t::Triangulation, image_i::Int)
+function maybeintersecting_simplices(t::AbstractTriangulation, image_i::Int)
     inds_potential_simplices = Int[]
 
     n_simplices = length(t.radii)
@@ -195,7 +195,7 @@ end
 Find the indices of the image simplices in `t` that potentially intersect with
 the original simplex with index `orig_i`.
 """
-function maybeintersecting_imsimplices(t::Triangulation, orig_i::Int)
+function maybeintersecting_imsimplices(t::AbstractTriangulation, orig_i::Int)
     inds_potential_simplices = Int[]
 
     n_simplices = length(t.radii)
