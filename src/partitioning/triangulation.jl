@@ -155,7 +155,7 @@ function Base.summary(t::AbstractTriangulation)
             from a $npts-pt $embeddingtype_emb"""
 end
 
-function matstring(t::T) where {T<:AbstractTriangulation}
+function matstring(t::AbstractTriangulation)
     fields = fieldnames(t)
     fields_str = String.(fields)
     maxlength = maximum([length(str) for str in fields_str]) + 2
