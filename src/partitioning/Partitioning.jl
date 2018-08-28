@@ -20,9 +20,9 @@ using SimplexSplitting:
 
 abstract type Partition end
 
-include("partitioning/rectangularbinning.jl")
-include("partitioning/triangulation.jl")
-include("partitioning/visitation_frequency_marginals.jl")
+include("rectangularbinning.jl")
+include("triangulation.jl")
+include("visitation_frequency_marginals.jl")
 
 export
 Partition,

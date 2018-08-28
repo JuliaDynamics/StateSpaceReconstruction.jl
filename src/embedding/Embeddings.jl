@@ -170,7 +170,7 @@ function embed(A::AbstractArray{T, 2},
     embed([A[:, i] for i = 1:size(A, 2)], in_which_pos, at_what_lags)
 end
 
-include("embedding/invariantize.jl")
+include("invariantize.jl")
 
 
 @recipe function f(E::AbstractEmbedding)
@@ -201,6 +201,6 @@ points,
 ntimeseries,
 timeseries,
 invariantize,
-invariant_under_forwardlinearmap
+forwardlinearmap_invariant
 
 end #module end

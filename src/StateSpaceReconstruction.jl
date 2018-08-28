@@ -5,7 +5,7 @@ module StateSpaceReconstruction
 using Reexport
 using Parameters
 
-include("Embeddings.jl")
-include("Partitioning.jl")
+include("embedding/Embeddings.jl")
+include("partitioning/Partitioning.jl")
 
 end # module
