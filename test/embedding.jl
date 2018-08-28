@@ -34,8 +34,8 @@ end
     lags = [1, -1, -1, 0]
     E1 = embed([diff(rand(30)) for i = 1:4], pos, lags)
     E2 = embed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
-    inv_E1 =  invariantize(E1)
-    inv_E2 =  invariantize(E2)
+    inv_E1 = invariantize(E1)
+    inv_E2 = invariantize(E2)
 
     @test typeof(inv_E1) == LinearlyInvariantEmbedding{Float64}
     @test typeof(inv_E2) == LinearlyInvariantEmbedding{Int}

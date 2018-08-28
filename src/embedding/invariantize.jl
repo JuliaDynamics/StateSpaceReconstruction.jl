@@ -91,7 +91,7 @@ towards the origin until it lies within the convex hull of all preceding points.
 """
 function invariantize(emb::AbstractEmbedding;
                         max_increments = 20, verbose = false)
-   pts = emb.points[:, :]
+   pts = emb.points
    if size(unique(pts, 1)) < size(pts)
       warn("Embedding points are not unique. Returning nothing.")
       return nothing
@@ -119,7 +119,12 @@ function invariantize(emb::AbstractEmbedding;
          if verbose
             warn("Moved last point $percent_moved % of the distance to convex hull origin.")
          end
-         pts[end, :] = lastpoint + dir*(percent_moved / 100)
+         if isa(pts, Array{Int, 2})
+            pts[end, :] = ceil(Int, lastpoint + dir*(percent_moved / 100))
+         else
+            pts[end, :] = lastpoint + dir*(percent_moved / 100)
+
+         end
       end
    end
 
