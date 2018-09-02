@@ -1,17 +1,25 @@
+
+
 """
-    minima_and_stepsizes(E::AbstractEmbedding, ϵ) -> (Vector{Float}, Vector{Float})
+    minima_and_stepsizes(points, ϵ) -> (Vector{Float}, Vector{Float})
 
-Find the minima along each axis of the embedding,
-and computes appropriate `stepsizes` given an `ϵ`.
+Find the minima along each axis of the embedding, and computes appropriate
+`stepsizes` given `ϵ`, which provide instructions on how to grid the space.
+Assumes each point is a column vector.
+
+Specifically, the binning procedure is controlled by the type of `ϵ`:
+
+1. `ϵ::Int` divides each axis into `ϵ` intervals of the same size.
+2. `ϵ::Float` divides each axis into intervals of size `ϵ`.
+3. `ϵ::Vector{Int}` divides the i-th axis into `ϵᵢ` intervals of the same size.
+4. `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
 """
-function minima_and_stepsizes(E::AbstractEmbedding, ϵ)
-    emb = transpose(E.points)
+function minima_and_stepsizes(points, ϵ)
+    D = size(points, 1)
+    n_pts = size(points, 2)
 
-    D = size(emb, 1) # dimension
-    n_pts = size(emb, 2)
-
-    bottom = [minimum(emb[:, i]) for i in 1:D]
-    top = [maximum(emb[:, i]) for i in 1:D]
+    bottom = [minimum(points[:, i]) for i in 1:D]
+    top = [maximum(points[:, i]) for i in 1:D]
     bottom = bottom - (top - bottom) / 100
     top = top + (top - bottom) / 100
 
@@ -27,6 +35,24 @@ function minima_and_stepsizes(E::AbstractEmbedding, ϵ)
     end
 
     bottom, stepsizes
+end
+
+"""
+    minima_and_stepsizes(E::AbstractEmbedding, ϵ) -> (Vector{Float}, Vector{Float})
+
+Find the minima along each axis of the embedding, and computes appropriate
+`stepsizes` given `ϵ`, which provide instructions on how to grid the space.
+
+Specifically, the binning procedure is controlled by the type of `ϵ`:
+
+1. `ϵ::Int` divides each axis into `ϵ` intervals of the same size.
+2. `ϵ::Float` divides each axis into intervals of size `ϵ`.
+3. `ϵ::Vector{Int}` divides the i-th axis into `ϵᵢ` intervals of the same size.
+4. `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
+
+"""
+function minima_and_stepsizes(E::AbstractEmbedding, ϵ)
+    minima_and_stepsizes(E.points, ϵ)
 end
 
 """
@@ -49,6 +75,42 @@ function assign_integer_bin_label_to_eachpoint!(
     @inbounds for i = 1:npts
         A[:, i] .= floor.(Int, abs.((pts[:, i] .- bottom)) ./ δs)
     end
+end
+
+"""
+     assign_bin_labels(points, ϵ)
+
+Assign bin labels to a set of points, by constructing a rectangular
+grid specified by ϵ. The points are assumed to be provided as an
+array where each point is a column.
+
+The following `ϵ` will work:
+
+* `ϵ::Int` divides each axis into `ϵ` intervals of the same size.
+* `ϵ::Float` divides each axis into intervals of size `ϵ`.
+* `ϵ::Vector{Int}` divides the i-th axis into `ϵᵢ` intervals of the same size.
+* `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
+
+"""
+function assign_bin_labels(points, ϵ)
+    # Find the minima of the embedding and generate step
+    # sizes along each axis
+    bottom, stepsizes = minima_and_stepsizes(points, ϵ)
+
+    # How many points are there in the embedding, and what is its dimension?
+    npts = size(points, 2)
+    D = size(points, 1)
+
+    # Each points of the embedding gets assigned to one bin.
+    # The coordinates of each point of the original embedding are
+    # assigned an integer number indicating which bin along the respective
+    # dimension it falls into.
+    visited_bins_inds = zeros(Int, D, npts)
+    assign_integer_bin_label_to_eachpoint!(
+        visited_bins_inds, points,
+        bottom, stepsizes, npts)
+
+    return visited_bins_inds
 end
 
 """
@@ -83,24 +145,5 @@ in an array where column vectors represent the tuples
 associated to each point.
 """
 function assign_bin_labels(E::AbstractEmbedding, ϵ)
-    pts = transpose(E.points)
-    # Find the minima of the embedding and generate step
-    # sizes along each axis
-    bottom, stepsizes = minima_and_stepsizes(E, ϵ)
-
-    # How many points are there in the embedding, and what is its dimension?
-    npts = size(E.points, 1)
-    D = E.dim
-
-    # Each points of the embedding gets assigned to one bin.
-    # The coordinates of each point of the original embedding are
-    # assigned an integer number indicating which bin along the respective
-    # dimension it falls into.
-    visited_bins_inds = zeros(Int, D, npts)
-
-    assign_integer_bin_label_to_eachpoint!(
-        visited_bins_inds, pts,
-        bottom, stepsizes, npts)
-
-    return visited_bins_inds
+    assign_bin_labels(E.points, ϵ)
 end
