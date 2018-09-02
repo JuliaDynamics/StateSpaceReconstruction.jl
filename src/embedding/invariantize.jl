@@ -92,9 +92,9 @@ towards the origin until it lies within the convex hull of all preceding points.
 function invariantize(emb::AbstractEmbedding;
                         max_increments = 20, verbose = false)
    pts = emb.points
-   if size(unique(pts, 1)) < size(pts)
-      warn("Embedding points are not unique. Returning nothing.")
-      return nothing
+   if size(unique(pts, 1), 2) < size(pts, 2)
+      warn("Embedding points are not unique. Returning unmodified $emb.")
+      return emb
    end
 
    #=

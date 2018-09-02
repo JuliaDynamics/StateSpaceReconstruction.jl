@@ -34,7 +34,7 @@ LinearlyInvariantTriangulation,
 # Methods that dispatches on Triangulation subtypes
 triangulate,
 maybeintersecting_simplices,
-
+maybeintersecting_imsimplices,
 unique_rows_info,
 
 # Rectangular binning
