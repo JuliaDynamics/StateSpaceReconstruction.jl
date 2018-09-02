@@ -1,3 +1,6 @@
+using StaticArrays
+using Simplices.delaunayn
+
 """
 A triangulation of a cloud of embedded points into disjoint simplices.
 
@@ -12,50 +15,27 @@ refine_variable_k!(t, target_radius)
 ```
 
 """
-abstract type AbstractTriangulation <: Partition end
-
-
-#embedding(t::AbstractTriangulation) = t.embedding
-#dimension(t::AbstractTriangulation) = dimension(t.embedding)
-#npoints(t::AbstractTriangulation) = npoints(t.embedding)
-#radii(t::AbstractTriangulation) = t.radii
-#volumes(t::AbstractTriangulation) = t.volumes
-#orientations(t::AbstractTriangulation) = t.orientations
+abstract type AbstractTriangulation{D, N} <: Partition end
 
 """
-    `Triangulation <: AbstractTriangulation`
+    Triangulation{D <:Int, N <:Int}
 
-A triangulation type. Has the following fields:
-1. `embedding::Embedding`.
-2. `points::Array{Float64, 2}`. The vertices of the triangulation (a subset of the points
-    of the embedding).
-3. `impoints::Array{Float64, 2}`. The image vertices of the triangulation.
-4. `simplex_inds::Array{Int, 2}`. # Array of indices referencing the vertices furnishing
-    each simplex, expressed both in terms of the original points and their images under
-    the linear forward map.
-5. `centroids::Array{Float64, 2}`. Centroids of the simplices.
-6. `radii::Vector{Float64}`. Radii of the simplices.
-7. `centroids_im::Array{Float64, 2}`. Centroids of the image simplices.
-8. `radii_im::Vector{Float64}`. Radii of the image simplices.
-9. `orientations::Vector{Float64}`. Orientations of the simplices.
-10. `orientations_im::Vector{Float64}`. Orientations of the image simplices.
-11. `volumes::Vector{Float64}`. Volumes of the simplices.
-12. `volumes_im::Vector{Float64}`. Volumes of the image simplices.
+A triangulation type. D is the dimension of the triangulated space. N = D + 1,
+which equals the number of vertices each simplex in the triangulation has.
 """
-struct Triangulation <: AbstractTriangulation
-    embedding::Embedding
-    points::Array{Float64, 2}
-    impoints::Array{Float64, 2}
-    simplex_inds::Array{Int, 2}
+struct Triangulation{D<:Int, N <:Int} <: AbstractTriangulation{D, N}
+    E::AbstractEmbedding
+    d::DelaunayTriangulation
     centroids::Array{Float64, 2}
-    centroids_im::Array{Float64, 2}
     radii::Vector{Float64}
-    radii_im::Vector{Float64}
     orientations::Vector{Float64}
-    orientations_im::Vector{Float64}
     volumes::Vector{Float64}
-    volumes_im::Vector{Float64}
 end
+
+radii(t::AbstractTriangulation) = t.radii[1:end-1]
+centroids(t::AbstractTriangulation) = t.centroids
+orientations(t::AbstractTriangulation) = t.orientations
+volumes(t::AbstractTriangulation) t.volumes
 
 
 
@@ -66,81 +46,25 @@ export dimension, npoints, radii, volumes, orientations
 A triangulation for which we have made sure the point corresponding to the last time
     index falls within the convex hull of the other points.
 """
-struct LinearlyInvariantTriangulation <: AbstractTriangulation
-    embedding::AbstractEmbedding
+struct LinearlyInvariantTriangulation{D <:Int, N <:Int} <: AbstractTriangulation{D, N}
     points::Array{Float64, 2}
-    impoints::Array{Float64, 2}
-    simplex_inds::Array{Int, 2}
-    centroids::Array{Float64, 2}
-    centroids_im::Array{Float64, 2}
-    radii::Vector{Float64}
-    radii_im::Vector{Float64}
-    orientations::Vector{Float64}
-    orientations_im::Vector{Float64}
-    volumes::Vector{Float64}
-    volumes_im::Vector{Float64}
+    simplex_inds::Array{Int32, 2}
 end
 
-
-"""
-    triangulate(points::Array{Float64, 2})
-
-Triangulate a set of vertices in N dimensions. `points` is an array of vertices,
-where each row of the array is a point.
-"""
-function delaunay_triang(points::Array{Float64, 2})
-    indices = delaunayn(points)
-    return indices
-end
 
 function triangulate(E::LinearlyInvariantEmbedding)
-    points = transpose(E.points[:, 1:end-1])
-    simplex_inds = delaunay_triang(points)
-    impoints = transpose(E.points[:, 2:end])
-    c, r = centroids_radii2(points, simplex_inds)
-    c_im, r_im = centroids_radii2(impoints, simplex_inds)
-    vol = simplex_volumes(points, simplex_inds)
-    vol_im = simplex_volumes(impoints, simplex_inds)
-    o = orientations(points, simplex_inds)
-    o_im = orientations(impoints, simplex_inds)
-
-    LinearlyInvariantTriangulation(E,
-        points,
-        impoints,
-        simplex_inds,
-        c,
-        c_im,
-        r,
-        r_im,
-        o,
-        o_im,
-        vol,
-        vol_im)
+    simplex_inds = delaunay(E)
+    D = length(simplex_inds[1]) - 1; N = D + 1
+    N = D + 1
+    points = E.points[1:end-1, :]
+    LinearlyInvariantTriangulation{D, N}(points, simplex_inds)
 end
 
 function triangulate(E::AbstractEmbedding)
-    points = transpose(E.points[:, 1:end-1])
-    simplex_inds = delaunay_triang(points)
-    impoints = transpose(E.points[:, 2:end])
-    c, r = centroids_radii2(points, simplex_inds)
-    c_im, r_im = centroids_radii2(impoints, simplex_inds)
-    vol = simplex_volumes(points, simplex_inds)
-    vol_im = simplex_volumes(impoints, simplex_inds)
-    o = orientations(points, simplex_inds)
-    o_im = orientations(impoints, simplex_inds)
-
-    Triangulation(E,
-        points,
-        impoints,
-        simplex_inds,
-        c,
-        c_im,
-        r,
-        r_im,
-        o,
-        o_im,
-        vol,
-        vol_im)
+    simplex_inds = delaunayn(E)
+    D = length(simplex_inds[1]) - 1; N = D + 1
+    points = E.points[1:end-1, :]
+    Triangulation{D, N}(points, simplex_inds)
 end
 
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
@@ -229,7 +153,7 @@ function point_representatives(t::AbstractTriangulation)
 
     # Loop over the rows of the simplex_inds array to access all the simplices.
     for i = 1:n_simplices
-        simplex = t.points[t.simplex_inds[i, :], :]
+        simplex = t.points[t.simplex_inds[i], :]
         point_representatives[i, :] = childpoint(simplex)
     end
 

@@ -11,7 +11,9 @@ using GroupSlices:
 			groupslices,
 			firstinds,
 			groupinds
-using Simplices: Delaunay.delaunayn
+using Simplices:
+	Delaunay.delaunayn,
+	childpoint
 using SimplexSplitting:
 			centroids_radii2,
 			simplex_volumes,
@@ -34,6 +36,7 @@ LinearlyInvariantTriangulation,
 # Methods that dispatches on Triangulation subtypes
 triangulate,
 maybeintersecting_simplices,
+point_representatives,
 
 unique_rows_info,
 
