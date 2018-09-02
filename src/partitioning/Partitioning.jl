@@ -36,7 +36,12 @@ LinearlyInvariantTriangulation,
 # Methods that dispatches on Triangulation subtypes
 triangulate,
 maybeintersecting_simplices,
+<<<<<<< HEAD
 maybeintersecting_imsimplices,
+=======
+point_representatives,
+
+>>>>>>> experimental_columnmajor_triangulation
 unique_rows_info,
 
 # Rectangular binning
