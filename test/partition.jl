@@ -1,7 +1,7 @@
 @testset "Assign bin labels" begin
     D = 3
     E = embed([rand(30) for i = 1:D])
-    npts = size(E.points, 1)
+    npts = size(E.points, 2)
 
     @testset "ϵ is an Int" begin
         labels = assign_bin_labels(E::AbstractEmbedding, 10)
@@ -36,7 +36,7 @@ end
     # Which bins get visited by every point of the orbit?
     visited_bins_inds = assign_bin_labels(E, n_bins)
     along_which_axes = [1, 2]
-    npts = size(E, 1)
+    npts = size(E, 2)
     m = marginal_visitation_freq(along_which_axes, visited_bins_inds, npts)
 
     @test sum(m) ≈ 1

@@ -94,9 +94,9 @@ function delaunay_triang(points::Array{Float64, 2})
 end
 
 function triangulate(E::LinearlyInvariantEmbedding)
-    points = E.points[1:end-1, :]
+    points = transpose(E.points[:, 1:end-1])
     simplex_inds = delaunay_triang(points)
-    impoints = E.points[2:end, :]
+    impoints = transpose(E.points[:, 2:end])
     c, r = centroids_radii2(points, simplex_inds)
     c_im, r_im = centroids_radii2(impoints, simplex_inds)
     vol = simplex_volumes(points, simplex_inds)
@@ -119,9 +119,9 @@ function triangulate(E::LinearlyInvariantEmbedding)
 end
 
 function triangulate(E::AbstractEmbedding)
-    points = E.points[1:end-1, :]
+    points = transpose(E.points[:, 1:end-1])
     simplex_inds = delaunay_triang(points)
-    impoints = E.points[2:end, :]
+    impoints = transpose(E.points[:, 2:end])
     c, r = centroids_radii2(points, simplex_inds)
     c_im, r_im = centroids_radii2(impoints, simplex_inds)
     vol = simplex_volumes(points, simplex_inds)
@@ -209,4 +209,29 @@ function maybeintersecting_imsimplices(t::AbstractTriangulation, orig_i::Int)
         end
     end
     return inds_potential_simplices
+end
+
+
+"""
+Draw point representatives from the simplices of a triangulation `t`.
+
+Precedure:
+1) Generate one point per simplex.
+2) Points are generated from the interior or on the boundary of each simplex.
+3) Points are drawn according to a uniform distribution.
+"""
+function point_representatives(t::AbstractTriangulation)
+    dim = size(t.points, 2)
+    n_simplices = size(t.simplex_inds, 1)
+
+    # Pre-allocate array to hold the points
+    point_representatives = zeros(Float64, n_simplices, dim)
+
+    # Loop over the rows of the simplex_inds array to access all the simplices.
+    for i = 1:n_simplices
+        simplex = t.points[t.simplex_inds[i, :], :]
+        point_representatives[i, :] = childpoint(simplex)
+    end
+
+    return point_representatives
 end

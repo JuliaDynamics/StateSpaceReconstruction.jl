@@ -11,7 +11,9 @@ using GroupSlices:
 			groupslices,
 			firstinds,
 			groupinds
-using Simplices: Delaunay.delaunayn
+using Simplices:
+	Delaunay.delaunayn,
+	childpoint
 using SimplexSplitting:
 			centroids_radii2,
 			simplex_volumes,

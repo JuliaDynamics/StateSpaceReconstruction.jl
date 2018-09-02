@@ -1,5 +1,5 @@
 using StateSpaceReconstruction
 using Base.Test
 
-include("embedding.jl")
+include("embedding_colwise.jl")
 include("partition.jl")
