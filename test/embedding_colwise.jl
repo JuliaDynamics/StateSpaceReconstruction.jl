@@ -38,6 +38,25 @@ end
 	tri = delaunaytriang(E1a)
 	@test typeof(inv) <: LinearlyInvariantEmbedding
 	@test typeof(tri) <: DelaunayTriangulation
+end
 
+@testset "Alignment with and without zero-lagged vector matches" begin
+    ts = [rand(12) for i = 1:3]
+    E1 = embed(ts, [1, 2, 3, 3], [1, -1, -1, 0])
+    E2 = embed(ts, [1, 2, 3], [1, -1, -1])
 
+    @test all(E1.points[1:3, :] .== E2.points)
+    @test typeof(E1) <: AbstractEmbedding
+    @test typeof(E2) <: AbstractEmbedding
+end
+
+@testset "Plotting recipes" begin
+    emb = embed([diff(rand(30)) for i = 1:3], [1, 2, 3], [1, 0, -1])
+    emb_invariant = invariantize(emb)
+
+    # Test plot recipes by calling RecipesBase.apply_recipe with empty dict.
+    # It should return a vector of RecipesBase.RecipeData
+    d = Dict{Symbol,Any}()
+    @test typeof(RecipesBase.apply_recipe(d, emb)) == Array{RecipesBase.RecipeData,1}
+    @test typeof(RecipesBase.apply_recipe(d, emb_invariant)) == Array{RecipesBase.RecipeData,1}
 end
