@@ -1,5 +1,4 @@
 
-
 """
     minima_and_stepsizes(points, ϵ) -> (Vector{Float}, Vector{Float})
 
@@ -18,48 +17,35 @@ function minima_and_stepsizes(points, ϵ)
     D = size(points, 1)
     n_pts = size(points, 2)
 
-    bottom = [minimum(points[:, i]) for i in 1:D]
-    top = [maximum(points[:, i]) for i in 1:D]
-    bottom = bottom - (top - bottom) / 100
-    top = top + (top - bottom) / 100
+    axisminima = Vector{Float64}(D)
+    top = Vector{Float64}(D)
+
+    for i = 1:D
+        axisminima[i] = minimum(points[i, :])
+        top[i] = maximum(points[i, :])
+    end
+    axisminima = axisminima - (top - axisminima) / 100
+    top = top + (top - axisminima) / 100
 
     stepsizes = Vector{Float64}(D)
     if typeof(ϵ) <: Float64
-        stepsizes .= (top - bottom) * ϵ
+        stepsizes = [ϵ for i in 1:D]
     elseif typeof(ϵ) == Vector{Float64}
-        stepsizes .= ϵ
+        stepsizes = ϵ
     elseif typeof(ϵ) <: Int
-        stepsizes .= (top - bottom) / ϵ
+        stepsizes = (top - axisminima) / ϵ
     elseif typeof(ϵ) == Vector{Int}
-        stepsizes .= (top - bottom) ./ ϵ
+        stepsizes = (top - axisminima) ./ ϵ
     end
 
-    bottom, stepsizes
-end
-
-"""
-    minima_and_stepsizes(E::AbstractEmbedding, ϵ) -> (Vector{Float}, Vector{Float})
-
-Find the minima along each axis of the embedding, and computes appropriate
-`stepsizes` given `ϵ`, which provide instructions on how to grid the space.
-
-Specifically, the binning procedure is controlled by the type of `ϵ`:
-
-1. `ϵ::Int` divides each axis into `ϵ` intervals of the same size.
-2. `ϵ::Float` divides each axis into intervals of size `ϵ`.
-3. `ϵ::Vector{Int}` divides the i-th axis into `ϵᵢ` intervals of the same size.
-4. `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
-
-"""
-function minima_and_stepsizes(E::AbstractEmbedding, ϵ)
-    minima_and_stepsizes(E.points, ϵ)
+    axisminima, stepsizes
 end
 
 """
     assign_integer_bin_label_to_eachpoint!(
         A::Array{Int, 2},
         embedding_points::Array{Float64, 2},
-        bottom::Vector{Float64},
+        axisminima::Vector{Float64},
         stepsizes::Vector{Float64},
         npts::Int) -> Array{Int, 2}
 
@@ -69,34 +55,37 @@ labels in the preallocated array `A`.
 function assign_integer_bin_label_to_eachpoint!(
             A::Array{Int, 2},
             pts::Array{Float64, 2},
-            bottom::Vector{Float64},
+            axisminima::Vector{Float64},
             δs::Vector{Float64},
             npts::Int)
     @inbounds for i = 1:npts
-        A[:, i] .= floor.(Int, abs.((pts[:, i] .- bottom)) ./ δs)
+        A[:, i] .= floor.(Int, abs(axisminima .- pts[:, i]) ./ δs)
     end
 end
 
 """
-     assign_bin_labels(points, ϵ)
+    assign_bin_labels(points, ϵ)
 
-Assign bin labels to a set of points, by constructing a rectangular
-grid specified by ϵ. The points are assumed to be provided as an
-array where each point is a column.
+Consider a rectangular grid specified by ϵ. Assign bin labels to the provided
+`points` by checking which bins each point fall into. Each points is given a
+label which is an integer encoding of the origin of the bin it falls into.
 
 The following `ϵ` will work:
 
-* `ϵ::Int` divides each axis into `ϵ` intervals of the same size.
-* `ϵ::Float` divides each axis into intervals of size `ϵ`.
-* `ϵ::Vector{Int}` divides the i-th axis into `ϵᵢ` intervals of the same size.
-* `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
+* `ϵ::Int` divide each axis into `ϵ` intervals of the same size.
+* `ϵ::Float` divide each axis into intervals of size `ϵ`.
+* `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
+* `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
 
+The points are assumed to be provided as an array where each point is a column.
 """
 function assign_bin_labels(points, ϵ)
     # Find the minima of the embedding and generate step
     # sizes along each axis
     bottom, stepsizes = minima_and_stepsizes(points, ϵ)
-
+    if typeof(stepsizes) <: Union{Float64, Int}
+        stepsizes = [stepsizes]
+    end
     # How many points are there in the embedding, and what is its dimension?
     npts = size(points, 2)
     D = size(points, 1)

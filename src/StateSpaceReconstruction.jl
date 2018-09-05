@@ -8,9 +8,6 @@ using DynamicalSystems
 using StaticArrays
 
 include("embedding/delaunay_colwise.jl") # include before embedding
-
-
-
 include("embedding/embedding_colwise.jl")
 
 
@@ -35,11 +32,8 @@ function delaunaytriang(E::AbstractEmbedding; noise_factor = 0.01)
     triang = delaunay(transpose(E.points))
     return DelaunayTriangulation(hcat(triang...))
 end
-
-
-include("embedding/invariantize_colwise.jl")
-
 include("partitioning/Partitioning.jl")
+include("embedding/invariantize_colwise.jl")
 
 export delaunaytriang
 end # module
