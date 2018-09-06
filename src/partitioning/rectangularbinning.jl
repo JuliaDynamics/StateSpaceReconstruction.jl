@@ -200,7 +200,7 @@ function assign_coordinate_labels(points, ϵ)
         n_orbit_points
     )
 
-    return bin_origins, stepsizes
+    return bin_origins
 end
 
 """
@@ -245,7 +245,7 @@ function assign_coordinate_labels(visited_bin_inds, points, ϵ)
         n_orbit_points
     )
 
-    return bin_origins, stepsizes
+    return bin_origins
 end
 
 #########################################################
