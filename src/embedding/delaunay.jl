@@ -3,6 +3,7 @@
 import Simplices.Delaunay.delaunay
 using StaticArrays.SVector
 using DynamicalSystemsBase.Dataset
+
 """
     DelaunayTriangulation{D, T}
 
@@ -113,7 +114,7 @@ function delaunay(d::Dataset)
 end
 
 function delaunay(r::Embedding)
-    triang = Dataset(delaunay(Matrix(r.points)))
+    triang = delaunay(r.points))
     DelaunayTriangulation(triang)
 end
 

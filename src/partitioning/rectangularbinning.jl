@@ -59,7 +59,7 @@ function assign_integer_bin_label_to_eachpoint!(
             δs::Vector{Float64},
             npts::Int)
     @inbounds for i = 1:npts
-        A[:, i] .= floor.(Int, abs(axisminima .- pts[:, i]) ./ δs)
+        A[:, i] .= floor.(Int, abs.(axisminima .- pts[:, i]) ./ δs)
     end
 end
 

@@ -391,9 +391,9 @@ end
 
 
 """
-     embed(d::Dataset)
+    embed(d::Dataset)
 
-Returns a state space embedding of the column of `d`.
+Returns an embedding consisting of a zero-lagged, unmodified version of `d`.
 """
 function embed(d::Dataset)
     D = size(d, 2)
@@ -401,11 +401,11 @@ function embed(d::Dataset)
 end
 
 """
-     embed(d::Dataset,
+    embed(d::Dataset,
         in_which_pos::Vector{Int},
         at_what_lags::Vector{Int})
 
-Returns a state space embedding of the column of `d`.
+Returns a state space embedding of the columns of `d`.
 
 ## Arguments
 * `d::Dataset`: The columns of `d` contains the data series to use
