@@ -112,21 +112,21 @@ end
 """
     size(E::AbstractEmbedding) -> (Int, Int)
 
-Get the size of the embedding, which is `(npoints, dim)`.
+Get the size of the embedding, which is `(dim, npoints)`.
 """
-@inline Base.size(r::AbstractEmbedding{D,T}) where {D,T} = (length(r.points), D)
+@inline Base.size(r::AbstractEmbedding{D,T}) where {D,T} = (D, length(r.points))
 @inline Base.size(r::AbstractEmbedding, i) = size(r.points)[i]
 
 tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{Int}}
-@inline Base.getindex(r::AbstractEmbedding, i::Int) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::tps) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::Int, j::tps) = r.points[i, j]
-@inline Base.getindex(r::AbstractEmbedding, i::tps, j::tps) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::Int) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::tps) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::Int, j::tps) = r.points[j, i]
+@inline Base.getindex(r::AbstractEmbedding, i::tps, j::tps) = r.points[j, i]
 @inline Base.getindex(r::AbstractEmbedding, i::Int, j::Colon) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::tps, j::Colon) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Int) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::tps, j::Colon) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Int) = r.points[j, :]
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Colon) = r.points
-@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[j, i]
 
 Base.unique(r::AbstractEmbedding) = Base.unique(r.points)
 Base.unique(r::AbstractEmbedding, i::Int) = Base.unique(r.points, i)
@@ -391,9 +391,9 @@ end
 
 
 """
-     embed(d::Dataset)
+    embed(d::Dataset)
 
-Returns a state space embedding of the column of `d`.
+Returns an embedding consisting of a zero-lagged, unmodified version of `d`.
 """
 function embed(d::Dataset)
     D = size(d, 2)
@@ -401,11 +401,11 @@ function embed(d::Dataset)
 end
 
 """
-     embed(d::Dataset,
+    embed(d::Dataset,
         in_which_pos::Vector{Int},
         at_what_lags::Vector{Int})
 
-Returns a state space embedding of the column of `d`.
+Returns a state space embedding of the columns of `d`.
 
 ## Arguments
 * `d::Dataset`: The columns of `d` contains the data series to use

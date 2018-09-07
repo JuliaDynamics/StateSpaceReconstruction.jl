@@ -2,6 +2,7 @@ using Reexport
 @reexport module Partitioning
 
 using Parameters
+using Plots
 using ..Embeddings:
 			AbstractEmbedding,
 			Embedding,
@@ -46,6 +47,9 @@ RectangularBinning,
 dimension,
 npoints,
 assign_bin_labels,
+assign_coordinate_labels,
+minima_and_stepsizes,
+plot_partition,
 marginal_visitation_freq
 
 
