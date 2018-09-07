@@ -80,15 +80,19 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_bin_labels(points, ϵ)
+    # How many points are there in the embedding, and what is its dimension?
+    D = size(points, 1)
+    npts = size(points, 2)
+
+    if npts <= D
+        error("Number of pts is less than dim=$D. Is every column a point?")
+    end
     # Find the minima of the embedding and generate step
     # sizes along each axis
     bottom, stepsizes = minima_and_stepsizes(points, ϵ)
     if typeof(stepsizes) <: Union{Float64, Int}
         stepsizes = [stepsizes]
     end
-    # How many points are there in the embedding, and what is its dimension?
-    npts = size(points, 2)
-    D = size(points, 1)
 
     # Each points of the embedding gets assigned to one bin.
     # The coordinates of each point of the original embedding are
@@ -183,12 +187,19 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_coordinate_labels(points, ϵ)
+    # How many points are there in the embedding, and what is its dimension?
+    D = size(points, 1)
+    npts = size(points, 2)
+
+    if npts <= D
+        error("Number of pts is less than dim=$D. Is every column a point?")
+    end
+
     # Find the minima of the embedding and generate step
     # sizes along each axis.
     axisminima, stepsizes = minima_and_stepsizes(points, ϵ)
     visited_bin_inds = assign_bin_labels(points, ϵ)
-    dim, npts = size(points, 1), size(points, 2)
-    bin_origins = zeros(Float64, dim, npts)
+    bin_origins = zeros(Float64, D, npts)
 
     n_orbit_points = size(points, 2)
     assign_coordinate_labels_to_eachpoint!(
@@ -202,6 +213,30 @@ function assign_coordinate_labels(points, ϵ)
 
     return bin_origins
 end
+
+
+"""
+    assign_coordinate_labels(E::AbstractEmbedding, ϵ) -> Array{Float64, 2}
+
+Consider a rectangular grid specified by ϵ. Assume the bin labels to the
+provided embedding by checking which bins each point fall into. Each points is
+given a label which is the coordinates of the origin of the bin it falls into.
+
+Together with `ϵ`, the coordinates of the origins of the bins provide
+complete information about a coarse graining that covers all visited
+states in the reconstruction/embedding.
+
+The following `ϵ` will work:
+
+* `ϵ::Int` divide each axis into `ϵ` intervals of the same size.
+* `ϵ::Float` divide each axis into intervals of size `ϵ`.
+* `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
+* `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
+"""
+function assign_coordinate_labels(E::AbstractEmbedding, ϵ)
+    assign_coordinate_labels(E.points, ϵ)
+end
+
 
 """
     assign_coordinate_labels(visited_bin_inds, points, ϵ)  -> Array{Float64, 2}
@@ -229,6 +264,15 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_coordinate_labels(visited_bin_inds, points, ϵ)
+
+    # How many points are there in the embedding, and what is its dimension?
+    D = size(points, 1)
+    npts = size(points, 2)
+
+    if npts <= D
+        error("Number of pts is less than dim=$D. Is every column a point?")
+    end
+
     # Find the minima of the embedding and generate step
     # sizes along each axis.
     axisminima, stepsizes = minima_and_stepsizes(points, ϵ)
@@ -246,6 +290,33 @@ function assign_coordinate_labels(visited_bin_inds, points, ϵ)
     )
 
     return bin_origins
+end
+
+"""
+    assign_coordinate_labels(visited_bin_inds, E::AbstractEmbedding, ϵ)  -> Array{Float64, 2}
+
+Consider a rectangular grid specified by ϵ. Assume that, given `ϵ`,
+integer bin  labels have been assigned to each point and are stored in
+`visited_bin_inds`. This array contains one column of integer bin
+labels each of the points of the embedding.
+
+Here, we return an array of the same size as `visited_bin_inds`. However,
+instead of the labels being integers, they are converted into the
+coordinates of the origin of the corresponding bins.
+
+Together with `ϵ`, the coordinates of the origins of the bins provide
+complete information about a coarse graining that covers all visited
+states of the reconstructed state space.
+
+The following `ϵ` will work:
+
+* `ϵ::Int` divide each axis into `ϵ` intervals of the same size.
+* `ϵ::Float` divide each axis into intervals of size `ϵ`.
+* `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
+* `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
+"""
+function assign_coordinate_labels(visited_bin_inds, E::AbstractEmbedding, ϵ)
+    assign_coordinate_labels(visited_bin_inds, E.points, ϵ)
 end
 
 #########################################################
