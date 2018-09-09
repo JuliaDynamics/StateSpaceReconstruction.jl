@@ -7,8 +7,8 @@ Julia package for state space reconstruction (embedding) and partitioning from t
 
 Another package featuring state space reconstruction capabilities is [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl).
 However, the reconstruction functions in this library does not provide the
-necessary reconstruction flexibility needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). In addition,
-this package provides discretization routines not provided by `DynamicalSystems.jl`.
+necessary reconstruction flexibility needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). Hence, why
+this library exists.
 
 
 ## Features
