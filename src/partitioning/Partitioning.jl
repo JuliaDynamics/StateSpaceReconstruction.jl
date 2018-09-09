@@ -15,13 +15,11 @@ using GroupSlices:
 using Simplices:
 	Delaunay.delaunayn,
 	childpoint
-using SimplexSplitting:
-			centroids_radii2,
-			simplex_volumes,
-			orientations
-
 
 abstract type Partition end
+
+# This functionality should move to Simplices.jl in the future
+include("../misc/simplexoperations.jl")
 
 include("rectangularbinning.jl")
 include("triangulation.jl")
