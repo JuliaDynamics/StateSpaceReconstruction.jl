@@ -529,7 +529,7 @@ end
 function summarise(r::AbstractEmbedding)
     n_dataseries = length(r.embeddingdata.dataseries)
     embedding_type = typeof(r)
-    npts = length(r.points)
+    npts = size(r.points, 2)
     summary = "$embedding_type with $npts points\n"
     return summary #join([summary, matstring(r.points)], "")
 end
@@ -547,12 +547,12 @@ using RecipesBase
 @recipe function f(r::AbstractEmbedding)
     if dimension(r) > 3
         warn("Embedding dim > 3, plotting three first axes")
-        pts = r.points[:, 1:3]
+        pts = r.points[1:3, :]
     end
     pts = r.points
-    X = pts[:, 1]
-    Y = pts[:, 2]
-    Z = pts[:, 3]
+    X = pts[1, :]
+    Y = pts[2, :]
+    Z = pts[3, :]
     X, Y, Z
 end
 
