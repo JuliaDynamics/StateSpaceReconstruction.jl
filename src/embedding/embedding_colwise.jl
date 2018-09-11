@@ -346,36 +346,49 @@ function embed(ts::Vector{Vector{T}}) where {T}
 end
 
 """
-    embed(A::AbstractArray)
+    embed(A::AbstractArray{T, 2}) where T
 
 Returns an embedding of an array, treating each
 column as a dynamical variable. Zero lag is used
 for all the columns.
 """
-function embed(A::AbstractArray{T}) where {T}
-    D = size(A, 2)
-    embed([A[:, i] for i = 1:D],
-            [i for i = 1:D],
-            [0 for i in 1:D])
+function embed(data::AbstractArray{T, 2}) where T
+
+	if size(data, 1) > size(data, 2)
+        info("Treating each row of data as a point")
+        dim = size(data, 2)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        return embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+    else
+        info("Treating each column of data as a point")
+        dim = size(data, 1)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        return embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+	end
 end
 
 """
-    embed(d::AbstractArray{T, 2},
-                    in_which_pos::Vector{Int},
-                    at_what_lags::Vector{Int})
+    embed(data::AbstractArray{T, 2},
+        in_which_pos::Vector{Int},
+        at_what_lags::Vector{Int}) where T
 
 Embedding of data represented by an array. Each
 column of the array must correspond to one data series.
 """
 function embed(data::AbstractArray{T, 2},
-                    in_which_pos::Vector{Int},
-                    at_what_lags::Vector{Int}) where {T}
-    D = size(data, 2)
-    embed(
-        [data[:, i] for i = 1:D],
-        in_which_pos,
-        at_what_lags
-    )
+                in_which_pos::Vector{Int},
+                at_what_lags::Vector{Int}) where T
+    if size(data, 1) > size(data, 2)
+        info("Treating each row as a point")
+        dim = size(data, 2)
+        embed([data[:, i] for i = 1:dim], in_which_pos, at_what_lags)
+    else
+        info("Treating each column of data as a point")
+        dim = size(data, 1)
+        embed([data[i, :] for i = 1:dim], in_which_pos, at_what_lags)
+    end
 end
 
 Embedding(ts::Vector{Vector{T}},
