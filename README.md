@@ -2,12 +2,18 @@
 
 [![Build Status](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl.svg?branch=master)](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl)
 
-Julia package for state space reconstruction (SSR) of time series data.
+Julia package for state space reconstruction (embedding) and partitioning from time series data. This package provides necessary functionality for the
+[CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) package.
+
+Another package featuring state space reconstruction capabilities is [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl).
+However, the reconstruction functions in this library does not provide the
+necessary reconstruction flexibility needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). Hence, why
+this library exists.
+
 
 ## Features
 1. Generic embeddings of time series
 2. SSR discretization (rectangular binning, simplex triangulations)
-3. Refinement of discretized state spaces.
 
 ## Examples
 

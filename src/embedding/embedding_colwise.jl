@@ -112,21 +112,21 @@ end
 """
     size(E::AbstractEmbedding) -> (Int, Int)
 
-Get the size of the embedding, which is `(npoints, dim)`.
+Get the size of the embedding, which is `(dim, npoints)`.
 """
-@inline Base.size(r::AbstractEmbedding{D,T}) where {D,T} = (length(r.points), D)
+@inline Base.size(r::AbstractEmbedding{D,T}) where {D,T} = (D, length(r.points))
 @inline Base.size(r::AbstractEmbedding, i) = size(r.points)[i]
 
 tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{Int}}
-@inline Base.getindex(r::AbstractEmbedding, i::Int) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::tps) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::Int, j::tps) = r.points[i, j]
-@inline Base.getindex(r::AbstractEmbedding, i::tps, j::tps) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::Int) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::tps) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::Int, j::tps) = r.points[j, i]
+@inline Base.getindex(r::AbstractEmbedding, i::tps, j::tps) = r.points[j, i]
 @inline Base.getindex(r::AbstractEmbedding, i::Int, j::Colon) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::tps, j::Colon) = r.points[i]
-@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Int) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::tps, j::Colon) = r.points[:, i]
+@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Int) = r.points[j, :]
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Colon) = r.points
-@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[i, j]
+@inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[j, i]
 
 Base.unique(r::AbstractEmbedding) = Base.unique(r.points)
 Base.unique(r::AbstractEmbedding, i::Int) = Base.unique(r.points, i)
@@ -346,36 +346,49 @@ function embed(ts::Vector{Vector{T}}) where {T}
 end
 
 """
-    embed(A::AbstractArray)
+    embed(A::AbstractArray{T, 2}) where T
 
 Returns an embedding of an array, treating each
 column as a dynamical variable. Zero lag is used
 for all the columns.
 """
-function embed(A::AbstractArray{T}) where {T}
-    D = size(A, 2)
-    embed([A[:, i] for i = 1:D],
-            [i for i = 1:D],
-            [0 for i in 1:D])
+function embed(data::AbstractArray{T, 2}) where T
+
+	if size(data, 1) > size(data, 2)
+        info("Treating each row of data as a point")
+        dim = size(data, 2)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        return embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+    else
+        info("Treating each column of data as a point")
+        dim = size(data, 1)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        return embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+	end
 end
 
 """
-    embed(d::AbstractArray{T, 2},
-                    in_which_pos::Vector{Int},
-                    at_what_lags::Vector{Int})
+    embed(data::AbstractArray{T, 2},
+        in_which_pos::Vector{Int},
+        at_what_lags::Vector{Int}) where T
 
 Embedding of data represented by an array. Each
 column of the array must correspond to one data series.
 """
 function embed(data::AbstractArray{T, 2},
-                    in_which_pos::Vector{Int},
-                    at_what_lags::Vector{Int}) where {T}
-    D = size(data, 2)
-    embed(
-        [data[:, i] for i = 1:D],
-        in_which_pos,
-        at_what_lags
-    )
+                in_which_pos::Vector{Int},
+                at_what_lags::Vector{Int}) where T
+    if size(data, 1) > size(data, 2)
+        info("Treating each row as a point")
+        dim = size(data, 2)
+        embed([data[:, i] for i = 1:dim], in_which_pos, at_what_lags)
+    else
+        info("Treating each column of data as a point")
+        dim = size(data, 1)
+        embed([data[i, :] for i = 1:dim], in_which_pos, at_what_lags)
+    end
 end
 
 Embedding(ts::Vector{Vector{T}},
@@ -391,9 +404,9 @@ end
 
 
 """
-     embed(d::Dataset)
+    embed(d::Dataset)
 
-Returns a state space embedding of the column of `d`.
+Returns an embedding consisting of a zero-lagged, unmodified version of `d`.
 """
 function embed(d::Dataset)
     D = size(d, 2)
@@ -401,11 +414,11 @@ function embed(d::Dataset)
 end
 
 """
-     embed(d::Dataset,
+    embed(d::Dataset,
         in_which_pos::Vector{Int},
         at_what_lags::Vector{Int})
 
-Returns a state space embedding of the column of `d`.
+Returns a state space embedding of the columns of `d`.
 
 ## Arguments
 * `d::Dataset`: The columns of `d` contains the data series to use
@@ -529,7 +542,7 @@ end
 function summarise(r::AbstractEmbedding)
     n_dataseries = length(r.embeddingdata.dataseries)
     embedding_type = typeof(r)
-    npts = length(r.points)
+    npts = size(r.points, 2)
     summary = "$embedding_type with $npts points\n"
     return summary #join([summary, matstring(r.points)], "")
 end
@@ -547,12 +560,12 @@ using RecipesBase
 @recipe function f(r::AbstractEmbedding)
     if dimension(r) > 3
         warn("Embedding dim > 3, plotting three first axes")
-        pts = r.points[:, 1:3]
+        pts = r.points[1:3, :]
     end
     pts = r.points
-    X = pts[:, 1]
-    Y = pts[:, 2]
-    Z = pts[:, 3]
+    X = pts[1, :]
+    Y = pts[2, :]
+    Z = pts[3, :]
     X, Y, Z
 end
 
