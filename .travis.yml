@@ -27,6 +27,9 @@ git:
 
 ## uncomment the following lines to override the default test script
 script:
+  - julia -e 'Pkg.add("PyCall")'
+  - julia -e 'ENV["PYTHON"] = ""; Pkg.build("PyCall")'
+  - julia -e 'using Conda; Conda.add("scipy")'
   - julia -e 'Pkg.clone(pwd()); Pkg.build("StateSpaceReconstruction"); Pkg.test("StateSpaceReconstruction"; coverage=true)'
 after_success:
   # push coverage results to Coveralls
