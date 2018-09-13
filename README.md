@@ -2,13 +2,18 @@
 
 [![Build Status](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl.svg?branch=master)](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl)
 
-Julia package for state space reconstruction (embedding) and partitioning from time series data. This package provides necessary functionality for the
-[CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) package.
+Julia package for state space reconstruction and partitioning. This package provides necessary functionality for the [PerronFrobenius.jl](https://github.com/kahaaga/PerronFrobenius.jl),
+[TransferEntropy.jl](https://github.com/kahaaga/TransferEntropy.jl) and
+[CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) packages.
 
 Another package featuring state space reconstruction capabilities is [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl).
-However, the reconstruction functions in this library does not provide the
-necessary reconstruction flexibility needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). Hence, why
-this library exists.
+Although [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl)
+works seamlessly with `Dataset` instances from [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl),
+the [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) package
+has more specific needs than provided in [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl). In
+particular, full reconstruction flexibility, and partitioning tools for
+rectangular and simplex partitions, are needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). Hence,
+the existence of this library.
 
 
 ## Features
