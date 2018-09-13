@@ -23,7 +23,7 @@ include("../misc/simplexoperations.jl")
 
 include("rectangularbinning.jl")
 include("triangulation.jl")
-include("visitation_frequency_marginals.jl")
+include("marginal_visitation_frequency.jl")
 
 export
 Partition,
