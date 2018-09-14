@@ -7,7 +7,8 @@ the point cloud.
 ## Example
 
 ```@repl simplex1
-using StateSpaceReconstruction, Plots; pgfplots();
+using StateSpaceReconstruction
+using Plots
 ```
 
 Create a set of random points (just a few, so it doesn't take forever to plot
@@ -19,5 +20,8 @@ tri = delaunaytriang(E)
 ```
 
 ```@repl simplex1
-plot_triang(E, tri, vertices = true)
+plot_triang(E, tri, vertices = true);
+savefig("triang.svg"); nothing # hide
 ```
+
+![](triang.svg)

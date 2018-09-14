@@ -8,6 +8,9 @@ Marginal visitation frequencies may also be computed directly from the partition
 in question. Here, `visited_bins` is the output of either [`assign_bin_labels`](@ref) or
 [`assign_coordinate_labels`](@ref).
 
+In both cases, visitation frequencies are calculated by counting the number
+of points falling in each bin (i.e. the multiplicity of the bin),
+then normalizing by the total number of points.
 
 ```@docs
 marginal_visitation_freq
@@ -28,8 +31,12 @@ bar(jointvisitfreq, size = (400, 500)); # hide
 ```@repl marginal
 using StateSpaceReconstruction
 using Plots; pyplot()
+pts = rand(5, 300) # hide
+ϵ = 7 # hide
+marginal_visitation_freq(1, pts, ϵ); # hide
 ```
 
+## Marginals for one variable at a time
 Let's create a 5D dataset of 600 points and compute the marginals for each individual coordinate axis,
 given a partition where each axis is divided into 7 equal-length intervals.
 
@@ -45,7 +52,9 @@ savefig("marginalindividual.svg"); nothing # hide
 
 ![](marginalindividual.svg)
 
-We can also compute the marginals of multiple variables. For this example, choose variables `1:2`, `2:3` and `[3, 5]`.
+## Marginals for multiple variables
+We can also compute the marginals of multiple variables. For this example,
+choose variables `1:2`, `2:3` and `[3, 5]`.
 
 ```@repl marginal
 pts = rand(5, 600)
@@ -59,6 +68,7 @@ savefig("marginalmultiple.svg"); nothing # hide
 
 ![](marginalmultiple.svg)
 
+## Joint visitation frequency
 Computing the marginals for all available variables corresponds to computing the joint visitation frequency.
 
 ```@repl marginal
@@ -66,8 +76,12 @@ pts = rand(5, 1000)
 ϵ = 2
 jointvisitfreq = marginal_visitation_freq(1:5, pts, ϵ)
 
-bar(jointvisitfreq, size = (400, 500));
+bar(jointvisitfreq, size = (400, 500), legend = false)
+xlabel!("State #"); ylabel!("Visitation frequency");
 savefig("jointvisit.svg"); nothing # hide
 ```
 
 ![](jointvisit.svg)
+
+
+The plot above shows the visitation frequency over the visited bins.

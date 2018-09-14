@@ -1,6 +1,5 @@
 """
-    marginal_visitation_freq(
-        along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+    marginal_visitation_freq(along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
         visited_bins::Array{T, 2}) where T
 
 
@@ -95,6 +94,32 @@ function marginal_visitation_freq(
     N = size(points, 1)
     visited_bins = assign_bin_labels(points, ϵ)
     marginal_visitation_freq(along_which_axes, visited_bins)
+end
+
+"""
+    marginal_visitation_freq(
+        along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+        E::AbstractEmbedding,
+        ϵ)
+
+Compute marginal visitation frequencies for an embedding, given a partition
+scheme `ϵ`. The following `ϵ` will work:
+
+* `ϵ::Int` divide each axis into `ϵ` intervals of the same size.
+* `ϵ::Float` divide each axis into intervals of size `ϵ`.
+* `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
+* `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
+
+
+The argument `along_which_axes` controls which axes to take the marginal
+visitation frequencies along. Setting `along_which_axes` to a range 1:D,
+where D is the dimension of the corresponding state space, corresponds to
+taking the joint visitation frequency.
+"""
+function marginal_visitation_freq(
+            along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+            E::AbstractEmbedding, ϵ)
+    marginal_visitation_freq(along_which_axes, E.points, ϵ)
 end
 
 marginal_visitfreq = marginal_visitation_freq
