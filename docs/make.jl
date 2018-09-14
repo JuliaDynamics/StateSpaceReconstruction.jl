@@ -30,7 +30,7 @@ makedocs(
 )
 
 deploydocs(
-    Deps.pip("pygments", "mkdocs", "python-markdown-math")
+    Deps.pip("pygments", "mkdocs", "python-markdown-math"),
     repo   = "github.com/kahaaga/StateSpaceReconstruction.jl.git",
     julia  = "0.6",
     target = "build",
