@@ -15,7 +15,7 @@ marginal_visitation_freq
 
 ```@setup marginal
 using StateSpaceReconstruction
-using Plots; gr()
+using Plots; pyplot()
 pts = rand(5, 60)
 ϵ = 6
 jointvisitfreq = marginal_visitation_freq(1:5, pts, ϵ)
@@ -27,7 +27,7 @@ bar(jointvisitfreq, size = (400, 500)); # hide
 
 ```@repl marginal
 using StateSpaceReconstruction
-using Plots; gr()
+using Plots; pyplot()
 ```
 
 Let's create a 5D dataset of 600 points and compute the marginals for each individual coordinate axis,
@@ -62,8 +62,8 @@ savefig("marginalmultiple.svg"); nothing # hide
 Computing the marginals for all available variables corresponds to computing the joint visitation frequency.
 
 ```@repl marginal
-pts = rand(5, 600)
-ϵ = 6
+pts = rand(5, 1000)
+ϵ = 2
 jointvisitfreq = marginal_visitation_freq(1:5, pts, ϵ)
 
 bar(jointvisitfreq, size = (400, 500));
