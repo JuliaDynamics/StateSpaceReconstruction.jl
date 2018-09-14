@@ -36,8 +36,7 @@ end
     # Which bins get visited by every point of the orbit?
     visited_bins_inds = assign_bin_labels(E, n_bins)
     along_which_axes = [1, 2]
-    npts = size(E, 2)
-    m = marginal_visitation_freq(along_which_axes, visited_bins_inds, npts)
+    m = marginal_visitation_freq(along_which_axes, visited_bins_inds)
 
     @test sum(m) ≈ 1
 end
