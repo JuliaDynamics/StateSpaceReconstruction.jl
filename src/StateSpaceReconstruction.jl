@@ -6,7 +6,7 @@ using Reexport
 using DynamicalSystemsBase
 using DynamicalSystems
 using StaticArrays
-
+using Simplices.even_sampling_rules
 include("embedding/delaunay_colwise.jl") # include before embedding
 include("embedding/embedding_colwise.jl")
 
@@ -34,6 +34,7 @@ function delaunaytriang(E::AbstractEmbedding; noise_factor = 0.01)
 end
 include("partitioning/Partitioning.jl")
 include("embedding/invariantize_colwise.jl")
+include("partitioning/simplexpartition.jl")
 
 export delaunaytriang
 end # module

@@ -14,6 +14,10 @@ Specifically, the binning procedure is controlled by the type of `ϵ`:
 4. `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
 """
 function minima_and_stepsizes(points, ϵ)
+	# Make sure that the array contains points as columns.
+    if size(points, 1) > size(points, 2)
+        error("The dimension of the dataset exceeds the number of points.")
+    end
     D = size(points, 1)
     n_pts = size(points, 2)
 
@@ -54,10 +58,10 @@ labels in the preallocated array `A`.
 """
 function assign_integer_bin_label_to_eachpoint!(
             A::Array{Int, 2},
-            pts::Array{Float64, 2},
+            pts::Array{T, 2},
             axisminima::Vector{Float64},
             δs::Vector{Float64},
-            npts::Int)
+            npts::Int) where T
     @inbounds for i = 1:npts
         A[:, i] .= floor.(Int, abs.(axisminima .- pts[:, i]) ./ δs)
     end
@@ -80,6 +84,11 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_bin_labels(points, ϵ)
+    # Make sure that the array contains points as columns.
+    if size(points, 1) > size(points, 2)
+        error("The dimension of the dataset exceeds the number of points.")
+    end
+
     # How many points are there in the embedding, and what is its dimension?
     D = size(points, 1)
     npts = size(points, 2)
@@ -100,8 +109,11 @@ function assign_bin_labels(points, ϵ)
     # dimension it falls into.
     visited_bins_inds = zeros(Int, D, npts)
     assign_integer_bin_label_to_eachpoint!(
-        visited_bins_inds, points,
-        bottom, stepsizes, npts)
+        visited_bins_inds,
+        points,
+        bottom,
+        stepsizes,
+        npts)
 
     return visited_bins_inds
 end
@@ -117,8 +129,8 @@ stored as column vectors in the returned array. If some bin
 is visited more than once, there will be repeated columns.
 
 # Details
-Given a bin size ϵ, whics is Union{Int, Float} for cubic bins,
-and Union{Vector{Int}, Vector{Float64}} for rectangular bins,
+Given a bin size ϵ, whics is `Union{Int, Float}` for cubic bins,
+and `Union{Vector{Int}, Vector{Float64}}` for rectangular bins,
 assign a tuple of integers uniquely identifying that bin.
 
 Take, for example, the pair `(pᵢ, (n₁, n₂, n₃)`. Having a
@@ -187,6 +199,11 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_coordinate_labels(points, ϵ)
+    # Make sure that the array contains points as columns.
+    if size(points, 1) > size(points, 2)
+        error("The dimension of the dataset exceeds the number of points.")
+    end
+
     # How many points are there in the embedding, and what is its dimension?
     D = size(points, 1)
     npts = size(points, 2)
@@ -264,6 +281,10 @@ The following `ϵ` will work:
 The points are assumed to be provided as an array where each point is a column.
 """
 function assign_coordinate_labels(visited_bin_inds, points, ϵ)
+    # Make sure that the array contains points as columns.
+    if size(points, 1) > size(points, 2)
+        error("The dimension of the dataset exceeds the number of points.")
+    end
 
     # How many points are there in the embedding, and what is its dimension?
     D = size(points, 1)
@@ -293,7 +314,8 @@ function assign_coordinate_labels(visited_bin_inds, points, ϵ)
 end
 
 """
-    assign_coordinate_labels(visited_bin_inds, E::AbstractEmbedding, ϵ)  -> Array{Float64, 2}
+    assign_coordinate_labels(visited_bin_inds,
+        E::AbstractEmbedding, ϵ)  -> Array{Float64, 2}
 
 Consider a rectangular grid specified by ϵ. Assume that, given `ϵ`,
 integer bin  labels have been assigned to each point and are stored in
@@ -424,9 +446,9 @@ end
 # plot the grid superimposed on the points of the orbit.
 #########################################################
 """
-    plot_partition(pts, ϵ;
-                    mc = :blue, ms = 1.5,
-                    lc = :black, lw = 2, ls = :dash
+    plot_partition(pts::AbstractArray{T, 2}, ϵ;
+                    mc = :blue, ms = 1.5, mα = 0.8,
+                    lc = :black, lw = 2, ls = :dash, lα = 0.6) where T
 
 Partition the space defined by `pts` into rectangular boxes
 with a binning scheme controlled by `ϵ`.
@@ -440,12 +462,24 @@ The following `ϵ` will work:
 
 The points are assumed to be provided as an array where each point is
 a column.
+
+`mc`, `ms` and `mα` control the marker color, marker size and marker opacity,
+respectively. `lc`, `lw`, `lα` and `ls` control the line color, line width,
+line opacity and line style, respectively.
 """
-function plot_partition(pts, ϵ;
-                mc = :blue, ms = 1.5,
-                lc = :black, lw = 2, ls = :dash)
+function plot_partition(pts::AbstractArray{T, 2}, ϵ;
+                mc = :black, ms = 2, mα = 0.8,
+                lc = :blue, lw = 1.5, ls = :dash, lα = 0.6) where T
+
+    if size(pts, 1) > size(pts, 2)
+        #info("Treating each row as a point")
+        pts = transpose(pts)
+    end
+
+    axisminima, stepsizes = minima_and_stepsizes(pts, ϵ)
+
     # Assign bins to the points.
-    v, δs = assign_coordinate_labels(pts, ϵ)
+    v = assign_coordinate_labels(pts, ϵ)
 
     # Bins may be visited by several times, so we'll get rid
     # of the repetitions.
@@ -457,10 +491,9 @@ function plot_partition(pts, ϵ;
     p = plot(legend = false)
     for i = 1:n_visited_boxes
         origin = V[:, i]
-        stepsizes = δs
-        plot_3D_rect!(p, origin, stepsizes, lc = lc, ls = ls)
+        plot_3D_rect!(p, origin, stepsizes, lc = lc, ls = ls, lα = lα)
     end
-    scatter3d!(p, splitaxes(pts), ms = ms, mc = mc)
+    scatter3d!(p, splitaxes(pts), ms = ms, mc = mc, mα = mα)
     xlabel!("x")
     ylabel!("y")
     p
@@ -468,8 +501,8 @@ end
 
 """
     plot_partition(E::AbstractEmbedding, ϵ; vars = [1, 2, 3],
-                    mc = :blue, ms = 1.5,
-                    lc = :black, lw = 2, ls = :dash)
+                    mc = :blue, ms = 2, mα = 0.8,
+                    lc = :black, lw = 2, ls = :dash, lα = 0.6)
 
 Partition the embedding into rectangular boxes with a binning scheme controlled
 by `ϵ`. If there are more than three variables in the embedding, you can set
@@ -481,11 +514,18 @@ The following `ϵ` will work:
 * `ϵ::Float` divide each axis into intervals of size `ϵ`.
 * `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
 * `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
+
+
+`mc`, `ms` and `mα` control the marker color, marker size and marker opacity,
+respectively. `lc`, `lw`, `lα` and `ls` control the line color, line width,
+line opacity and line style, respectively.
 """
 function plot_partition(E::AbstractEmbedding, ϵ;
                 vars = [1, 2, 3],
-                mc = :blue, ms = 1.5,
-                lc = :black, lw = 2, ls = :dash)
+                mc = :blue, ms = 2, mα = 0.8,
+                lc = :black, lw = 1.5, ls = :dash, lα = 0.6)
     plot_partition(E.points[vars, :], ϵ, mc = mc, ms = ms,
                     lc = lc, lw = lw, ls = ls)
 end
+
+export partitionplot, splitaxes, connectvertices

@@ -64,8 +64,8 @@ appears in the second column of the embedding.
 * `rd.labels[i]` returns the label of the i-th dataseries
 * `rd.descriptions[i]` returns the description of the i-th dataseries.
 """
-struct EmbeddingData{N, T}
-    dataseries::Vector{AbstractVector{T}}
+struct EmbeddingData{D, T}
+    dataseries::Vector{Union{AbstractVector{T}, SVector{D, T}}}
     labels::Vector{String}
     descriptions::Vector{String}
     in_which_pos::EmbeddingPositions
@@ -128,8 +128,8 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Colon) = r.points
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[j, i]
 
-Base.unique(r::AbstractEmbedding) = Base.unique(r.points)
-Base.unique(r::AbstractEmbedding, i::Int) = Base.unique(r.points, i)
+Base.unique(r::AbstractEmbedding) = unique(r.points)
+Base.unique(r::AbstractEmbedding, i::Int) = unique(r.points, i)
 
 dimension(::AbstractEmbedding{D,T}) where {D,T} = D
 @inline Base.eltype(r::AbstractEmbedding{D,T}) where {D,T} = T
@@ -321,8 +321,7 @@ function embed(ts::Vector{Vector{T}},
             E[i, :] = TS[(1 + abs(minlag)):(end - maxlag)]
         end
     end
-    N = length(ts)
-    embeddingdata = EmbeddingData{N, T}(
+    embeddingdata = EmbeddingData{dim, T}(
         ts,  # the dataseries
         ["" for i = 1:length(ts)], # empty labels by default
         ["" for i = 1:length(ts)], # empty descriptions by default
@@ -355,13 +354,13 @@ for all the columns.
 function embed(data::AbstractArray{T, 2}) where T
 
 	if size(data, 1) > size(data, 2)
-        info("Treating each row of data as a point")
+        #info("Treating each row of data as a point")
         dim = size(data, 2)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
         return embed([data[:, i] for i = 1:dim], which_pos, which_lags)
     else
-        info("Treating each column of data as a point")
+        #info("Treating each column of data as a point")
         dim = size(data, 1)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
@@ -381,11 +380,11 @@ function embed(data::AbstractArray{T, 2},
                 in_which_pos::Vector{Int},
                 at_what_lags::Vector{Int}) where T
     if size(data, 1) > size(data, 2)
-        info("Treating each row as a point")
+        #info("Treating each row as a point")
         dim = size(data, 2)
         embed([data[:, i] for i = 1:dim], in_which_pos, at_what_lags)
     else
-        info("Treating each column of data as a point")
+        #info("Treating each column of data as a point")
         dim = size(data, 1)
         embed([data[i, :] for i = 1:dim], in_which_pos, at_what_lags)
     end
@@ -404,61 +403,80 @@ end
 
 
 """
-    embed(d::Dataset)
+    embed(data::Dataset)
 
 Returns an embedding consisting of a zero-lagged, unmodified version of `d`.
 """
-function embed(d::Dataset)
-    D = size(d, 2)
-    embed([d[:, i] for i = 1:D])
+function embed(data::Dataset)
+    if size(data, 1) > size(data, 2)
+        #info("Treating each row as a point")
+    	dim = size(data, 2)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+    else
+    	#info("Treating each column of data as a point")
+    	dim = size(data, 1)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+        embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+    end
 end
 
 """
     embed(d::Dataset,
-        in_which_pos::Vector{Int},
-        at_what_lags::Vector{Int})
+        which_pos::Vector{Int},
+        which_lags::Vector{Int})
 
 Returns a state space embedding of the columns of `d`.
 
 ## Arguments
 * `d::Dataset`: The columns of `d` contains the data series to use
     for the embedding.
-* `in_which_pos::Vector{Int}``. The length of in_which_pos gives the dimension
+* `which_pos::Vector{Int}``. The length of in_which_pos gives the dimension
     of the embedding. The value of the ith element of `in_which_pos`
     indicates which column of `d` goes in the i-th column of the embedding.
-* `at_what_lags::Vector{Int}` sets the lag in each column of the reconstrution.
+* `which_lags::Vector{Int}` sets the lag in each column of the reconstrution.
     Must be the same length as `dimension(d)`
     - **Example**: if `in_which_pos = [2, 2, 1]`, then
         `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
         lag in the second column is 0 and the lag in the third column is -1.
 """
-function embed(d::Dataset,
-        in_which_pos::Vector{Int},
-        at_what_lags::Vector{Int})
-    embed(
-        [d[:, i] for i = 1:DynamicalSystemsBase.dimension(d)],
-        in_which_pos,
-        at_what_lags
-    )
+function embed(data::Dataset,
+        which_pos::Vector{Int},
+        which_lags::Vector{Int})
+
+    if size(data, 1) > size(data, 2)
+        #info("Treating each row as a point")
+    	dim = size(data, 2)
+    	embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+    else
+    	#info("Treating each column of data as a point")
+    	dim = size(data, 1)
+    	embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+    end
 end
 
-function Embedding(d::Dataset,
-        in_which_pos::Vector{Int},
-        at_what_lags::Vector{Int})
-    embed(
-        [d[:, i] for i = 1:DynamicalSystemsBase.dimension(d)],
-        in_which_pos,
-        at_what_lags
-    )
+function Embedding(data::Dataset,
+        which_pos::Vector{Int},
+        which_lags::Vector{Int})
+    if size(data, 1) > size(data, 2)
+        #info("Treating each row as a point")
+        dim = size(data, 2)
+        embed([data[:, i] for i = 1:dim], which_pos, what_lags)
+    else
+        #info("Treating each column of data as a point")
+        dim = size(data, 1)
+        embed([data[i, :] for i = 1:dim], which_pos, what_lags)
+    end
 end
 
 ########################################
 # SArrays and SVectors
 ########################################
-function embed(ts::Vector{SVector{N, T}},
+function embed(ts::Vector{SArray{Size,T,N,L}},
         in_which_pos::Vector{Int},
-        at_what_lags::Vector{Int};
-        labels::Vector{String} =  ["" for x in 1:length(ts)]) where {N, T}
+        at_what_lags::Vector{Int}) where {Size, T, N, L}
     dim = length(in_which_pos)
     minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
     npts = length(ts[1]) - (maxlag + abs(minlag))
@@ -477,7 +495,7 @@ function embed(ts::Vector{SVector{N, T}},
             E[i, :] = TS[(1 + abs(minlag)):(end - maxlag)]
         end
     end
-    embeddingdata = EmbeddingData{N, T}(
+    embeddingdata = EmbeddingData{dim, T}(
         ts,  # the dataseries
         ["" for i = 1:length(ts)], # empty labels by default
         ["" for i = 1:length(ts)], # empty descriptions by default
@@ -487,13 +505,46 @@ function embed(ts::Vector{SVector{N, T}},
     Embedding(Array(E), embeddingdata)
 end
 
-embed(A::SArray) = embed([A[:, i] for i in 1:size(A, 2)],
-                        [i for i in 1:size(A, 2)],
-                        [0 for i in 1:size(A, 2)])
+"""
+    embed(data::SArray) where T
 
-embed(A::SArray, in_which_pos::Vector{Int}, at_what_lags::Vector{Int}) =
-    embed([A[:, i] for i in 1:size(A, 2)],
-    in_which_pos, at_what_lags)
+Construct an embedding from data series gathered in a `SArray`.
+"""
+function embed(data::SArray)
+	if size(data, 1) > size(data, 2)
+		#info("Treating each row as a point")
+		dim = size(data, 2)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+		embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+	else
+		#info("Treating each column of data as a point")
+		dim = size(data, 1)
+        which_pos = [i for i = 1:dim]
+        which_lags = [0 for i in 1:dim]
+		embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+	end
+end
+
+
+"""
+    embed(data::SArray) where T
+
+Construct an embedding from data series gathered in a `SArray`, specifying the
+dimensionality, which variables in the embedding are represented by which
+variables in the `data` array, and what the embedding lags should be.
+"""
+function embed(data::SArray, which_pos::Vector{Int}, which_lags::Vector{Int})
+    if size(data, 1) > size(data, 2)
+		#info("Treating each row as a point")
+		dim = size(data, 2)
+		embed([data[:, i] for i = 1:dim], which_pos, which_lags)
+	else
+		#info("Treating each column of data as a point")
+		dim = size(data, 1)
+		embed([data[i, :] for i = 1:dim], which_pos, which_lags)
+	end
+end
 
 ####################################
 # Pretty printing.
@@ -559,7 +610,7 @@ using RecipesBase
 
 @recipe function f(r::AbstractEmbedding)
     if dimension(r) > 3
-        warn("Embedding dim > 3, plotting three first axes")
+        #warn("Embedding dim > 3, plotting three first axes")
         pts = r.points[1:3, :]
     end
     pts = r.points
