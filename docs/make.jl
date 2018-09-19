@@ -29,12 +29,12 @@ makedocs(
     #html_canonical = "https://kahaaga.github.io/StateSpaceReconstruction.jl/latest/"
 )
 
-deploydocs(;
-    Deps.pip("pygments", "mkdocs", "python-markdown-math"),
-    repo   = "github.com/kahaaga/StateSpaceReconstruction.jl.git",
-    julia  = "0.6",
-    target = "build",
-    deps = nothing,
-    make = nothing,
-    osname = "linux"
-)
+# deploydocs(;
+#     Deps.pip("pygments", "mkdocs", "python-markdown-math"),
+#     repo   = "github.com/kahaaga/StateSpaceReconstruction.jl.git",
+#     julia  = "0.6",
+#     target = "build",
+#     deps = nothing,
+#     make = nothing,
+#     osname = "linux"
+# )

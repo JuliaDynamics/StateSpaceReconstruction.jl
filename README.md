@@ -15,7 +15,7 @@ This package works seamlessly with `Dataset` instances from [DynamicalSystems.jl
 1. Generic embeddings of time series
 2. SSR discretization (rectangular binning, simplex triangulations)
 
-## Examples
+## Quickstart
 
 Let's define three time series.
 

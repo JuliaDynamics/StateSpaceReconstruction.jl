@@ -3,10 +3,8 @@ Parameters
 StaticArrays
 Reexport
 GroupSlices
-RecipesBase
 DynamicalSystemsBase
 DynamicalSystems
-Plots
+RecipesBase
 Simplices
-PyPlot
-PGFPlots
+Plots
