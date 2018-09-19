@@ -1,0 +1,749 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="State space reconstruction/embedding and partitioning tools.">
+      
+      
+      
+        <meta name="author" content="kahaaga">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.3, mkdocs-material-3.0.3">
+    
+    
+      
+        <title>Marginal visitation frequencies - StateSpaceReconstruction.jl</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.451f80e5.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+      <link rel="stylesheet" href="../../assets/documenter.css">
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="../../#marginal-visitation-frequencies" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../.." title="StateSpaceReconstruction.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                StateSpaceReconstruction.jl
+              </span>
+              <span class="md-header-nav__topic">
+                Marginal visitation frequencies
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/kahaaga/StateSpaceReconstruction.jl/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../.." title="StateSpaceReconstruction.jl" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    StateSpaceReconstruction.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/kahaaga/StateSpaceReconstruction.jl/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../embedding/" title="Embedding" class="md-nav__link">
+      Embedding
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Rectangular partitions
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Rectangular partitions
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../binningtypes/" title="Types of partitions" class="md-nav__link">
+      Types of partitions
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../minima_stepsizes/" title="Axis minima and step sizes" class="md-nav__link">
+      Axis minima and step sizes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../coordinate_representation/" title="Coordinate representation" class="md-nav__link">
+      Coordinate representation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../integer_representation/" title="Integer encoding representation" class="md-nav__link">
+      Integer encoding representation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="./" title="Marginal visitation frequencies" class="md-nav__link md-nav__link--active">
+      Marginal visitation frequencies
+    </a>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Simplex partitions
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Simplex partitions
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../simplexpartition/simplex/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/kahaaga/StateSpaceReconstruction.jl/edit/master/docs/partition/marginal_visitation_frequency.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <p><a id='Marginal-visitation-frequencies-1'></a></p>
+<h1 id="marginal-visitation-frequencies">Marginal visitation frequencies</h1>
+<p>In a system of many variables, it can be useful to find the marginal visitation frequencies after assigning a partition to the set of points. The following function computes marginal visitation frequencies along the coordinate axes specified by <code>along_which_axes</code> for a set of <code>points</code> partitioned into boxes in the manner specified by <code>ϵ</code>.</p>
+<p>Marginal visitation frequencies may also be computed directly from the partition representation of the points in question. Here, <code>visited_bins</code> is the output of either <a href="../integer_representation/#StateSpaceReconstruction.Partitioning.assign_bin_labels-Tuple{Any,Any}"><code>assign_bin_labels</code></a> or <a href="../coordinate_representation/#StateSpaceReconstruction.Partitioning.assign_coordinate_labels-Tuple{Any,Any}"><code>assign_coordinate_labels</code></a>.</p>
+<p>In both cases, visitation frequencies are calculated by counting the number of points falling in each bin (i.e. the multiplicity of the bin), then normalizing by the total number of points.</p>
+<p><a id='StateSpaceReconstruction.Partitioning.marginal_visitation_freq' href='#StateSpaceReconstruction.Partitioning.marginal_visitation_freq'>#</a>
+<strong><code>StateSpaceReconstruction.Partitioning.marginal_visitation_freq</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>marginal_visitation_freq(along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+    visited_bins::Array{T, 2}) where T
+</code></pre>
+
+<p>Calculate marginal or joint visitation frequencies for a pre-binned set of points. Each column in <code>visited_bins</code> corresponds to a unique point, and contains the coordinate or integer representation of the bin containing that point.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>visited_bins</code>: Contains a representation of the boxes containing each point.</li>
+<li><code>along_which_axes</code>: Controls which axes to take the marginal visitation   frequencies along. Setting <code>along_which_axes</code> to a range 1:D, where   D is the dimension of the corresponding state space, corresponds to taking the   joint visitation frequency (basically, a D-dimensional histogram).</li>
+<li><code>npts</code>: The number of points in the embedding, which is used as a   normalization factor.</li>
+</ul>
+<p><a target='_blank' href='https://github.com/kahaaga/StateSpaceReconstruction.jl/blob/aa7b1f7483dcee4328c223b05aa7e7531bfc2e2e/src/partitioning/marginal_visitation_frequency.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<pre><code>marginal_visitation_freq(
+    along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+    points::Array{T, 2},
+    ϵ) where T
+</code></pre>
+
+<p>Compute marginal visitation frequencies for a set of <code>points</code>, given a partition scheme <code>ϵ</code>. The following <code>ϵ</code> will work:</p>
+<ul>
+<li><code>ϵ::Int</code> divide each axis into <code>ϵ</code> intervals of the same size.</li>
+<li><code>ϵ::Float</code> divide each axis into intervals of size <code>ϵ</code>.</li>
+<li><code>ϵ::Vector{Int}</code> divide the i-th axis into <code>ϵᵢ</code> intervals of the same size.</li>
+<li><code>ϵ::Vector{Float64}</code> divide the i-th axis into intervals of size <code>ϵᵢ</code>.</li>
+</ul>
+<p>The argument <code>along_which_axes</code> controls which axes to take the marginal visitation frequencies along. Setting <code>along_which_axes</code> to a range 1:D, where D is the dimension of the corresponding state space, corresponds to taking the joint visitation frequency.</p>
+<p><a target='_blank' href='https://github.com/kahaaga/StateSpaceReconstruction.jl/blob/aa7b1f7483dcee4328c223b05aa7e7531bfc2e2e/src/partitioning/marginal_visitation_frequency.jl#L65-L84' class='documenter-source'>source</a><br></p>
+<pre><code>marginal_visitation_freq(
+    along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
+    E::AbstractEmbedding,
+    ϵ)
+</code></pre>
+
+<p>Compute marginal visitation frequencies for an embedding, given a partition scheme <code>ϵ</code>. The following <code>ϵ</code> will work:</p>
+<ul>
+<li><code>ϵ::Int</code> divide each axis into <code>ϵ</code> intervals of the same size.</li>
+<li><code>ϵ::Float</code> divide each axis into intervals of size <code>ϵ</code>.</li>
+<li><code>ϵ::Vector{Int}</code> divide the i-th axis into <code>ϵᵢ</code> intervals of the same size.</li>
+<li><code>ϵ::Vector{Float64}</code> divide the i-th axis into intervals of size <code>ϵᵢ</code>.</li>
+</ul>
+<p>The argument <code>along_which_axes</code> controls which axes to take the marginal visitation frequencies along. Setting <code>along_which_axes</code> to a range 1:D, where D is the dimension of the corresponding state space, corresponds to taking the joint visitation frequency.</p>
+<p><a target='_blank' href='https://github.com/kahaaga/StateSpaceReconstruction.jl/blob/aa7b1f7483dcee4328c223b05aa7e7531bfc2e2e/src/partitioning/marginal_visitation_frequency.jl#L99-L118' class='documenter-source'>source</a><br></p>
+<p><a id='Examples-1'></a></p>
+<h1 id="examples">Examples</h1>
+<pre><code class="julia-repl">julia&gt; using StateSpaceReconstruction
+
+julia&gt; using Plots; pyplot()
+Plots.PyPlotBackend()
+
+
+
+[1m[33mWARNING: [39m[22m[33mArray(::Type{T}, m::Int) where T is deprecated, use Array{T}(m) instead.[39m
+Stacktrace:
+ [1] [1mdepwarn[22m[22m[1m([22m[22m::String, ::Symbol[1m)[22m[22m at [1m./deprecated.jl:70[22m[22m
+ [2] [1mArray[22m[22m[1m([22m[22m::Type{Int64}, ::Int64[1m)[22m[22m at [1m./deprecated.jl:57[22m[22m
+ [3] [1mmacro expansion[22m[22m at [1m/Users/kristian/.julia/v0.6/GroupSlices/src/GroupSlices.jl:47[22m[22m [inlined]
+ [4] [1mgroupslices[22m[22m[1m([22m[22m::Array{Int64,2}, ::Int64[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/GroupSlices/src/GroupSlices.jl:34[22m[22m
+ [5] [1mmarginal_visitation_freq[22m[22m[1m([22m[22m::Int64, ::Array{Int64,2}[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/StateSpaceReconstruction/src/partitioning/marginal_visitation_frequency.jl:39[22m[22m
+ [6] [1mmarginal_visitation_freq[22m[22m[1m([22m[22m::Int64, ::Array{Float64,2}, ::Int64[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/StateSpaceReconstruction/src/partitioning/marginal_visitation_frequency.jl:96[22m[22m
+ [7] [1meval[22m[22m[1m([22m[22m::Module, ::Any[1m)[22m[22m at [1m./boot.jl:235[22m[22m
+ [8] [1mcd[22m[22m[1m([22m[22m::Documenter.Expanders.##12#14, ::String[1m)[22m[22m at [1m./file.jl:70[22m[22m
+ [9] [1m(::Documenter.Utilities.##19#20{Documenter.Expanders.##11#13{Documenter.Documents.Page},Base.TTY,Base.TTY,Pipe,Array{UInt8,1}})[22m[22m[1m([22m[22m[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:591[22m[22m
+ [10] [1mwithoutput[22m[22m[1m([22m[22m::Documenter.Expanders.##11#13{Documenter.Documents.Page}[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:589[22m[22m
+ [11] [1mrunner[22m[22m[1m([22m[22m::Type{Documenter.Expanders.REPLBlocks}, ::Base.Markdown.Code, ::Documenter.Documents.Page, ::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Expanders.jl:536[22m[22m
+ [12] [1mdispatch[22m[22m[1m([22m[22m::Type{Documenter.Expanders.ExpanderPipeline}, ::Base.Markdown.Code, ::Vararg{Any,N} where N[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Selectors.jl:168[22m[22m
+ [13] [1mexpand[22m[22m[1m([22m[22m::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Expanders.jl:31[22m[22m
+ [14] [1mrunner[22m[22m[1m([22m[22m::Type{Documenter.Builder.ExpandTemplates}, ::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Builder.jl:178[22m[22m
+ [15] [1mdispatch[22m[22m[1m([22m[22m::Type{Documenter.Builder.DocumentPipeline}, ::Documenter.Documents.Document, ::Vararg{Documenter.Documents.Document,N} where N[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Selectors.jl:168[22m[22m
+ [16] [1mcd[22m[22m[1m([22m[22m::Documenter.##2#3{Documenter.Documents.Document}, ::String[1m)[22m[22m at [1m./file.jl:70[22m[22m
+ [17] [1m#makedocs#1[22m[22m[1m([22m[22m::Bool, ::Array{Any,1}, ::Function[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Documenter.jl:203[22m[22m
+ [18] [1m(::Documenter.#kw##makedocs)[22m[22m[1m([22m[22m::Array{Any,1}, ::Documenter.#makedocs[1m)[22m[22m at [1m./&lt;missing&gt;:0[22m[22m
+ [19] [1minclude_from_node1[22m[22m[1m([22m[22m::String[1m)[22m[22m at [1m./loading.jl:576[22m[22m
+ [20] [1minclude[22m[22m[1m([22m[22m::String[1m)[22m[22m at [1m./sysimg.jl:14[22m[22m
+ [21] [1mprocess_options[22m[22m[1m([22m[22m::Base.JLOptions[1m)[22m[22m at [1m./client.jl:305[22m[22m
+ [22] [1m_start[22m[22m[1m([22m[22m[1m)[22m[22m at [1m./client.jl:371[22m[22m
+while loading /Users/kristian/Documents/juliapackages/StateSpaceReconstruction/docs/make.jl, in expression starting on line 20
+[1m[33mWARNING: [39m[22m[33mArray(::Type{T}, m::Int) where T is deprecated, use Array{T}(m) instead.[39m
+Stacktrace:
+ [1] [1mdepwarn[22m[22m[1m([22m[22m::String, ::Symbol[1m)[22m[22m at [1m./deprecated.jl:70[22m[22m
+ [2] [1mArray[22m[22m[1m([22m[22m::Type{Array{Int64,1}}, ::Int64[1m)[22m[22m at [1m./deprecated.jl:57[22m[22m
+ [3] [1mgroupinds[22m[22m[1m([22m[22m::Array{Int64,1}[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/GroupSlices/src/GroupSlices.jl:131[22m[22m
+ [4] [1mmarginal_visitation_freq[22m[22m[1m([22m[22m::Int64, ::Array{Int64,2}[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/StateSpaceReconstruction/src/partitioning/marginal_visitation_frequency.jl:45[22m[22m
+ [5] [1mmarginal_visitation_freq[22m[22m[1m([22m[22m::Int64, ::Array{Float64,2}, ::Int64[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/StateSpaceReconstruction/src/partitioning/marginal_visitation_frequency.jl:96[22m[22m
+ [6] [1meval[22m[22m[1m([22m[22m::Module, ::Any[1m)[22m[22m at [1m./boot.jl:235[22m[22m
+ [7] [1mcd[22m[22m[1m([22m[22m::Documenter.Expanders.##12#14, ::String[1m)[22m[22m at [1m./file.jl:70[22m[22m
+ [8] [1m(::Documenter.Utilities.##19#20{Documenter.Expanders.##11#13{Documenter.Documents.Page},Base.TTY,Base.TTY,Pipe,Array{UInt8,1}})[22m[22m[1m([22m[22m[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:591[22m[22m
+ [9] [1mwithoutput[22m[22m[1m([22m[22m::Documenter.Expanders.##11#13{Documenter.Documents.Page}[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:589[22m[22m
+ [10] [1mrunner[22m[22m[1m([22m[22m::Type{Documenter.Expanders.REPLBlocks}, ::Base.Markdown.Code, ::Documenter.Documents.Page, ::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Expanders.jl:536[22m[22m
+ [11] [1mdispatch[22m[22m[1m([22m[22m::Type{Documenter.Expanders.ExpanderPipeline}, ::Base.Markdown.Code, ::Vararg{Any,N} where N[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Selectors.jl:168[22m[22m
+ [12] [1mexpand[22m[22m[1m([22m[22m::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Expanders.jl:31[22m[22m
+ [13] [1mrunner[22m[22m[1m([22m[22m::Type{Documenter.Builder.ExpandTemplates}, ::Documenter.Documents.Document[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Builder.jl:178[22m[22m
+ [14] [1mdispatch[22m[22m[1m([22m[22m::Type{Documenter.Builder.DocumentPipeline}, ::Documenter.Documents.Document, ::Vararg{Documenter.Documents.Document,N} where N[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Selectors.jl:168[22m[22m
+ [15] [1mcd[22m[22m[1m([22m[22m::Documenter.##2#3{Documenter.Documents.Document}, ::String[1m)[22m[22m at [1m./file.jl:70[22m[22m
+ [16] [1m#makedocs#1[22m[22m[1m([22m[22m::Bool, ::Array{Any,1}, ::Function[1m)[22m[22m at [1m/Users/kristian/.julia/v0.6/Documenter/src/Documenter.jl:203[22m[22m
+ [17] [1m(::Documenter.#kw##makedocs)[22m[22m[1m([22m[22m::Array{Any,1}, ::Documenter.#makedocs[1m)[22m[22m at [1m./&lt;missing&gt;:0[22m[22m
+ [18] [1minclude_from_node1[22m[22m[1m([22m[22m::String[1m)[22m[22m at [1m./loading.jl:576[22m[22m
+ [19] [1minclude[22m[22m[1m([22m[22m::String[1m)[22m[22m at [1m./sysimg.jl:14[22m[22m
+ [20] [1mprocess_options[22m[22m[1m([22m[22m::Base.JLOptions[1m)[22m[22m at [1m./client.jl:305[22m[22m
+ [21] [1m_start[22m[22m[1m([22m[22m[1m)[22m[22m at [1m./client.jl:371[22m[22m
+while loading /Users/kristian/Documents/juliapackages/StateSpaceReconstruction/docs/make.jl, in expression starting on line 20
+</code></pre>
+
+<p><a id='Marginals-for-one-variable-at-a-time-1'></a></p>
+<h2 id="marginals-for-one-variable-at-a-time">Marginals for one variable at a time</h2>
+<p>Let's create a 5D dataset of 600 points and compute the marginals for each individual coordinate axis, given a partition where each axis is divided into 7 equal-length intervals.</p>
+<pre><code class="julia-repl">julia&gt; pts = rand(5, 600)
+5×600 Array{Float64,2}:
+ 0.716971  0.713546   0.379106   …  0.311059    0.66534   0.46219
+ 0.201717  0.0267931  0.962449      0.669575    0.533875  0.0382229
+ 0.608248  0.996294   0.965043      0.349227    0.323862  0.728803
+ 0.604129  0.686137   0.428064      0.215916    0.032772  0.877255
+ 0.094137  0.112072   0.0691378     0.00983208  0.05233   0.126093
+
+julia&gt; ϵ = 7
+7
+
+julia&gt; Ms = [marginal_visitation_freq(i, pts, ϵ) for i = 1:5]
+5-element Array{Array{Float64,1},1}:
+ [0.155, 0.2, 0.116667, 0.121667, 0.126667, 0.151667, 0.128333]
+ [0.155, 0.158333, 0.11, 0.145, 0.153333, 0.156667, 0.121667]
+ [0.126667, 0.17, 0.14, 0.148333, 0.125, 0.15, 0.14]
+ [0.148333, 0.16, 0.133333, 0.173333, 0.116667, 0.128333, 0.14]
+ [0.176667, 0.133333, 0.148333, 0.148333, 0.12, 0.153333, 0.12]
+
+julia&gt; Ms = hcat(Ms...) # convert to array
+7×5 Array{Float64,2}:
+ 0.155     0.155     0.126667  0.148333  0.176667
+ 0.2       0.158333  0.17      0.16      0.133333
+ 0.116667  0.11      0.14      0.133333  0.148333
+ 0.121667  0.145     0.148333  0.173333  0.148333
+ 0.126667  0.153333  0.125     0.116667  0.12
+ 0.151667  0.156667  0.15      0.128333  0.153333
+ 0.128333  0.121667  0.14      0.14      0.12
+
+
+julia&gt; heatmap(Ms, xlabel = &quot;Coordinate axis #&quot;, ylabel = &quot;Bin #&quot;, size = (300, 500));
+</code></pre>
+
+<p><img alt="" src="../marginalindividual.svg" /></p>
+<p><a id='Marginals-for-multiple-variables-1'></a></p>
+<h2 id="marginals-for-multiple-variables">Marginals for multiple variables</h2>
+<p>We can also compute the marginals of multiple variables. For this example, choose variables <code>1:2</code>, <code>2:3</code> and <code>[3, 5]</code>.</p>
+<pre><code class="julia-repl">julia&gt; pts = rand(5, 600)
+5×600 Array{Float64,2}:
+ 0.873045  0.254616  0.806245  0.263435   …  0.822108   0.69999   0.0922164
+ 0.687776  0.599364  0.754729  0.707364      0.19168    0.921839  0.0168547
+ 0.490732  0.144141  0.515808  0.131785      0.0289747  0.978598  0.209607
+ 0.142168  0.283087  0.249371  0.0586487     0.524044   0.342304  0.496641
+ 0.149699  0.865308  0.931556  0.739218      0.699596   0.213169  0.375813
+
+julia&gt; ϵ = 7
+7
+
+julia&gt; Ms = [marginal_visitation_freq(i, pts, ϵ) for i = [1:2, 2:3, [3, 5]]]
+3-element Array{Array{Float64,1},1}:
+ [0.0166667, 0.015, 0.02, 0.0266667, 0.0183333, 0.0266667, 0.02, 0.0183333, 0.0283333, 0.0266667  …  0.0183333, 0.0216667, 0.0133333, 0.0133333, 0.02, 0.0116667, 0.0166667, 0.0166667, 0.0233333, 0.025]
+ [0.015, 0.025, 0.0233333, 0.0133333, 0.02, 0.0316667, 0.0183333, 0.0216667, 0.0133333, 0.0266667  …  0.0216667, 0.0233333, 0.0216667, 0.0183333, 0.015, 0.03, 0.0166667, 0.015, 0.02, 0.02]
+ [0.02, 0.0216667, 0.0183333, 0.0233333, 0.025, 0.0316667, 0.0166667, 0.0283333, 0.0333333, 0.0266667  …  0.0183333, 0.0166667, 0.0216667, 0.0166667, 0.0216667, 0.015, 0.0183333, 0.0116667, 0.0116667, 0.0166667]
+
+julia&gt; Ms = hcat(Ms...) # convert to array
+49×3 Array{Float64,2}:
+ 0.0166667  0.015      0.02
+ 0.015      0.025      0.0216667
+ 0.02       0.0233333  0.0183333
+ 0.0266667  0.0133333  0.0233333
+ 0.0183333  0.02       0.025
+ 0.0266667  0.0316667  0.0316667
+ 0.02       0.0183333  0.0166667
+ 0.0183333  0.0216667  0.0283333
+ 0.0283333  0.0133333  0.0333333
+ 0.0266667  0.0266667  0.0266667
+ ⋮
+ 0.0216667  0.0233333  0.0166667
+ 0.0133333  0.0216667  0.0216667
+ 0.0133333  0.0183333  0.0166667
+ 0.02       0.015      0.0216667
+ 0.0116667  0.03       0.015
+ 0.0166667  0.0166667  0.0183333
+ 0.0166667  0.015      0.0116667
+ 0.0233333  0.02       0.0116667
+ 0.025      0.02       0.0166667
+
+
+julia&gt; heatmap(Ms, xlabel = &quot;Coordinate axis #&quot;, ylabel = &quot;Bin #&quot;, size = (300, 500));
+</code></pre>
+
+<p><img alt="" src="../marginalmultiple.svg" /></p>
+<p><a id='Joint-visitation-frequency-1'></a></p>
+<h2 id="joint-visitation-frequency">Joint visitation frequency</h2>
+<p>Computing the marginals for all available variables corresponds to computing the joint visitation frequency.</p>
+<pre><code class="julia-repl">julia&gt; pts = rand(5, 1000)
+5×1000 Array{Float64,2}:
+ 0.444848  0.314623  0.552781  0.381632  …  0.643831   0.990346  0.705096
+ 0.427769  0.363053  0.674739  0.313924     0.622124   0.64153   0.566514
+ 0.221862  0.43199   0.148331  0.512499     0.16843    0.477187  0.698726
+ 0.130827  0.423136  0.756523  0.242492     0.0149423  0.197443  0.248123
+ 0.708452  0.847812  0.933985  0.245247     0.32571    0.929911  0.0288952
+
+julia&gt; ϵ = 2
+2
+
+julia&gt; jointvisitfreq = marginal_visitation_freq(1:5, pts, ϵ)
+32-element Array{Float64,1}:
+ 0.031
+ 0.037
+ 0.029
+ 0.042
+ 0.029
+ 0.028
+ 0.025
+ 0.03
+ 0.033
+ 0.027
+ ⋮
+ 0.027
+ 0.036
+ 0.026
+ 0.041
+ 0.033
+ 0.03
+ 0.031
+ 0.032
+ 0.023
+
+
+julia&gt; bar(jointvisitfreq, size = (400, 500), legend = false)
+Plot{Plots.PyPlotBackend() n=1}
+
+julia&gt; xlabel!(&quot;State #&quot;); ylabel!(&quot;Visitation frequency&quot;);
+</code></pre>
+
+<p><img alt="" src="../jointvisit.svg" /></p>
+<p>The plot above shows the visitation frequency over the visited bins.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../integer_representation/" title="Integer encoding representation" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Integer encoding representation
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../simplexpartition/simplex/" title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Overview
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.583bbe55.js"></script>
+      
+      <script>app.initialize({version:"1.0.3",url:{base:"../.."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../../assets/mathjaxhelper.js"></script>
+      
+        <script src="../../assets/documenter.js"></script>
+      
+        <script src="../../assets/search.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
