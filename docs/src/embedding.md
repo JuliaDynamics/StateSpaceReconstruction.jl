@@ -5,10 +5,6 @@
 If you haven't heard about state space reconstructions (SSR), or embeddings, visit the [Wikipedia page](https://en.wikipedia.org/wiki/Takens%27s_theorem) on Takens' theorem.
 
 
-## Fully customizable embedding
-Positive, zero and negative lags are possible. Negative lags are takes as
-"past affects future", and positive lags  as "future affects past".
-
 ## Simple examples
 For those familiar with SSR, performing reconstructions is easy as pie. The constructors accept arrays, vectors of vectors, vectors of `SVector`, `SArray`,
 and `Dataset` instances from `DynamicalSystems.jl`.
