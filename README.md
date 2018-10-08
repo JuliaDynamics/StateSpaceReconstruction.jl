@@ -1,26 +1,21 @@
 # StateSpaceReconstruction.jl
 
+
 [![Build Status](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl.svg?branch=master)](https://travis-ci.org/kahaaga/StateSpaceReconstruction.jl)
+
+[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://kahaaga.github.io/StateSpaceReconstruction.jl/)
 
 Julia package for state space reconstruction and partitioning. This package provides necessary functionality for the [PerronFrobenius.jl](https://github.com/kahaaga/PerronFrobenius.jl),
 [TransferEntropy.jl](https://github.com/kahaaga/TransferEntropy.jl) and
-[CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) packages.
+[CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) packages, which require fully flexible state space reconstructions, and partitioning tools for rectangular and simplex partitions.
 
-Another package featuring state space reconstruction capabilities is [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl).
-Although [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl)
-works seamlessly with `Dataset` instances from [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl),
-the [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl) package
-has more specific needs than provided in [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl). In
-particular, full reconstruction flexibility, and partitioning tools for
-rectangular and simplex partitions, are needed in [CausalityTools.jl](https://github.com/kahaaga/CausalityTools.jl). Hence,
-the existence of this library.
-
+This package works seamlessly with `Dataset` instances from [DynamicalSystems.jl](https://github.com/JuliaDynamics/DynamicalSystems.jl), which also provide methods for state space reconstruction.
 
 ## Features
 1. Generic embeddings of time series
 2. SSR discretization (rectangular binning, simplex triangulations)
 
-## Examples
+## Quickstart
 
 Let's define three time series.
 
