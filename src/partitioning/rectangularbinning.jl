@@ -469,7 +469,8 @@ line opacity and line style, respectively.
 """
 function plot_partition(pts::AbstractArray{T, 2}, ϵ;
                 mc = :black, ms = 2, mα = 0.8,
-                lc = :blue, lw = 1.5, ls = :dash, lα = 0.6) where T
+                lc = :blue, lw = 1.5, ls = :dash, lα = 0.6,
+				size = (500, 700)) where T
 
     if size(pts, 1) > size(pts, 2)
         #info("Treating each row as a point")
@@ -488,7 +489,7 @@ function plot_partition(pts::AbstractArray{T, 2}, ϵ;
 
     # Plot the partition grid over the points of the reconstructed
     # orbit.
-    p = plot(legend = false)
+    p = plot(legend = false, size = size)
     for i = 1:n_visited_boxes
         origin = V[:, i]
         plot_3D_rect!(p, origin, stepsizes, lc = lc, ls = ls, lα = lα)
@@ -528,4 +529,4 @@ function plot_partition(E::AbstractEmbedding, ϵ;
                     lc = lc, lw = lw, ls = ls)
 end
 
-export partitionplot, splitaxes, connectvertices
+export plot_partition, splitaxes, connectvertices
