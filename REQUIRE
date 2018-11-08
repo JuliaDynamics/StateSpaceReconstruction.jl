@@ -1,4 +1,4 @@
-julia 0.6 0.7-
+julia 0.6
 Parameters
 StaticArrays
 Reexport
@@ -6,5 +6,5 @@ GroupSlices
 DynamicalSystemsBase
 DynamicalSystems
 RecipesBase
-Simplices
+Simplices 0.1.0
 Plots
