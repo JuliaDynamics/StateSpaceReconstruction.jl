@@ -8,3 +8,9 @@ julia:
 matrix:
   allow_failures:
     - julia: nightly
+
+script:
+  - julia -e 'using Pkg; Pkg.build(); Pkg.add("PyCall")'
+  - julia -e 'ENV["PYTHON"] = ""; using Pkg; Pkg.build("PyCall")'
+  - julia -e 'using Conda; Conda.add("scipy")'
+  - julia -e 'using Pkg; Pkg.test()'
