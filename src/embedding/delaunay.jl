@@ -36,8 +36,8 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 dimension(::DelaunayTriangulation{D,T}) where {D,T} = D
 @inline Base.eltype(d::DelaunayTriangulation{D,T}) where {D,T} = T
 
-Base.unique(d::DelaunayTriangulation) = Base.unique(d.indices.data)
-Base.unique(d::DelaunayTriangulation, i::Int) = Base.unique(d.indices.data, i)
+#Base.unique(d::DelaunayTriangulation) = Base.unique(d.indices.data)
+#Base.unique(d::DelaunayTriangulation, dims) = Base.unique(d.indices.data, dims)
 
 import Base: ==
 ==(d₁::DelaunayTriangulation, d₂::DelaunayTriangulation) =

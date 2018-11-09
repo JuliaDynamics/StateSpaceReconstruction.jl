@@ -46,15 +46,15 @@ Compute the volumes of a set of simplices.
 - `indices_simplices::Array{Int, 1}` Indices of the vertices furnishing
     simplices of the triangulation. Each row refers to one simplex.
 """
-function simplex_volumes(points::Array{Float64, 2},
-                        indices_simplices::Array{Int, 2})
+function simplex_volumes(points::AbstractArray{Float64, 2},
+                        indices_simplices::AbstractArray{Int, 2})
     dim = size(points, 2)
     nsimplices = size(indices_simplices, 1)
 
     volumes = zeros(Float64, nsimplices)
 
     for i = 1:nsimplices
-        simplex = points[indices_simplices[i, :], :].'
+        simplex = transpose(points[indices_simplices[i, :], :])
         volumes[i] = abs(det([ones(1, dim + 1); simplex]))
     end
 

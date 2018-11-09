@@ -6,25 +6,26 @@ using Reexport
 using DynamicalSystemsBase
 using DynamicalSystems
 using StaticArrays
-using Simplices.even_sampling_rules
+using Simplices: even_sampling_rules
+using LinearAlgebra
 
 # GroupSlices
 include("GroupSlices.jl")
 export GroupSlices
 
 include("embedding/delaunay_colwise.jl") # include before embedding
-include("embedding/embedding_colwise.jl")
+include("embedding/Embeddings.jl")
 
 ####################################
 # Triangulation
 ####################################
-function delaunaytriang(E::AbstractEmbedding; noise_factor = 0.01)
-    if size(unique(E.points, 2), 2) < size(E.points, 2)
-      warn("""Embedding points not unique. Adding uniformly distributed noise
+function delaunaytriang(E::Embeddings.AbstractEmbedding; noise_factor = 0.01)
+    if size(unique(E.points, dims = 2), 2) < size(E.points, 2)
+      @warn """Embedding points not unique. Adding uniformly distributed noise
             to each observation equal to $noise_factor times the maximum of the
-            standard deviations for each variable).""")
+            standard deviations for each variable)."""
       # Find standard deviation along each axis
-      max_std = maximum(std(E3.points, 2))
+      max_std = maximum(std(E3.points, dims = 2))
       σ = noise_factor*max_std
       pts = E.points .* rand(Uniform(-σ, σ))
 

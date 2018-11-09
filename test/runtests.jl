@@ -1,5 +1,7 @@
 using StateSpaceReconstruction
-using Base.Test
+using Statistics: std
+using LinearAlgebra
+using Test
 
 if lowercase(get(ENV, "CI", "false")) == "true"
     include("install_dependencies.jl")

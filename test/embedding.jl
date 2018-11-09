@@ -6,8 +6,8 @@ using DynamicalSystems.Dataset
     E2 = embed(ts, [1, 2, 3], [1, -1, -1])
 
     @test all(E1.points[:, 1:3] .== E2.points)
-    @test typeof(E1) <: AbstractEmbedding
-    @test typeof(E2) <: AbstractEmbedding
+    @test typeof(E1) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(E2) <: StateSpaceReconstruction.AbstractEmbedding
 end
 
 
@@ -25,10 +25,10 @@ end
     @test all(E1.points[:, 1:3] .== E2.points)
     @test all(E3.points[:, 1:3] .== E4.points)
 
-    @test typeof(E1) <: AbstractEmbedding
-    @test typeof(E2) <: AbstractEmbedding
-    @test typeof(E3) <: AbstractEmbedding
-    @test typeof(E4) <: AbstractEmbedding
+    @test typeof(E1) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(E2) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(E3) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(E4) <: StateSpaceReconstruction.AbstractEmbedding
 end
 
 
@@ -42,20 +42,20 @@ end
     embedding_lags = [1, 0, -2]
 
     # Vector of vectors
-    @test typeof(embed(u)) <: AbstractEmbedding
-    @test typeof(embed(v)) <: AbstractEmbedding
-    @test typeof(embed(u, ts_inds, embedding_lags)) <: AbstractEmbedding
-    @test typeof(embed(v, ts_inds, embedding_lags)) <: AbstractEmbedding
+    @test typeof(embed(u)) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(embed(v)) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(embed(u, ts_inds, embedding_lags)) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(embed(v, ts_inds, embedding_lags)) <: StateSpaceReconstruction.AbstractEmbedding
 
     # Arrays
-    @test typeof(embed(A)) <: AbstractEmbedding
-    @test typeof(embed(A, ts_inds, embedding_lags)) <: AbstractEmbedding
+    @test typeof(embed(A)) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(embed(A, ts_inds, embedding_lags)) <: StateSpaceReconstruction.AbstractEmbedding
 
-    @test typeof(embed(float.(B))) <: AbstractEmbedding
-    @test typeof(embed(float.(B), ts_inds, embedding_lags)) <: AbstractEmbedding
+    @test typeof(embed(float.(B))) <: StateSpaceReconstruction.AbstractEmbedding
+    @test typeof(embed(float.(B), ts_inds, embedding_lags)) <: StateSpaceReconstruction.AbstractEmbedding
 
     # Datasets
-    @test typeof(embed(D)) <: AbstractEmbedding
+    @test typeof(embed(D)) <: Embeddings.AbstractEmbedding
 end
 
 
