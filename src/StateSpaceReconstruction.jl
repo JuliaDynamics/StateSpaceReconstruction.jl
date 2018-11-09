@@ -7,9 +7,13 @@ using DynamicalSystemsBase
 using DynamicalSystems
 using StaticArrays
 using Simplices.even_sampling_rules
+
+# GroupSlices
+include("GroupSlices.jl")
+export GroupSlices
+
 include("embedding/delaunay_colwise.jl") # include before embedding
 include("embedding/embedding_colwise.jl")
-
 
 ####################################
 # Triangulation

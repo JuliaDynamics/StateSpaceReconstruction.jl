@@ -255,9 +255,9 @@ version = "7.1.1"
 
 [[NLsolve]]
 deps = ["DiffBase", "DiffEqDiffTools", "Distances", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "Printf", "Reexport", "SparseArrays", "Test"]
-git-tree-sha1 = "8c546de5949f527125ca781ace3784e5da52bbb7"
+git-tree-sha1 = "0e046f4f72801c9782d64db972ce66a85d3473f1"
 uuid = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
-version = "3.0.0"
+version = "3.0.1"
 
 [[NaNMath]]
 deps = ["Compat"]
@@ -285,9 +285,9 @@ version = "1.0.2"
 
 [[OrdinaryDiffEq]]
 deps = ["DataStructures", "DiffEqBase", "DiffEqDiffTools", "DiffEqOperators", "ExponentialUtilities", "ForwardDiff", "GenericSVD", "InteractiveUtils", "LinearAlgebra", "Logging", "MuladdMacro", "NLsolve", "Parameters", "Printf", "Random", "RecursiveArrayTools", "Reexport", "SparseArrays", "StaticArrays", "Statistics", "Test"]
-git-tree-sha1 = "3eab101c0271c27408f1efd03e552112fe61de59"
+git-tree-sha1 = "44b786ca14842e30eba2656d83c7055f8a20b74d"
 uuid = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
-version = "4.17.1"
+version = "4.17.2"
 
 [[PDMats]]
 deps = ["Arpack", "LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
@@ -398,6 +398,12 @@ deps = ["Compat"]
 git-tree-sha1 = "276b24f3ace98bec911be7ff2928d497dc759085"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "0.2.1"
+
+[[Simplices]]
+deps = ["LinearAlgebra", "Printf", "Test"]
+git-tree-sha1 = "11f1203af802bd23208353e51863cfd3bd91023d"
+uuid = "d5428e67-3037-59ba-9ab1-57a04f0a3b6a"
+version = "0.2.0"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
