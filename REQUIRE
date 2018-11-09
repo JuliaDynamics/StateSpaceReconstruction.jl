@@ -1,9 +1,1 @@
 julia 0.7
-Parameters
-StaticArrays
-Reexport
-DynamicalSystemsBase
-DynamicalSystems
-RecipesBase
-Simplices 0.2
-Plots

@@ -139,18 +139,6 @@ git-tree-sha1 = "c24e9b6500c037673f0241a2783472b8c3d080c7"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
 version = "0.16.4"
 
-[[DocStringExtensions]]
-deps = ["LibGit2", "Markdown", "Pkg", "Test"]
-git-tree-sha1 = "a016e0bfe98a748c4488e2248c2ef4c67d6fdd35"
-uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.5.0"
-
-[[Documenter]]
-deps = ["Compat", "DocStringExtensions", "Logging", "REPL"]
-git-tree-sha1 = "d7b6266f1f87a8c85ce4c1f9c0e9ba3b7831ce1d"
-uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.19.7"
-
 [[DynamicalSystems]]
 deps = ["ChaosTools", "DynamicalSystemsBase", "Pkg", "Reexport", "StaticArrays"]
 git-tree-sha1 = "9620cee7b56b99ee01da6fca0850fc4b14e23106"
@@ -424,10 +412,10 @@ uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "0.2.1"
 
 [[Simplices]]
-deps = ["Conda", "Distributions", "Documenter", "LinearAlgebra", "Parameters", "Printf", "PyCall", "StaticArrays", "Test"]
-path = "/Users/kristian/Documents/juliapackages/Simplices.jl"
+deps = ["LinearAlgebra", "Printf", "Test"]
+git-tree-sha1 = "11f1203af802bd23208353e51863cfd3bd91023d"
 uuid = "d5428e67-3037-59ba-9ab1-57a04f0a3b6a"
-version = "0.2.0+"
+version = "0.2.0"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
