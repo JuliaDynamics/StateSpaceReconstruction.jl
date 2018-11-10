@@ -16,7 +16,7 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     # Centroids and radii of simplices in the triangulation
     centroids, radii = centroids_radii2(points, simplex_indices)
 
-    lastpoint_matrix = repmat(lastpoint', size(centroids, 1), 1)
+    lastpoint_matrix = repmat(transpose(lastpoint), size(centroids, 1), 1)
 
     # Find simplices that can contain the last point (not all can)
     dists_lastpoint_and_centroids = sum((lastpoint_matrix - centroids).^2, 2)

@@ -18,12 +18,12 @@ function centroids_radii2(points, indices_simplices)
 
     for i = 1:nsimplices
         simplex = points[indices_simplices[i, :], :] # (dim + 1) x dim)
-        centroid = sum(simplex, 1) / (dim + 1)
-        centroid_matrix = repmat(centroid, dim + 1, 1)
+        centroid = sum(simplex, dims = 1) / (dim + 1)
+        centroid_matrix = repeat(centroid, dim + 1, 1)
 
         # Subtract centroid from each simplex
         subtracted = simplex - centroid_matrix
-        radius = sqrt(maximum(sum(subtracted.^2, 2)))
+        radius = sqrt(maximum(sum(subtracted.^2, dims = 2)))
 
         centroids[i, :] = centroid
         radii[i] = radius
@@ -71,7 +71,7 @@ function orientations(points::AbstractArray{Float64, 2},
                     simplex_inds::AbstractArray{Int, 2})
     n_simplices = size(simplex_inds, 1)
     dim = size(simplex_inds, 2) - 1
-    orientations = Vector{Float64}(n_simplices)
+    orientations = Vector{Float64}(undef, n_simplices)
 
     for i = 1:n_simplices
         orientations[i] = det(hcat(view(points, view(simplex_inds, i, :), :),

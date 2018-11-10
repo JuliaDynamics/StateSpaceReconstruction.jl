@@ -1,3 +1,5 @@
+using Simplices.Delaunay: delaunayn
+
 """
 A triangulation of a cloud of embedded points into disjoint simplices.
 

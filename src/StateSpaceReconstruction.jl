@@ -13,8 +13,9 @@ using LinearAlgebra
 include("GroupSlices.jl")
 export GroupSlices
 
-include("embedding/delaunay_colwise.jl") # include before embedding
 include("embedding/Embeddings.jl")
+include("embedding/delaunay.jl")
+include("embedding/delaunay_colwise.jl") # include before embedding
 
 ####################################
 # Triangulation

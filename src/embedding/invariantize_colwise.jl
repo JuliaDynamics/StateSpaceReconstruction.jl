@@ -58,18 +58,24 @@ end
 
 function invariantize(E::Embeddings.AbstractEmbedding;
                         verbose = false,
-                        noise_factor = 0.05, step = 5)
+                        noise_factor = 0.01, step = 5)
    pts = E.points
-   @warn """Adding some noise to the points."""
-   σ = maximum(std(E.points, dims = 2))
-   pts = pts .+ rand(Uniform(-σ, σ)) .* noise_factor
+   #@warn """Adding some noise to the points."""
+   σ = std(E.points, dims = 2)
+   dim = size(pts, 1)
+   for i = 1:dim
+      pts[i, :] .+= rand(Uniform(-σ[i], σ[i])) .* noise_factor
+   end
+
    if size(unique(pts, dims = 2), 2) < size(pts, 2)
 
       @warn """Embedding points not unique. Adding a little noise ($noise_factor
             times the maximum of the the standard deviations along each axis)"""
       # Find standard deviation along each axis
-      max_std = maximum(std(E.points, dims = 2))
-      pts .+= rand(Uniform) .* noise_factor*max_std
+      dim = size(pts, 1)
+      for i = 1:dim
+         pts[i, :] .+= rand(Uniform(-σ[i], σ[i])) .* noise_factor
+      end
    end
 
    #=

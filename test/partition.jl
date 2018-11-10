@@ -17,7 +17,6 @@
 
     @testset "ϵ is a Vector{Float64}" begin
         labels = assign_bin_labels(E, [0.2, 0.3, 0.1])
-        @show labels
         @test size(labels, 1) == D
         @test size(labels, 2) == npts
     end
