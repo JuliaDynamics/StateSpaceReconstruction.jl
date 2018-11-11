@@ -158,7 +158,7 @@ function Base.summary(t::AbstractTriangulation)
 end
 
 function matstring(t::AbstractTriangulation)
-    fields = fieldnames(t)
+    fields = fieldnames(typeof(t))
     fields_str = String.(fields)
     maxlength = maximum([length(str) for str in fields_str]) + 2
     fields_str = [fields_str[i] *
