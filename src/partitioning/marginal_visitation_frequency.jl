@@ -54,9 +54,9 @@ function marginal_visitation_freq(
     # the bin is visited, then get visitation frequency for that bin
     # by dividing the number of times it is visited by the total
     # number of points.
-    m = Vector{Float64}(n_visited_states) # preallocate marginal vector
+    m = Vector{Float64}(undef, n_visited_states) # preallocate marginal vector
     @inbounds for i = 1:n_visited_states
-        m[i] .= length(group_repeated_inds[i]) / npts
+        m[i] = length(group_repeated_inds[i]) / npts
     end
 
     return m

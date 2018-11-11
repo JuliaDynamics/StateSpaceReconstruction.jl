@@ -16,7 +16,7 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     # Centroids and radii of simplices in the triangulation
     centroids, radii = centroids_radii2(points, simplex_indices)
 
-    lastpoint_matrix = repmat(lastpoint', size(centroids, 1), 1)
+    lastpoint_matrix = repmat(transpose(lastpoint), size(centroids, 1), 1)
 
     # Find simplices that can contain the last point (not all can)
     dists_lastpoint_and_centroids = sum((lastpoint_matrix - centroids).^2, 2)
@@ -70,7 +70,7 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     return lastpoint_contained
 end
 
-forwardlinearmap_invariant(E::T) where T<:AbstractEmbedding =
+forwardlinearmap_invariant(E::T) where T<:StateSpaceReconstruction.AbstractEmbedding =
    forwardlinearmap_invariant(E.points)
 
 """
@@ -88,11 +88,11 @@ allowed to remove can be set by providing the named argument `max_point_remove`.
 If `remove_points = false`, incrementally move last point of the embedding
 towards the origin until it lies within the convex hull of all preceding points.
 """
-function invariantize(emb::AbstractEmbedding;
+function invariantize(emb::StateSpaceReconstruction.AbstractEmbedding;
                         max_increments = 20, verbose = false)
    pts = emb.points
-   if size(unique(pts, 1), 2) < size(pts, 2)
-      warn("Embedding points are not unique. Returning unmodified $emb.")
+   if size(unique(pts, dims = 1), 2) < size(pts, 2)
+      @warn "Embedding points are not unique. Returning unmodified $emb."
       return emb
    end
 
@@ -104,7 +104,7 @@ function invariantize(emb::AbstractEmbedding;
    =#
    embedding_center = sum(pts, 1)/size(pts, 1)
    lastpoint = deepcopy(pts[end, :])
-   dir = embedding_center.' - lastpoint
+   dir = transpose(embedding_center) - lastpoint
 
    pts_removed = 0
    is_invariant = false
@@ -116,13 +116,12 @@ function invariantize(emb::AbstractEmbedding;
       else
          percent_moved += 1
          if verbose
-            warn("Moved last point $percent_moved % of the distance to convex hull origin.")
+            @warn """Moved last point $percent_moved % of the distance to convex hull origin."""
          end
-         if isa(pts, Array{Int, 2})
+         if isa(pts, Array)
             pts[end, :] = ceil(Int, lastpoint + dir*(percent_moved / 100))
          else
             pts[end, :] = lastpoint + dir*(percent_moved / 100)
-
          end
       end
    end
@@ -136,7 +135,7 @@ function invariantize(emb::AbstractEmbedding;
             emb.dim
          )
    else
-      warn("Could not make embedding invariant. Returning nothing.")
+      @warn "Could not make embedding invariant. Returning empty embedding."
       return LinearlyInvariantEmbedding()
    end
 end

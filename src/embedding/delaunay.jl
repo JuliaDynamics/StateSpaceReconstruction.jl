@@ -1,8 +1,9 @@
 @reexport module Delaunay
 
-import Simplices.Delaunay.delaunay
-using StaticArrays.SVector
-using DynamicalSystemsBase.Dataset
+import Simplices.Delaunay: delaunay
+using ..Embeddings
+using StaticArrays: SVector
+using DynamicalSystemsBase: Dataset
 
 """
     DelaunayTriangulation{D, T}
@@ -36,12 +37,13 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 dimension(::DelaunayTriangulation{D,T}) where {D,T} = D
 @inline Base.eltype(d::DelaunayTriangulation{D,T}) where {D,T} = T
 
-Base.unique(d::DelaunayTriangulation) = Base.unique(d.indices.data)
-Base.unique(d::DelaunayTriangulation, i::Int) = Base.unique(d.indices.data, i)
+#Base.unique(d::DelaunayTriangulation) = Base.unique(d.indices.data)
+#Base.unique(d::DelaunayTriangulation, dims) = Base.unique(d.indices.data, dims)
 
-import Base: ==
-==(d₁::DelaunayTriangulation, d₂::DelaunayTriangulation) =
-    d₁.indices == d₂.indices
+#import Base: ==
+#function ==(d₁::DelaunayTriangulation, d₂::DelaunayTriangulation)
+#    d₁.indices == d₂.indices
+#end
 
 """
     indices(d::DelaunayTriangulation, i::Int)
@@ -114,7 +116,7 @@ function delaunay(d::Dataset)
 end
 
 function delaunay(r::Embedding)
-    triang = delaunay(r.points))
+    triang = delaunay(r.points)
     DelaunayTriangulation(triang)
 end
 

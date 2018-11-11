@@ -104,7 +104,7 @@ function maybeintersecting_simplices(t::AbstractTriangulation, image_i::Int)
     n_simplices = length(t.radii)
 
     @inbounds for i = 1:n_simplices
-        dist_difference = ((t.centroids_im[image_i] - t.centroids[i]).' *
+        dist_difference = (transpose(t.centroids_im[image_i] - t.centroids[i]) *
                             (t.centroids_im[image_i] - t.centroids[i]) -
                                 (t.radii_im[image_i] + t.radii[i])^2)[1]
         if dist_difference < 0
@@ -125,7 +125,7 @@ function maybeintersecting_imsimplices(t::AbstractTriangulation, orig_i::Int)
     n_simplices = length(t.radii)
 
     @inbounds for i = 1:n_simplices
-        dist_difference = ((t.centroids[orig_i] - t.centroids_im[i]).' *
+        dist_difference = (transpose(t.centroids[orig_i] - t.centroids_im[i]) *
                             (t.centroids[orig_i] - t.centroids_im[i]) -
                                 (t.radii[orig_i] + t.radii_im[i])^2)[1]
         if dist_difference < 0
@@ -154,7 +154,7 @@ function point_representatives(t::AbstractTriangulation)
     # Loop over the rows of the simplex_inds array to access all the simplices.
     for i = 1:n_simplices
         simplex = t.points[t.simplex_inds[i], :]
-        point_representatives[i, :] = childpoint(simplex)
+        point_representatives[i, :] = Delaunay.childpoint(simplex)
     end
 
     return point_representatives

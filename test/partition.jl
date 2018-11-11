@@ -4,25 +4,25 @@
     npts = size(E.points, 2)
 
     @testset "ϵ is an Int" begin
-        labels = assign_bin_labels(E::AbstractEmbedding, 10)
+        labels = assign_bin_labels(E, 10)
         @test size(labels, 1) == D
         @test size(labels, 2) == npts
     end
 
     @testset "ϵ is a Float64" begin
-        labels = assign_bin_labels(E::AbstractEmbedding, 0.2)
+        labels = assign_bin_labels(E, 0.2)
         @test size(labels, 1) == D
         @test size(labels, 2) == npts
     end
 
     @testset "ϵ is a Vector{Float64}" begin
-        labels = assign_bin_labels(E::AbstractEmbedding, [0.2, 0.3, 0.1])
+        labels = assign_bin_labels(E, [0.2, 0.3, 0.1])
         @test size(labels, 1) == D
         @test size(labels, 2) == npts
     end
 
     @testset "ϵ is a Vector{Int}" begin
-        labels = assign_bin_labels(E::AbstractEmbedding, [3, 4, 2])
+        labels = assign_bin_labels(E, [3, 4, 2])
         @test size(labels, 1) == D
         @test size(labels, 2) == npts
     end

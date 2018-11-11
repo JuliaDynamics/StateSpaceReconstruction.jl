@@ -3,18 +3,19 @@ using Reexport
 
 using Parameters
 using Plots
+using ..Embeddings
 using ..Embeddings:
 			AbstractEmbedding,
 			Embedding,
 			LinearlyInvariantEmbedding,
 			SimpleEmbedding
-using GroupSlices:
+using ..GroupSlices:
 			groupslices,
 			firstinds,
 			groupinds
+using LinearAlgebra
 using Simplices:
-	Delaunay.delaunayn,
-	childpoint
+	Delaunay
 
 abstract type Partition end
 
