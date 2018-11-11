@@ -1,39 +1,39 @@
-using Simplices.even_sampling_rules
+using Simplices: even_sampling_rules
 using StaticArrays
 using Plots
 
 function interiorpoints(s::SArray{D, T}, n::Int) where {D, T}
     R = rand(size(s, 2), n)
-    convex_coeffs = ((1 ./ sum(R, 1)) .* R)
+    convex_coeffs = ((1 ./ sum(R, dims = 1)) .* R)
     s * convex_coeffs
 end
 
 connectvertices(s) = hcat(s, hcat([s[:, i]
-                    for i in [1, 3, 1, 4, 2]]...))
-splitaxes(x) = ([x[k, :] for k = 1:size(x, 1)]...)
+                    for i in [1, 3, 1, 4, 2]]...,))
+splitaxes(x) = ([x[k, :] for k = 1:size(x, 1)]...,)
 preparesimplex(s) = splitaxes(connectvertices(s))
 
 """
-    getsimplex(r::AbstractEmbedding,
+    getsimplex(r::Embeddings.AbstractEmbedding,
                 t::DelaunayTriangulation,
                 i::Int)
 
 Get the vertices of the i-th simplex of the triangulation.
 """
-getsimplex(r::AbstractEmbedding, t::DelaunayTriangulation, i::Int) =
+getsimplex(r::Embeddings.AbstractEmbedding, t::DelaunayTriangulation, i::Int) =
     r.points[:, t.indices[:, i]]
 
 getsimplex(d::Dataset, t::DelaunayTriangulation, i::Int) =
     r.points[:, t.indices[:, i]]
 """
-    forwardmap(r::AbstractEmbedding,
+    forwardmap(r::Embeddings.AbstractEmbedding,
                 t::DelaunayTriangulation,
                 i::Int)
 
 Get the vertices of the i-th simplex of the triangulation projected
 one step forward in time.
 """
-forwardmap(r::AbstractEmbedding, t::DelaunayTriangulation, i::Int) =
+forwardmap(r::Embeddings.AbstractEmbedding, t::DelaunayTriangulation, i::Int) =
     r.points[:, t.indices[:, i] .+ 1]
 
 forwardmap(r::Dataset, t::DelaunayTriangulation, i::Int) =
@@ -44,7 +44,7 @@ forwardmap(r::Dataset, t::DelaunayTriangulation, i::Int) =
 
 Plot the triangulation of a 3D state space reconstruction.
 """
-function plot_triang(r::AbstractEmbedding, t::DelaunayTriangulation;
+function plot_triang(r::Embeddings.AbstractEmbedding, t::DelaunayTriangulation;
         plot_states = true,
         plot_simplices = true,
         evenly_subsample = true,

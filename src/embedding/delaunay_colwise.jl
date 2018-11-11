@@ -18,7 +18,7 @@ end
 
 function delaunaytriang(d::Dataset)
     triang = delaunay(transpose(Matrix(d)))
-    DelaunayTriangulation(hcat(triang...))
+    DelaunayTriangulation(hcat(triang...,))
 end
 
 

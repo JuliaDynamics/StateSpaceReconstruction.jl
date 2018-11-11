@@ -4,6 +4,7 @@
 #############################################################
 import Simplices.Delaunay.delaunay
 using Distributions
+using Statistics: std
 
 function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     lastpoint = pts[:, end]
@@ -55,19 +56,26 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     return lastpoint_contained
 end
 
-function invariantize(E::AbstractEmbedding;
+function invariantize(E::Embeddings.AbstractEmbedding;
                         verbose = false,
-                        noise_factor = 0.05, step = 5)
+                        noise_factor = 0.01, step = 5)
    pts = E.points
-   warn("Adding some noise to the points.")
-   σ = maximum(std(E.points, 2))
-   pts .+= rand(Uniform(-σ, σ)) .* noise_factor
-   if size(unique(pts, 2), 2) < size(pts, 2)
-      warn("""Embedding points not unique. Adding a little noise ($noise_factor
-            times the maximum of the the standard deviations along each axis)""")
+   #@warn """Adding some noise to the points."""
+   σ = std(E.points, dims = 2)
+   dim = size(pts, 1)
+   for i = 1:dim
+      pts[i, :] .+= rand(Uniform(-σ[i], σ[i])) .* noise_factor
+   end
+
+   if size(unique(pts, dims = 2), 2) < size(pts, 2)
+
+      @warn """Embedding points not unique. Adding a little noise ($noise_factor
+            times the maximum of the the standard deviations along each axis)"""
       # Find standard deviation along each axis
-      max_std = maximum(std(E.points, 2))
-      pts .= pts .* rand(Uniform) .* noise_factor*max_std
+      dim = size(pts, 1)
+      for i = 1:dim
+         pts[i, :] .+= rand(Uniform(-σ[i], σ[i])) .* noise_factor
+      end
    end
 
    #=
@@ -76,16 +84,16 @@ function invariantize(E::AbstractEmbedding;
    # from its original position towards the embedding's center, until the point
    # lies inside the convex hull of the preceding points.
    =#
-   ce = sum(E.points, 2)/size(E.points, 2) # embedding center
+   ce = sum(E.points, dims = 2)/size(E.points, 2) # embedding center
    lp = E.points[:, end] # last point of the embedding
    # What direction should we move?
    dir = ce - lp
 
-   dir = squeeze(ce .- lp, 2)
+   dir = dropdims(ce .- lp, dims = 2)
 
    # Points along line toward the center of the embedding.
    steps = 1:step:100
-   ptsonline = [lp .+ dir.*(pct_moved/100) for pct_moved in 1:step:100]
+   ptsonline = [lp .+ dir .* (pct_moved/100) for pct_moved in 1:step:100]
 
    for i = 1:length(ptsonline)
       pt = ptsonline[i]
@@ -100,7 +108,7 @@ function invariantize(E::AbstractEmbedding;
             )
       end
    end
-   warn("Could not make embedding invariant. Returning unmodified $E.")
+   @warn """Could not make embedding invariant. Returning unmodified $E."""
    return E
 end
 

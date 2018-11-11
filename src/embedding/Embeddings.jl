@@ -5,6 +5,7 @@ using DynamicalSystemsBase
 import DynamicalSystemsBase.dimension
 using StaticArrays
 using Distributions
+using Statistics
 
 """
     AbstractEmbedding{D, T}
@@ -128,8 +129,8 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::Colon) = r.points
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[j, i]
 
-Base.unique(r::AbstractEmbedding) = unique(r.points)
-Base.unique(r::AbstractEmbedding, i::Int) = unique(r.points, i)
+#Base.unique(r::AbstractEmbedding) = unique(r.points)
+#Base.unique(r::AbstractEmbedding, i::Int) = unique(r.points, dims = i)
 
 dimension(::AbstractEmbedding{D,T}) where {D,T} = D
 @inline Base.eltype(r::AbstractEmbedding{D,T}) where {D,T} = T
@@ -610,7 +611,7 @@ using RecipesBase
 
 @recipe function f(r::AbstractEmbedding)
     if dimension(r) > 3
-        #warn("Embedding dim > 3, plotting three first axes")
+        @warn "Embedding dim > 3, plotting three first axes"
         pts = r.points[1:3, :]
     end
     pts = r.points
@@ -626,29 +627,29 @@ end
 import Simplices.Delaunay.delaunay
 function delaunaytriang(E::AbstractEmbedding; noise_factor = 0.05)
     pts = E.points
-    warn("""Adding uniformly distributed noise to each observation equal to
+    @warn """Adding uniformly distributed noise to each observation equal to
         $noise_factor times the maximum of the standard deviations for each
-        variables.""" )
+        variables."""
 
     # Find standard deviation along each axis
-    σ = noise_factor*std(pts, 2)
+    σ = noise_factor*std(pts, dims = 2)
     pts .= pts .+ rand(Uniform(-σ, σ), 3)
 
-    if size(unique(pts, 2), 2) < size(pts, 2)
-        warn("""Embedding points not unique. Adding uniformly distributed noise
+    if size(unique(pts, dims = 2), 2) < size(pts, 2)
+        @warn """Embedding points not unique. Adding uniformly distributed noise
             to each observation equal to $noise_factor times the maximum of the
-            standard deviations for each variable).""")
+            standard deviations for each variable)."""
                 # Find standard deviation along each axis
-        max_std = maximum(std(pts, 2))
+        max_std = maximum(std(pts, dims = 2))
         σ = noise_factor*max_std
         pts .= pts .+ rand(Uniform(-σ, σ))
         #Python expects row-major, so we need to transpose
         triang = delaunay(transpose(pts))
-        return DelaunayTriangulation(hcat(triang...))
+        return DelaunayTriangulation(hcat(triang...,))
     end
     # Python expects row-major, so we need to transpose
     triang = delaunay(transpose(pts))
-    return DelaunayTriangulation(hcat(triang...))
+    return DelaunayTriangulation(hcat(triang...,))
 end
 
 

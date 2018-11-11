@@ -21,8 +21,8 @@ function minima_and_stepsizes(points, ϵ)
     D = size(points, 1)
     n_pts = size(points, 2)
 
-    axisminima = Vector{Float64}(D)
-    top = Vector{Float64}(D)
+    axisminima = Vector{Float64}(undef, D)
+    top = Vector{Float64}(undef, D)
 
     for i = 1:D
         axisminima[i] = minimum(points[i, :])
@@ -31,7 +31,7 @@ function minima_and_stepsizes(points, ϵ)
     axisminima = axisminima - (top - axisminima) / 100
     top = top + (top - axisminima) / 100
 
-    stepsizes = Vector{Float64}(D)
+    stepsizes = Vector{Float64}(undef, D)
     if typeof(ϵ) <: Float64
         stepsizes = [ϵ for i in 1:D]
     elseif typeof(ϵ) == Vector{Float64}
@@ -119,7 +119,7 @@ function assign_bin_labels(points, ϵ)
 end
 
 """
-    assign_bin_labels(E::AbstractEmbedding, ϵ) -> Array{Int, 2}
+    assign_bin_labels(E::Embeddings.AbstractEmbedding, ϵ) -> Array{Int, 2}
 
 Find bins visited by the reconstructed orbit and assign
 to them integer tuples uniquely identifying the bins.
@@ -149,7 +149,7 @@ to each of the points in the embedding. These are gathered
 in an array where column vectors represent the tuples
 associated to each point.
 """
-function assign_bin_labels(E::AbstractEmbedding, ϵ)
+function assign_bin_labels(E::Embeddings.AbstractEmbedding, ϵ)
     assign_bin_labels(E.points, ϵ)
 end
 
@@ -233,7 +233,7 @@ end
 
 
 """
-    assign_coordinate_labels(E::AbstractEmbedding, ϵ) -> Array{Float64, 2}
+    assign_coordinate_labels(E::Embeddings.AbstractEmbedding, ϵ) -> Array{Float64, 2}
 
 Consider a rectangular grid specified by ϵ. Assume the bin labels to the
 provided embedding by checking which bins each point fall into. Each points is
@@ -250,7 +250,7 @@ The following `ϵ` will work:
 * `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
 * `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
 """
-function assign_coordinate_labels(E::AbstractEmbedding, ϵ)
+function assign_coordinate_labels(E::Embeddings.AbstractEmbedding, ϵ)
     assign_coordinate_labels(E.points, ϵ)
 end
 
@@ -315,7 +315,7 @@ end
 
 """
     assign_coordinate_labels(visited_bin_inds,
-        E::AbstractEmbedding, ϵ)  -> Array{Float64, 2}
+        E::Embeddings.AbstractEmbedding, ϵ)  -> Array{Float64, 2}
 
 Consider a rectangular grid specified by ϵ. Assume that, given `ϵ`,
 integer bin  labels have been assigned to each point and are stored in
@@ -337,7 +337,7 @@ The following `ϵ` will work:
 * `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
 * `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
 """
-function assign_coordinate_labels(visited_bin_inds, E::AbstractEmbedding, ϵ)
+function assign_coordinate_labels(visited_bin_inds, E::Embeddings.AbstractEmbedding, ϵ)
     assign_coordinate_labels(visited_bin_inds, E.points, ϵ)
 end
 
@@ -377,8 +377,8 @@ Given the origin `o` (3-element vector) and edge lengths `ϵ` (also a
 vertices.
 """
 function rectangle3dpts(o, ϵ)
-    x, y, z = (o...)
-    ϵx, ϵy, ϵz = (ϵ...)
+    x, y, z = (o...,)
+    ϵx, ϵy, ϵz = (ϵ...,)
     rectangle3dpts(x, y, z, ϵx, ϵy, ϵz)
 end
 
@@ -420,7 +420,7 @@ end
 Return a vector of the individual components of an array of points
 provided as an array where each point is a column.
 """
-splitaxes(x) = ([x[k, :] for k = 1:size(x, 1)]...)
+splitaxes(x) = ([x[k, :] for k = 1:size(x, 1)]...,)
 
 """
     plot_3D_rect!(p, origin, edgelengths;
@@ -483,7 +483,7 @@ function plot_partition(pts::AbstractArray{T, 2}, ϵ;
 
     # Bins may be visited by several times, so we'll get rid
     # of the repetitions.
-    V = unique(v, 2)
+    V = unique(v, dims = 2)
     n_visited_boxes = size(V, 2)
 
     # Plot the partition grid over the points of the reconstructed
@@ -500,7 +500,7 @@ function plot_partition(pts::AbstractArray{T, 2}, ϵ;
 end
 
 """
-    plot_partition(E::AbstractEmbedding, ϵ; vars = [1, 2, 3],
+    plot_partition(E::Embeddings.AbstractEmbedding, ϵ; vars = [1, 2, 3],
                     mc = :blue, ms = 2, mα = 0.8,
                     lc = :black, lw = 2, ls = :dash, lα = 0.6)
 
@@ -520,7 +520,7 @@ The following `ϵ` will work:
 respectively. `lc`, `lw`, `lα` and `ls` control the line color, line width,
 line opacity and line style, respectively.
 """
-function plot_partition(E::AbstractEmbedding, ϵ;
+function plot_partition(E::Embeddings.AbstractEmbedding, ϵ;
                 vars = [1, 2, 3],
                 mc = :blue, ms = 2, mα = 0.8,
                 lc = :black, lw = 1.5, ls = :dash, lα = 0.6)

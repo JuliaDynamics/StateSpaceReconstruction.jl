@@ -107,7 +107,7 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 @inline Base.getindex(r::AbstractEmbedding, i::Colon, j::tps) = r.points[i, j]
 
 Base.unique(r::AbstractEmbedding) = Base.unique(r.points.data)
-Base.unique(r::AbstractEmbedding, i::Int) = Base.unique(r.points.data, i)
+Base.unique(r::AbstractEmbedding, i::Int) = Base.unique(r.points.data, dims = i)
 
 dimension(::AbstractEmbedding{D,T}) where {D,T} = D
 @inline Base.eltype(r::AbstractEmbedding{D,T}) where {D,T} = Ti
@@ -539,7 +539,7 @@ using RecipesBase
 
 @recipe function f(r::AbstractEmbedding)
     if dimension(r) > 3
-        warn("Embedding dim > 3, plotting three first axes")
+        @warn "Embedding dim > 3, plotting three first axes"
         pts = r.points[:, 1:3]
     end
     pts = r.points
