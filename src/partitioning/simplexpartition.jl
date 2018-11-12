@@ -1,6 +1,6 @@
 using Simplices: even_sampling_rules
 using StaticArrays
-using Plots
+using RecipesBase
 
 function interiorpoints(s::SArray{D, T}, n::Int) where {D, T}
     R = rand(size(s, 2), n)
