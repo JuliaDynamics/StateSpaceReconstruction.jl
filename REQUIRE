@@ -4,7 +4,6 @@ Distributions
 DynamicalSystems
 DynamicalSystemsBase
 Parameters
-Plots
 PyCall
 RecipesBase
 Reexport

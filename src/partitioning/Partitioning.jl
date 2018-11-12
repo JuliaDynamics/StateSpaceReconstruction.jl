@@ -2,7 +2,7 @@ using Reexport
 @reexport module Partitioning
 
 using Parameters
-using Plots
+using RecipesBase
 using ..Embeddings
 using ..Embeddings:
 			AbstractEmbedding,
