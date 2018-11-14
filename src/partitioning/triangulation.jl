@@ -148,9 +148,9 @@ end
 triangulate(pts::AbstractArray{Float64, 2}) = triangulate(embed(pts))
 
 function Base.summary(t::AbstractTriangulation)
-    npts = size(t.embedding.points, 1)
+    npts = size(t.embedding.points, 2)
     nsimplices = size(t.simplex_inds, 1)
-    dim = size(t.embedding.points, 2)
+    dim = size(t.embedding.points, 1)
     embeddingtype_tri = typeof(t)
     embeddingtype_emb = typeof(t.embedding)
     return """$dim-dimensional $(embeddingtype_tri) with $nsimplices simplices constructed

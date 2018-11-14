@@ -671,9 +671,7 @@ which_series,
 get_dataseries,
 points,
 npoints,
-dimension,
-minimum, maximum,
-minima, maxima
+dimension
 
 
 end

@@ -6,6 +6,7 @@ DynamicalSystemsBase
 Parameters
 PyCall
 RecipesBase
+Plots
 Reexport
 StaticArrays
 Simplices 0.2.1

@@ -3,6 +3,7 @@ using Reexport
 
 using Parameters
 using RecipesBase
+using Plots
 using ..Embeddings
 using ..Embeddings:
 			AbstractEmbedding,
