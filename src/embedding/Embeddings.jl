@@ -1,6 +1,5 @@
 @reexport module Embeddings
 
-using RecipesBase
 using DynamicalSystemsBase
 import DynamicalSystemsBase.dimension
 using StaticArrays
@@ -603,23 +602,6 @@ Base.show(io::IO, r::EmbeddingData) = println(io, summarise(r))
 Base.show(io::IO, r::Embedding) = println(io, summarise(r))
 
 
-
-####################################
-# Plotting
-####################################
-using RecipesBase
-
-@recipe function f(r::AbstractEmbedding)
-    if dimension(r) > 3
-        @warn "Embedding dim > 3, plotting three first axes"
-        pts = r.points[1:3, :]
-    end
-    pts = r.points
-    X = pts[1, :]
-    Y = pts[2, :]
-    Z = pts[3, :]
-    X, Y, Z
-end
 
 ####################################
 # Triangulation

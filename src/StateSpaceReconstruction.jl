@@ -40,7 +40,6 @@ function delaunaytriang(E::Embeddings.AbstractEmbedding; noise_factor = 0.01)
 end
 include("partitioning/Partitioning.jl")
 include("embedding/invariantize_colwise.jl")
-include("partitioning/simplexpartition.jl")
 
 export delaunaytriang
 end # module

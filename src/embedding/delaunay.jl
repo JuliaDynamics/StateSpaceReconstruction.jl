@@ -18,6 +18,7 @@ from.
 struct DelaunayTriangulation{D, T}
     indices::Dataset{D, T}
 end
+
 @inline Base.length(d::DelaunayTriangulation{D,T}) where {D,T} = length(d.indices)
 @inline Base.size(d::DelaunayTriangulation{D,T}) where {D,T} = (length(d), D)
 @inline Base.size(d::DelaunayTriangulation, i) = size(d.indices)[i]
@@ -62,39 +63,6 @@ i-th simplex of the triangulation.
 indices(d::DelaunayTriangulation, i::Int, j::Int) = d.indices[i][j]
 
 
-
-"""
-    minimum(r::DelaunayTriangulation{D, T}) where {D, T}) -> T
-
-Returns the minimum of the triangulation indices.
-"""
-minimum(d::DelaunayTriangulation) = minimum(d.indices)
-
-"""
-    maximum(r::Dataset{D, T}) where {D, T}) -> T
-
-Returns the maximum of the triangulation indices.
-"""
-maximum(d::DelaunayTriangulation) = maximum(d.indices)
-
-
-"""
-    minima(d::DelaunayTriangulation)
-
-Returns an `SVector` containing the minima of the triangulation
-indices along each axis.
-"""
-minima(d::DelaunayTriangulation) = minima(d.indices)
-
-"""
-    maxima(d::DelaunayTriangulation)
-
-Returns an `SVector` containing the maxima of the triangulation
-indices along each axis.
-"""
-maxima(d::DelaunayTriangulation) = maximum(d.indices)
-
-
 ####################################
 # Pretty printing.
 ####################################
@@ -124,8 +92,6 @@ end
 export
 delaunay,
 DelaunayTriangulation,
-indices,
-minimum, maximum,
-minima, maxima
+indices
 
 end

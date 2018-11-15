@@ -1,12 +1,10 @@
-julia 1.0
+julia 0.7
 Conda
 Distributions
 DynamicalSystems
 DynamicalSystemsBase
 Parameters
 PyCall
-RecipesBase
-Plots
 Reexport
 StaticArrays
 Simplices 0.2.1
