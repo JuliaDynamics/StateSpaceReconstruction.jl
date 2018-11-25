@@ -1,6 +1,5 @@
 @reexport module Partitioning
 
-using Parameters
 using Simplices: Delaunay
 import ..Embeddings: AbstractEmbedding, Embedding
 using ..GroupSlices: groupslices, firstinds, groupinds
