@@ -19,7 +19,7 @@ point.
 """
 function marginal_visitation_freq(
         along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
-        visited_bins::Array{T, 2}) where T
+        visited_bins::AbstractArray{T, 2}) where T
     if typeof(along_which_axes) <: Int
         along_which_axes = [along_which_axes]
     end
@@ -84,7 +84,7 @@ taking the joint visitation frequency.
 """
 function marginal_visitation_freq(
             along_which_axes::Union{Int, Vector{Int}, AbstractUnitRange{Int}},
-            points::Array{T, 2},
+            points::AbstractArray{T, 2},
             ϵ) where T
     # Make sure that the array contains points as columns.
     if size(points, 1) > size(points, 2)

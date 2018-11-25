@@ -1,36 +1,19 @@
-"""
-   forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number} -> Bool
+#############################################################
+# Making sure embedding is invariant under forward linear map
+# of its vertices
+#############################################################
+import Simplices.Delaunay.delaunay
+import Distributions
+import Statistics
 
-Does the last point lie inside the convex hull of the preceding points?
-"""
-function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
-    lastpoint = pts[end, :]
-    dim = size(pts, 2)
-
+function forwardlinearmap_invariant(pts::AbstractArray{T, 2}) where T
+    lastpoint = pts[:, end]
+    dim = size(pts, 1)
     # Triangulate the embedding using all points but the last
-    triangulation = delaunayn(pts[1:end-1, :])
-
-    points = pts[1:end-1, :]
-    simplex_indices = triangulation
-
-    # Centroids and radii of simplices in the triangulation
-    centroids, radii = centroids_radii2(points, simplex_indices)
-
-    lastpoint_matrix = repmat(transpose(lastpoint), size(centroids, 1), 1)
-
-    # Find simplices that can contain the last point (not all can)
-    dists_lastpoint_and_centroids = sum((lastpoint_matrix - centroids).^2, 2)
-    distdifferences = radii.^2 - dists_lastpoint_and_centroids
-
-    #=
-    Find the row indices of the simplices that possibly contain the last point
-    (meaning that dist(simplex_i, lastpoint) <= radius(simplex), so that the
-    circumsphere of the simplex contains the last point.
-    =#
-    valid_simplex_indices = find(heaviside0(distdifferences) .*
-                              collect(1:size(triangulation[2], 1)))
-
-    n_validsimplices = size(valid_simplex_indices, 1)
+    # Returns a vector of index vectors, one for each simplex
+    t = delaunay(transpose(pts[:, 1:end-1]))
+    n_simplices = length(t)
+    points = pts[:, 1:end-1]
 
     # Loop over valid simplices and check whether the corresponding simplex
     # contains the last point.
@@ -42,17 +25,20 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     contains it. Then the point must necessarily be inside the convex hull of
     the triangulation formed by those simplices.
     =#
-    while i <= n_validsimplices && !lastpoint_contained
-        simplex = pts[simplex_indices[valid_simplex_indices[i], :], :]
-        orientation_simplex = det([ones(dim + 1, 1) simplex])
+    while i <= n_simplices && !lastpoint_contained
+        sᵢ = transpose(points[:, t[i]])
+        orientation_sᵢ = Statistics.det([ones(dim + 1, 1) sᵢ])
 
-        beta = 1 # Convex expansion coefficient
-
+        # Insert the last point of the embedding in place
+        # of the j-th vertex of sᵢ and check whether the
+        # convex expansion coefficient β𝚥 stays non-negative.
+        # If β𝚥 becomes negative, the point is not contained.
         j = 1
-        while j <= dim + 1 && beta >= 0
-            tmp = copy(simplex)
-            tmp[j, :] = copy(lastpoint)
-            beta = det([ones(dim + 1, 1) tmp]) * sign(orientation_simplex)
+        β𝚥 = 1
+        while j <= dim + 1 && β𝚥 >= 0
+            tmp = copy(sᵢ)
+            tmp[j, :] = lastpoint
+            β𝚥 = Statistics.det(hcat(ones(dim + 1, 1), tmp)) * sign(orientation_sᵢ)
             j = j + 1
         end
 
@@ -61,7 +47,7 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
         contained in the triangulation (because all the previous coefficients
         must have been nonnegative)
         =#
-        if beta >= 0
+        if β𝚥 >= 0
             lastpoint_contained = true
         end
 
@@ -70,30 +56,22 @@ function forwardlinearmap_invariant(pts::Array{T, 2}) where {T <: Number}
     return lastpoint_contained
 end
 
-forwardlinearmap_invariant(E::T) where T<:StateSpaceReconstruction.AbstractEmbedding =
-   forwardlinearmap_invariant(E.points)
+function invariantize(E::AbstractEmbedding{D, T};
+                        verbose = false,
+                        noise_factor = 0.01, step = 5) where {D, T}
+   pts = E.points
+   dim = size(E.points, 1)
 
-"""
-   invariantize_embedding(
-      embedding::Array{Float64, 2};
-      max_point_remove::Int = ceil(Int, size(embedding, 1)*0.05)
-      )
+   if size(unique(pts, dims = 2), 2) < size(pts, 2)
 
-If `remove_points = true`, iteratively remove the last point of an embedding
-until it is invariant. If it is not possible to render the embedding invariant,
-return an empty array. The default is to try to remove a maximum of ~5% of the
-points of the original embedding before giving up. The number of points we're
-allowed to remove can be set by providing the named argument `max_point_remove`.
+      @warn """Embedding points not unique. Adding a little noise ($noise_factor times the maximum of the the standard deviations along each axis)"""
+      # Find standard deviation along each axis
+      dim = size(pts, 1)
+      σ = Statistics.std(E.points, dims = 2)
 
-If `remove_points = false`, incrementally move last point of the embedding
-towards the origin until it lies within the convex hull of all preceding points.
-"""
-function invariantize(emb::StateSpaceReconstruction.AbstractEmbedding;
-                        max_increments = 20, verbose = false)
-   pts = emb.points
-   if size(unique(pts, dims = 1), 2) < size(pts, 2)
-      @warn "Embedding points are not unique. Returning unmodified $emb."
-      return emb
+      for i = 1:dim
+         pts[i, :] .+= rand(Distributions.Uniform(-σ[i], σ[i])) .* noise_factor
+      end
    end
 
    #=
@@ -102,40 +80,37 @@ function invariantize(emb::StateSpaceReconstruction.AbstractEmbedding;
    # from its original position towards the embedding's center, until the point
    # lies inside the convex hull of the preceding points.
    =#
-   embedding_center = sum(pts, 1)/size(pts, 1)
-   lastpoint = deepcopy(pts[end, :])
-   dir = transpose(embedding_center) - lastpoint
+   ce = sum(E.points, dims = 2)/size(E.points, 2) # embedding center
+   lp = E.points[:, end] # last point of the embedding
+   # What direction should we move?
+   dir = ce - lp
 
-   pts_removed = 0
-   is_invariant = false
-   percent_moved = 0.0
-   dist_reduced = 0
-   while !is_invariant && pts_removed <= max_increments
-      if forwardlinearmap_invariant(pts)
-         is_invariant = true
-      else
-         percent_moved += 1
-         if verbose
-            @warn """Moved last point $percent_moved % of the distance to convex hull origin."""
-         end
-         if isa(pts, Array)
-            pts[end, :] = ceil(Int, lastpoint + dir*(percent_moved / 100))
-         else
-            pts[end, :] = lastpoint + dir*(percent_moved / 100)
-         end
+   dir = dropdims(ce .- lp, dims = 2)
+
+   # Points along line toward the center of the embedding.
+   steps = 1:step:100
+   ptsonline = [lp .+ dir .* (pct_moved/100) for pct_moved in 1:step:100]
+
+   for i = 1:length(ptsonline)
+      pt = ptsonline[i]
+      P = hcat(pts[:, 1:(end - 1)], pt)
+      if forwardlinearmap_invariant(P)
+
+         embeddingdata = EmbeddingData{dim, T}(
+              float.(E.embeddingdata.dataseries),  # the dataseries
+              E.embeddingdata.labels, # empty labels by default
+              E.embeddingdata.descriptions, # empty descriptions by default
+              E.embeddingdata.in_which_pos, # the positions in which the dataseries appear
+              E.embeddingdata.at_what_lags # the embedding lag for each column
+              )
+
+         return LinearlyInvariantEmbedding(
+               hcat(pts[:, 1:(end-1)], pt), embeddingdata
+            )
       end
    end
-
-   if is_invariant
-      return LinearlyInvariantEmbedding(
-            pts[1:size(pts, 1), :],
-            emb.which_ts,
-            emb.in_which_pos,
-            emb.at_what_lags,
-            emb.dim
-         )
-   else
-      @warn "Could not make embedding invariant. Returning empty embedding."
-      return LinearlyInvariantEmbedding()
-   end
+   @warn """Could not make embedding invariant. Returning unmodified $E."""
+   return E
 end
+
+export forwardlinearmap_invariant, invariantize
