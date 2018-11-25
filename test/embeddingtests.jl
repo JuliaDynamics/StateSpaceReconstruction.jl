@@ -1,4 +1,6 @@
 using StaticArrays
+using Distances
+using NearestNeighbors
 
 function generate_embeddings(n, dim)
 	A = rand(n, dim)
@@ -52,4 +54,14 @@ end
     E2 = embed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
     inv_E1 = invariantize(E1)
     @test typeof(inv_E1) == LinearlyInvariantEmbedding{4, Float64}
+end
+
+@testset "Interface with NearestNeighbors.jl" begin
+	E = StateSpaceReconstruction.embed([rand(100)], [1, 1, 1, 1], [0, -3, -4, 5])
+	brutetree = BruteTree(E, Euclidean())
+	balltree = BallTree(E, Euclidean())
+	kdtree = KDTree(E, Minkowski(2.5))
+	@test typeof(brutetree) <: NearestNeighbors.BruteTree
+	@test typeof(balltree) <: NearestNeighbors.BallTree
+	@test typeof(kdtree) <: NearestNeighbors.KDTree
 end

@@ -5,3 +5,5 @@ PyCall
 Reexport
 StaticArrays
 Simplices 0.2.1
+NearestNeighbors
+Distances
