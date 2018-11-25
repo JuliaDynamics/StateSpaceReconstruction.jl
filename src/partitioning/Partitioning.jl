@@ -1,20 +1,10 @@
-using Reexport
 @reexport module Partitioning
 
 using Parameters
-using ..Embeddings
-using ..Embeddings:
-			AbstractEmbedding,
-			Embedding,
-			LinearlyInvariantEmbedding,
-			SimpleEmbedding
-using ..GroupSlices:
-			groupslices,
-			firstinds,
-			groupinds
+using Simplices: Delaunay
+import ..Embeddings: AbstractEmbedding, Embedding
+using ..GroupSlices: groupslices, firstinds, groupinds
 using LinearAlgebra
-using Simplices:
-	Delaunay
 
 abstract type Partition end
 

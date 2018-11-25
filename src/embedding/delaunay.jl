@@ -1,72 +1,61 @@
+using Reexport
 @reexport module Delaunay
 
-import Simplices.Delaunay: delaunay
-using ..Embeddings
-using StaticArrays: SVector
-using DynamicalSystemsBase: Dataset
+import Simplices.Delaunay.delaunay
+import ..Embeddings
+using Statistics
+using Distributions
 
 """
-    DelaunayTriangulation{D, T}
-
+    DelaunayTriangulation
 A Delaunay triangulation in dimension D. If `d`
 is an instance of `DelaunayTriangulation`, then
-`indices[i]` gives the D + 1 indices of the vertices
+`d.indices[i]` gives the D + 1 indices of the vertices
 corresponding to the i-th simplex. The indices are
 expressed in terms of the points it was produced
 from.
 """
-struct DelaunayTriangulation{D, T}
-    indices::Dataset{D, T}
+struct DelaunayTriangulation
+    indices::AbstractArray{Int32, 2}
 end
 
-@inline Base.length(d::DelaunayTriangulation{D,T}) where {D,T} = length(d.indices)
-@inline Base.size(d::DelaunayTriangulation{D,T}) where {D,T} = (length(d), D)
-@inline Base.size(d::DelaunayTriangulation, i) = size(d.indices)[i]
 
-@inline Base.eachindex(d::DelaunayTriangulation) = Base.OneTo(length(d.indices))
-
-tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{Int}}
-@inline Base.getindex(d::DelaunayTriangulation, i::Int) = d.indices[i]
-@inline Base.getindex(d::DelaunayTriangulation, i::tps) = d.indices[i]
-@inline Base.getindex(d::DelaunayTriangulation, i::Int, j::tps) = d.indices[i, j]
-@inline Base.getindex(d::DelaunayTriangulation, i::tps, j::tps) = d.indices[i, j]
-@inline Base.getindex(d::DelaunayTriangulation, i::Int, j::Colon) = d.indices[i]
-@inline Base.getindex(d::DelaunayTriangulation, i::tps, j::Colon) = d.indices[i]
-@inline Base.getindex(d::DelaunayTriangulation, i::Colon, j::Int) = d.indices[i, j]
-@inline Base.getindex(d::DelaunayTriangulation, i::Colon, j::Colon) = d.indices
-@inline Base.getindex(d::DelaunayTriangulation, i::Colon, j::tps) = d.indices[i, j]
-dimension(::DelaunayTriangulation{D,T}) where {D,T} = D
-@inline Base.eltype(d::DelaunayTriangulation{D,T}) where {D,T} = T
-
-#Base.unique(d::DelaunayTriangulation) = Base.unique(d.indices.data)
-#Base.unique(d::DelaunayTriangulation, dims) = Base.unique(d.indices.data, dims)
-
-#import Base: ==
-#function ==(d₁::DelaunayTriangulation, d₂::DelaunayTriangulation)
-#    d₁.indices == d₂.indices
-#end
-
+####################################
+# Triangulation
+####################################
 """
-    indices(d::DelaunayTriangulation, i::Int)
+    delaunay(E::Embedding)
 
-Return the indices corresponding to the i-th simplex of
-the triangulation.
+Perform a Delaunay triangulation of the points of the embedding.
 """
-indices(d::DelaunayTriangulation, i::Int) = d.indices[i]
+function delaunay(E::Embeddings.AbstractEmbedding)
+    triang = delaunay(E.points)
+    DelaunayTriangulation(triang)
+end
 
-"""
-    indices(d::DelaunayTriangulation, i::Int, j::Int)
 
-Return index corresponding to the j-th vertex of the
-i-th simplex of the triangulation.
-"""
-indices(d::DelaunayTriangulation, i::Int, j::Int) = d.indices[i][j]
+function delaunay(E::Embeddings.AbstractEmbedding, noise_factor = 0.03)
+    #Python expects row-major, so we need to transpose
+    pts = transpose(E.points)
+
+    @warn "Adding uniformly distributed noise to each observation equal to $noise_factor times the maximum of the standard deviations for each variables."
+
+    # Find standard deviation along each axis
+    σ = noise_factor .* std(pts, dims = 1)
+
+    for i in 1:size(pts, 1)
+        pts[i, :] .+= [rand(Uniform(-σ[d], σ[d])) for d = 1:size(pts, 2)]
+    end
+
+    triang = delaunay(pts)
+    return DelaunayTriangulation(hcat(triang...,))
+end
+
 
 
 ####################################
 # Pretty printing.
 ####################################
-
 function summarise(d::DelaunayTriangulation)
     _type = typeof(d)
     n_simplices = length(d)
@@ -78,20 +67,8 @@ end
 Base.show(io::IO, r::DelaunayTriangulation) = println(io, summarise(r))
 
 
-function delaunay(d::Dataset)
-    triang = Dataset(delaunay(Matrix(d)))
-    DelaunayTriangulation(triang)
-end
-
-function delaunay(r::Embedding)
-    triang = delaunay(r.points)
-    DelaunayTriangulation(triang)
-end
-
-
 export
 delaunay,
-DelaunayTriangulation,
-indices
+DelaunayTriangulation
 
 end

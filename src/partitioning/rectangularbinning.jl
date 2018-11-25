@@ -14,7 +14,6 @@ Specifically, the binning procedure is controlled by the type of `ϵ`:
 4. `ϵ::Vector{Float64}` divides the i-th axis into intervals of size `ϵᵢ`.
 """
 function minima_and_stepsizes(points, ϵ)
-	# Make sure that the array contains points as columns.
     if size(points, 1) > size(points, 2)
         error("The dimension of the dataset exceeds the number of points.")
     end
@@ -57,8 +56,8 @@ Assign integer bin labels to the points of an embedding, storing the
 labels in the preallocated array `A`.
 """
 function assign_integer_bin_label_to_eachpoint!(
-            A::Array{Int, 2},
-            pts::Array{T, 2},
+            A::AbstractArray{Int, 2},
+            pts::AbstractArray{T, 2},
             axisminima::Vector{Float64},
             δs::Vector{Float64},
             npts::Int) where T
@@ -149,7 +148,7 @@ to each of the points in the embedding. These are gathered
 in an array where column vectors represent the tuples
 associated to each point.
 """
-function assign_bin_labels(E::Embeddings.AbstractEmbedding, ϵ)
+function assign_bin_labels(E::AbstractEmbedding, ϵ)
     assign_bin_labels(E.points, ϵ)
 end
 
@@ -250,7 +249,7 @@ The following `ϵ` will work:
 * `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
 * `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
 """
-function assign_coordinate_labels(E::Embeddings.AbstractEmbedding, ϵ)
+function assign_coordinate_labels(E::AbstractEmbedding, ϵ)
     assign_coordinate_labels(E.points, ϵ)
 end
 
@@ -337,6 +336,6 @@ The following `ϵ` will work:
 * `ϵ::Vector{Int}` divide the i-th axis into `ϵᵢ` intervals of the same size.
 * `ϵ::Vector{Float64}` divide the i-th axis into intervals of size `ϵᵢ`.
 """
-function assign_coordinate_labels(visited_bin_inds, E::Embeddings.AbstractEmbedding, ϵ)
+function assign_coordinate_labels(visited_bin_inds, E::AbstractEmbedding, ϵ)
     assign_coordinate_labels(visited_bin_inds, E.points, ϵ)
 end

@@ -1,5 +1,5 @@
 using Simplices.Delaunay: delaunayn
-
+import ..Embeddings: AbstractEmbedding, Embedding, LinearlyInvariantEmbedding
 """
 A triangulation of a cloud of embedded points into disjoint simplices.
 
@@ -44,8 +44,8 @@ A triangulation type. Has the following fields:
 11. `volumes::Vector{Float64}`. Volumes of the simplices.
 12. `volumes_im::Vector{Float64}`. Volumes of the image simplices.
 """
-struct Triangulation <: AbstractTriangulation
-    embedding::Embedding
+mutable struct Triangulation <: AbstractTriangulation
+    embedding::AbstractEmbedding
     points::Array{Float64, 2}
     impoints::Array{Float64, 2}
     simplex_inds::Array{Int, 2}
@@ -68,7 +68,7 @@ export dimension, npoints, radii, volumes, orientations
 A triangulation for which we have made sure the point corresponding to the last time
     index falls within the convex hull of the other points.
 """
-struct LinearlyInvariantTriangulation <: AbstractTriangulation
+mutable struct LinearlyInvariantTriangulation <: AbstractTriangulation
     embedding::AbstractEmbedding
     points::Array{Float64, 2}
     impoints::Array{Float64, 2}

@@ -1,10 +1,8 @@
 using StaticArrays
-using DynamicalSystems
 
 function generate_embeddings(n, dim)
 	A = rand(n, dim)
 	S = SMatrix{n, dim}(A);
-	D = Dataset(Array(S));
 	v = [rand(n) for i = 1:dim]
 	sv = [S[:, i] for i = 1:dim]
 	positions = [rand(1:dim) for i = 1:dim]
@@ -18,25 +16,20 @@ function generate_embeddings(n, dim)
 	E2a = embed(S, positions, lags)
 	E2b = embed(S)
 
-	# DynamicalSystemsBase.Dataset
-	E3a = embed(D, positions, lags)
-	E3b = embed(D)
 
-	E1a, E1b, E2a, E2b, E3a, E3b
+	E1a, E1b, E2a, E2b
 end
 
 @testset "Embedding in $D-D" for D = 2:4
 
-	E1a, E1b, E2a, E2b, E3a, E3b = generate_embeddings(50, D)
+	E1a, E1b, E2a, E2b = generate_embeddings(50, D)
 	@test typeof(E1a) <: Embeddings.AbstractEmbedding
 	@test typeof(E1b) <: Embeddings.AbstractEmbedding
 	@test typeof(E2a) <: Embeddings.AbstractEmbedding
 	@test typeof(E2b) <: Embeddings.AbstractEmbedding
-	@test typeof(E3a) <: Embeddings.AbstractEmbedding
-	@test typeof(E3b) <: Embeddings.AbstractEmbedding
 
 	#inv = invariantize(E1a, verbose = true)
-	tri = delaunaytriang(E1a)
+	tri = delaunay(E1a)
 	#@test typeof(inv) <: LinearlyInvariantEmbedding
 	@test typeof(tri) <: DelaunayTriangulation
 end
@@ -49,4 +42,14 @@ end
     @test all(E1.points[1:3, :] .== E2.points)
     @test typeof(E1) <: Embeddings.AbstractEmbedding
     @test typeof(E2) <: Embeddings.AbstractEmbedding
+end
+
+
+@testset "Invariantizing embeddings" begin
+    pos = [1, 2, 3, 3]
+    lags = [1, -1, -1, 0]
+    E1 = embed([diff(rand(30)) for i = 1:4], pos, lags)
+    E2 = embed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
+    inv_E1 = invariantize(E1)
+    @test typeof(inv_E1) == LinearlyInvariantEmbedding{4, Float64}
 end
