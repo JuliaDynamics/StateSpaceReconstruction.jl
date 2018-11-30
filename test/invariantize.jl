@@ -19,7 +19,7 @@ end
 
 # Use Simplices.SimplexSplitting until the splitting routines are re-implemented
 # for the column-wise approach
-using Simplices.SimplexSplitting
+import Simplices.SimplexSplitting.refine_triangulation
 
 """
     canonical_simplex(dim; split_factor = 1)
