@@ -56,6 +56,18 @@ function forwardlinearmap_invariant(pts::AbstractArray{T, 2}) where T
     return lastpoint_contained
 end
 
+forwardlinearmap_invariant(E::AbstractEmbedding) =
+   forwardlinearmap_invariant(E.points)
+
+"""
+   invariantize(E::AbstractEmbedding{D, T}};
+                  verbose = false,
+                  noise_factor = 0.01, step = 5) where {D, T}
+
+Checks whether the last point in the embedding `E` lies inside the convex hull
+of the previus points. If not, the last point is iteratively moved towards the
+center of the convex hull until it is.
+"""
 function invariantize(E::AbstractEmbedding{D, T};
                         verbose = false,
                         noise_factor = 0.01, step = 5) where {D, T}
@@ -113,4 +125,65 @@ function invariantize(E::AbstractEmbedding{D, T};
    return E
 end
 
-export forwardlinearmap_invariant, invariantize
+"""
+   invariantize(pts::AbstractArray{T, 2}};
+                  verbose = false,
+                  noise_factor = 0.01, step = 5) where {T}
+
+Checks whether the last point in `pts` lies inside the convex hull of the
+previus points. If not, the last point is iteratively moved towards the
+center of the convex hull until it is.
+"""
+function invariantize(pts::AbstractArray{T, 2};
+                        verbose = false,
+                        noise_factor = 0.01, step = 5) where {T}
+   dim = size(pts, 1)
+
+   if size(data, 1) > size(data, 2)
+      error("`pts` must be an array of size dim-by-n_points, where each column is a point")
+   end
+
+   if size(unique(pts, dims = 2), 2) < size(pts, 2)
+
+      @warn """Points not unique. Adding a little noise ($noise_factor times the maximum of the the standard deviations along each axis)"""
+      # Find standard deviation along each axis
+      dim = size(pts, 1)
+      σ = Statistics.std(pts, dims = 2)
+
+      for i = 1:dim
+         pts[i, :] .+= rand(Distributions.Uniform(-σ[i], σ[i])) .* noise_factor
+      end
+   end
+
+   #=
+   # Keep track of the embedding's center point and the original position of the
+   # last point in the embedding, so we can move the last point along a line
+   # from its original position towards the embedding's center, until the point
+   # lies inside the convex hull of the preceding points.
+   =#
+   ce = sum(E.points, dims = 2)/size(E.points, 2) # embedding center
+   lp = E.points[:, end] # last point of the embedding
+   # What direction should we move?
+   dir = ce - lp
+
+   dir = dropdims(ce .- lp, dims = 2)
+
+   # Points along line toward the center of the embedding.
+   steps = 1:step:100
+   ptsonline = [lp .+ dir .* (pct_moved/100) for pct_moved in 1:step:100]
+
+   for i = 1:length(ptsonline)
+      pt = ptsonline[i]
+      P = hcat(pts[:, 1:(end - 1)], pt)
+      if forwardlinearmap_invariant(P)
+         return P
+      end
+   end
+   @warn """Could not make point set invariant under forward linear map. Returning unmodified points."""
+   return pts
+end
+
+
+export
+forwardlinearmap_invariant,
+invariantize
