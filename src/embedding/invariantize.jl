@@ -139,7 +139,7 @@ function invariantize(pts::AbstractArray{T, 2};
                         noise_factor = 0.01, step = 5) where {T}
    dim = size(pts, 1)
 
-   if size(data, 1) > size(data, 2)
+   if size(pts, 1) > size(pts, 2)
       error("`pts` must be an array of size dim-by-n_points, where each column is a point")
    end
 
