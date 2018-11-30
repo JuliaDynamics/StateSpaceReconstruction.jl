@@ -161,24 +161,22 @@ function invariantize(pts::AbstractArray{T, 2};
    # from its original position towards the embedding's center, until the point
    # lies inside the convex hull of the preceding points.
    =#
-   ce = sum(E.points, dims = 2)/size(E.points, 2) # embedding center
-   lp = E.points[:, end] # last point of the embedding
+   ce = sum(pts, dims = 2)/size(pts, 2) # embedding center
+   lp = pts[:, end] # last point of the embedding
    # What direction should we move?
    dir = ce - lp
 
    dir = dropdims(ce .- lp, dims = 2)
 
    # Points along line toward the center of the embedding.
-   steps = 1:step:100
    ptsonline = [lp .+ dir .* (pct_moved/100) for pct_moved in 1:step:100]
-
-   for i = 1:length(ptsonline)
-      pt = ptsonline[i]
+   for pt in ptsonline
       P = hcat(pts[:, 1:(end - 1)], pt)
       if forwardlinearmap_invariant(P)
          return P
       end
    end
+   
    @warn """Could not make point set invariant under forward linear map. Returning unmodified points."""
    return pts
 end
