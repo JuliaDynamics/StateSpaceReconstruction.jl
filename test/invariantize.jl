@@ -27,10 +27,10 @@ using Simplices.SimplexSplitting
 Returns a tuple containing the vertices
 """
 function canonical_simplex(dim; split_factor = 1)
-    canonical_simplex_vertices = zeros(E + 1, E)
-    canonical_simplex_vertices[2:(E+1), :] = Matrix(1.0I, E, E)
-    simplex_indices = zeros(Int, 1, E + 1)
-    simplex_indices[1, :] = round.(Int, collect(1:E+1))
+    canonical_simplex_vertices = zeros(dim + 1, dim)
+    canonical_simplex_vertices[2:(dim+1), :] = Matrix(1.0I, dim, dim)
+    simplex_indices = zeros(Int, 1, dim + 1)
+    simplex_indices[1, :] = round.(Int, collect(1:dim+1))
 
     refined = refine_triangulation(canonical_simplex_vertices, simplex_indices, [1], k)
     triang_vertices, triang_simplex_indices = refined[1], refined[2]
