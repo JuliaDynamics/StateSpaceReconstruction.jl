@@ -13,4 +13,5 @@ if lowercase(get(ENV, "CI", "false")) == "true"
 end
 
 include("embeddingtests.jl")
+include("invariantize.jl")
 include("partitiontests.jl")
