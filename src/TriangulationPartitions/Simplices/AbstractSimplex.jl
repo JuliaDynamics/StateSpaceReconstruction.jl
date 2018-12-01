@@ -31,6 +31,8 @@ dimension(s::AbstractSimplex) = length(s[1])
 npoints(s::AbstractSimplex) = length(s)
 nvertices(s::AbstractSimplex) = length(s)
 
+export dimension, npoints, nvertices
+
 #########################
 # Orientation and volumes
 #########################
@@ -111,13 +113,15 @@ Base.show(io::IO, s::AbstractSimplex) = println(io, summarise(s))
 
 export
 AbstractSimplex,
+
+npoints, nvertices,
 dimension,
-npoints,
-nvertices,
+
 orientation,
 volume,
+
 centroid,
 radius,
-intersect,
-∩,
+
+intersect, ∩,
 intersect_vertices

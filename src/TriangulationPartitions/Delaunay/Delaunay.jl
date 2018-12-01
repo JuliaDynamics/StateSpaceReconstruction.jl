@@ -1,4 +1,5 @@
 using Reexport
+
 @reexport module Delaunay
 
 import Simplices.Delaunay.delaunay
@@ -18,7 +19,7 @@ ADT = AbstractDelaunayTriangulation
 dimension(DT::ADT) = length(DT.indices[1]) - 1
 nsimplices(DT::ADT) = length(DT.indices)
 Base.size(DT::ADT) = (dimension(DT), nsimplices(DT))
-Base.length(DT::ADT) = length(DT.indices)
+Base.length(DT::ADT) = nsimplices(DT.indices)
 
 # Indexing
 Base.getindex(DT::ADT, i) = DT.indices[i]
@@ -37,8 +38,6 @@ function summarise(DT::AbstractDelaunayTriangulation)
 end
 
 Base.show(io::IO, DT::AbstractDelaunayTriangulation) = println(io, summarise(DT))
-
-@inline Base.length(DT::AbstractDelaunayTriangulation) = nsimplices(DT)
 
 
 
