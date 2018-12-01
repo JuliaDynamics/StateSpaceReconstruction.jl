@@ -31,9 +31,9 @@ end
 	@test typeof(E2b) <: Embeddings.AbstractEmbedding
 
 	#inv = invariantize(E1a, verbose = true)
-	tri = delaunay(E1a)
+	#tri = DelaunayTriangulation(E1a)
 	#@test typeof(inv) <: LinearlyInvariantEmbedding
-	@test typeof(tri) <: DelaunayTriangulation
+	#@test typeof(tri) <: DelaunayTriangulation
 end
 
 @testset "Alignment with and without zero-lagged vector matches" begin

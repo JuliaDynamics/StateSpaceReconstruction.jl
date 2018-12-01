@@ -1,5 +1,7 @@
 import Base.minimum, Base.maximum
 
+include("EmbeddingData.jl")
+
 """
     AbstractEmbedding{D, T}
 
@@ -32,7 +34,7 @@ tps = Union{SVector{D, T} where {D, T}, Colon, UnitRange{Int}, AbstractVector{In
 #Base.unique(r::AbstractEmbedding) = unique(r.points)
 #Base.unique(r::AbstractEmbedding, i::Int) = unique(r.points, dims = i)
 
-dimension(::AbstractEmbedding{D,T}) where {D,T} = D
+dimension(::AbstractEmbedding) = size(r.points, 2)
 @inline Base.eltype(r::AbstractEmbedding{D,T}) where {D,T} = T
 
 import Base: ==
@@ -168,6 +170,36 @@ minima(E::AbstractEmbedding{D, T}) where {D, T} = [minimum(E[i, :]) for i = 1:D]
 Returns the maxima of the embedding along each axis.
 """
 maxima(E::AbstractEmbedding{D, T}) where {D, T} = [maximum(E[i, :]) for i = 1:D]
+
+##################
+# Pretty printing
+#################
+using Base.Iterators: flatten
+
+function matstring(d::AbstractArray{D, T}) where {D, T}
+    N = length(d)
+    if N > 36
+        mat = zeros(eltype(d), 40, D)
+        for (i, a) in enumerate(flatten((1:20, N-19:N)))
+            mat[i, :] .= d[a]
+        end
+    else
+        mat = d
+    end
+    s = sprint(io -> show(IOContext(io, :limit=>true), MIME"text/plain"(), mat))
+    s = join(split(s, '\n')[2:end], '\n')
+    return s
+end
+
+function summarise(r::AbstractEmbedding)
+    n_dataseries = length(r.embeddingdata.dataseries)
+    embedding_type = typeof(r)
+    npts = size(r.points, 2)
+    summary = "$embedding_type with $npts points\n"
+    return summary #join([summary, matstring(r.points)], "")
+end
+
+Base.show(io::IO, r::AbstractEmbedding) = println(io, summarise(r))
 
 
 export

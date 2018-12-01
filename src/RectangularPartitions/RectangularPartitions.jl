@@ -1,32 +1,18 @@
-@reexport module Partitioning
+@reexport module RectangularPartitions
 
 using Simplices: Delaunay
 import ..Embeddings: AbstractEmbedding, Embedding
 using ..GroupSlices: groupslices, firstinds, groupinds
 using LinearAlgebra
 
-abstract type Partition end
+abstract type RectangularPartition end
 
 # This functionality should move to Simplices.jl in the future
-include("../misc/simplexoperations.jl")
-
-include("rectangularbinning.jl")
-include("triangulation.jl")
+include("bin_encoding.jl")
 include("marginal_visitation_frequency.jl")
 
 export
 Partition,
-# Triangulation type and subtypes
-AbstractTriangulation,
-Triangulation,
-LinearlyInvariantTriangulation,
-
-# Methods that dispatches on Triangulation subtypes
-triangulate,
-maybeintersecting_simplices,
-maybeintersecting_imsimplices,
-point_representatives,
-unique_rows_info,
 
 # Rectangular binning
 AbstractRectangularBinning,

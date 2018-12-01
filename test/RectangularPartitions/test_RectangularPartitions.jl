@@ -41,28 +41,28 @@ end
     @test sum(m) ≈ 1
 end
 
-@testset "Simplex triangulation" begin
-    n_pts = 30
-	@testset "Triangulation" begin
-        E_3D = embed([rand(n_pts) for i = 1:3])
-        E_4D = embed([rand(n_pts) for i = 1:4])
-
-        T_3D = triangulate(E_3D)
-        @test typeof(T_3D) <: AbstractTriangulation
-
-        T_4D = triangulate(E_4D)
-        @test typeof(T_4D) <: AbstractTriangulation
-    end
-
-    @testset "LinearlyInvariantTriangulation" begin
-        E_3D = invariantize(embed([rand(n_pts) for i = 1:3]))
-        E_4D = invariantize(embed([rand(n_pts) for i = 1:4]))
-
-        T_3D = triangulate(E_3D)
-        @test typeof(T_3D) == LinearlyInvariantTriangulation
-
-        T_4D = triangulate(E_4D)
-        @test typeof(T_4D) == LinearlyInvariantTriangulation
-
-    end
-end
+# @testset "Simplex triangulation" begin
+#     n_pts = 30
+# 	@testset "Triangulation" begin
+#         E_3D = embed([rand(n_pts) for i = 1:3])
+#         E_4D = embed([rand(n_pts) for i = 1:4])
+#
+#         T_3D = triangulate(E_3D)
+#         @test typeof(T_3D) <: Partitioning.AbstractTriangulation
+#
+#         T_4D = triangulate(E_4D)
+#         @test typeof(T_4D) <: Partitioning.AbstractTriangulation
+#     end
+#
+#     @testset "LinearlyInvariantTriangulation" begin
+#         E_3D = invariantize(embed([rand(n_pts) for i = 1:3]))
+#         E_4D = invariantize(embed([rand(n_pts) for i = 1:4]))
+#
+#         T_3D = triangulate(E_3D)
+#         @test typeof(T_3D) == Partitioning.LinearlyInvariantTriangulation
+#
+#         T_4D = triangulate(E_4D)
+#         @test typeof(T_4D) == Partitioning.LinearlyInvariantTriangulation
+#
+#     end
+# end

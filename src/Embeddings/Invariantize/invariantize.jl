@@ -2,7 +2,6 @@
 # Making sure embedding is invariant under forward linear map
 # of its vertices
 #############################################################
-import Simplices.Delaunay.delaunay
 import Distributions
 import Statistics
 
@@ -176,7 +175,7 @@ function invariantize(pts::AbstractArray{T, 2};
          return P
       end
    end
-   
+
    @warn """Could not make point set invariant under forward linear map. Returning unmodified points."""
    return pts
 end
