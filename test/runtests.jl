@@ -15,3 +15,4 @@ end
 include("embeddingtests.jl")
 include("invariantize.jl")
 include("partitiontests.jl")
+include("test_delaunay.jl")
