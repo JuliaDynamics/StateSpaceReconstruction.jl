@@ -4,14 +4,25 @@ module StateSpaceReconstruction
 
 using Reexport
 using StaticArrays
-using Simplices: even_sampling_rules
 using LinearAlgebra
 
 include("GroupSlices.jl")
 
-include("embedding/Embeddings.jl")
-include("partitioning/Partitioning.jl")
+include("Embeddings/Embeddings.jl")
+include("RectangularPartitions/RectangularPartitions.jl")
+include("TriangulationPartitions/TriangulationPartitions.jl")
 
-export embed
+
+# Rely on multiple dispatch for clashing function definitions in the submodules
+dimension(E::AbstractEmbedding) = Embeddings.dimension(E)
+npoints(E::AbstractEmbedding) = Embeddings.npoints(E)
+
+dimension(s::Simplex) = Triangulations.Simplices.dimension(s)
+npoints(s::Simplex) = Triangulations.Simplices.npoints(s)
+
+dimension(dt::DelaunayTriangulation) = Triangulations.Delaunay.dimension(dt)
+
+export dimension, npoints
+
 
 end # module
