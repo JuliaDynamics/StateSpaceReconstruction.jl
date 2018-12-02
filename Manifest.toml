@@ -335,9 +335,9 @@ uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[Simplices]]
 deps = ["Conda", "Distributions", "Documenter", "LinearAlgebra", "Parameters", "Printf", "PyCall", "StaticArrays", "Test"]
-git-tree-sha1 = "4e96805d9ab3413ab3b82883b61fdea14dfcc33e"
+git-tree-sha1 = "36b8816dc8297a39d3ad56b32e0cf61e333121fc"
 uuid = "d5428e67-3037-59ba-9ab1-57a04f0a3b6a"
-version = "0.2.1"
+version = "0.2.2"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
