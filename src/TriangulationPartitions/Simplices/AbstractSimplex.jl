@@ -2,7 +2,7 @@ using LinearAlgebra
 import Simplices.simplexintersection
 import Simplices.intersectingvertices
 
-abstract type AbstractSimplex end
+abstract type AbstractSimplex{T} end
 
 
 
