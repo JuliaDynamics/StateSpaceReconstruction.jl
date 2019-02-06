@@ -1,10 +1,10 @@
 using StateSpaceReconstruction
 using Test
-import DynamicalSystemsBase.Dataset
+import DelayEmbeddings.Dataset
 
 # Some example data
 pts = rand(4, 25)
-E = embed(pts)
+E = customembed(pts)
 D = Dataset(transpose(pts))
 
 # Test constructors

@@ -1,10 +1,12 @@
 julia 1.0
+CausalityToolsBase
 Conda
 Distributions
 PyCall
-DynamicalSystemsBase
+DelayEmbeddings
 Reexport
 StaticArrays
 Simplices 0.2.1
 NearestNeighbors
 Distances
+RecipesBase

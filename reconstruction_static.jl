@@ -217,8 +217,8 @@ into the embedding.
 labels(E::AbstractEmbedding) = E.embeddingdata.labels
 
 import Base.minimum, Base.maximum
-import DynamicalSystemsBase.minima
-import DynamicalSystemsBase.maxima
+import DelayEmbeddings.minima
+import DelayEmbeddings.maxima
 
 """
     minimum(d::Dataset{D, T} where {D, T}) -> T
@@ -417,7 +417,7 @@ function embed(d::Dataset,
         in_which_pos::Vector{Int},
         at_what_lags::Vector{Int})
     embed(
-        [d[:, i] for i = 1:DynamicalSystemsBase.dimension(d)],
+        [d[:, i] for i = 1:DelayEmbeddings.dimension(d)],
         in_which_pos,
         at_what_lags
     )
@@ -427,7 +427,7 @@ function Embedding(d::Dataset,
         in_which_pos::Vector{Int},
         at_what_lags::Vector{Int})
     embed(
-        [d[:, i] for i = 1:DynamicalSystemsBase.dimension(d)],
+        [d[:, i] for i = 1:DelayEmbeddings.dimension(d)],
         in_which_pos,
         at_what_lags
     )

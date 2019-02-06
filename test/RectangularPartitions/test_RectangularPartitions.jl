@@ -1,6 +1,6 @@
 @testset "Assign bin labels" begin
     D = 3
-    E = embed([rand(30) for i = 1:D])
+    E = customembed([rand(30) for i = 1:D])
     npts = size(E.points, 2)
 
     @testset "ϵ is an Int" begin
@@ -31,7 +31,7 @@ end
 @testset "Marginal visitation frequency" begin
     o = rand(100, 3)
     x, y = o[:, 1], o[:, 2]
-    E = embed([x, y], [2, 2, 1], [1, 0, 0])
+    E = customembed([x, y], [2, 2, 1], [1, 0, 0])
     n_bins = [4, 3, 4]
     # Which bins get visited by every point of the orbit?
     visited_bins_inds = assign_bin_labels(E, n_bins)
@@ -44,8 +44,8 @@ end
 # @testset "Simplex triangulation" begin
 #     n_pts = 30
 # 	@testset "Triangulation" begin
-#         E_3D = embed([rand(n_pts) for i = 1:3])
-#         E_4D = embed([rand(n_pts) for i = 1:4])
+#         E_3D = customembed([rand(n_pts) for i = 1:3])
+#         E_4D = customembed([rand(n_pts) for i = 1:4])
 #
 #         T_3D = triangulate(E_3D)
 #         @test typeof(T_3D) <: Partitioning.AbstractTriangulation
@@ -55,8 +55,8 @@ end
 #     end
 #
 #     @testset "LinearlyInvariantTriangulation" begin
-#         E_3D = invariantize(embed([rand(n_pts) for i = 1:3]))
-#         E_4D = invariantize(embed([rand(n_pts) for i = 1:4]))
+#         E_3D = invariantize(customembed([rand(n_pts) for i = 1:3]))
+#         E_4D = invariantize(customembed([rand(n_pts) for i = 1:4]))
 #
 #         T_3D = triangulate(E_3D)
 #         @test typeof(T_3D) == Partitioning.LinearlyInvariantTriangulation
