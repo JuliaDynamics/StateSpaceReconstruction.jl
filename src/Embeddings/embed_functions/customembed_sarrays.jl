@@ -3,9 +3,9 @@ using StaticArrays
 ########################################
 # SArrays and SVectors
 ########################################
-function customembed(ts::Vector{SArray{Size,T,N,L}},
-        in_which_pos::Vector{Int},
-        at_what_lags::Vector{Int}) where {Size, T, N, L}
+function cembed(ts::Vector{SArray{Size,T,N,L}},
+        in_which_pos,
+        at_what_lags) where {Size, T, N, L}
     dim = length(in_which_pos)
     minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
     npts = length(ts[1]) - (maxlag + abs(minlag))
@@ -35,44 +35,44 @@ function customembed(ts::Vector{SArray{Size,T,N,L}},
 end
 
 """
-    customembed(data::SArray) where T
+    cembed(data::SArray) where T
 
 Construct an embedding from data series gathered in a `SArray`.
 """
-function customembed(data::SArray)
+function cembed(data::SArray)
 	if size(data, 1) > size(data, 2)
 		#info("Treating each row as a point")
 		dim = size(data, 2)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-		customembed([data[:, i] for i = 1:dim], which_pos, which_lags)
+		cembed([data[:, i] for i = 1:dim], which_pos, which_lags)
 	else
 		#info("Treating each column of data as a point")
 		dim = size(data, 1)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-		customembed([data[i, :] for i = 1:dim], which_pos, which_lags)
+		cembed([data[i, :] for i = 1:dim], which_pos, which_lags)
 	end
 end
 
 
 """
-    customembed(data::SArray) where T
+    cembed(data::SArray) where T
 
 Construct an embedding from data series gathered in a `SArray`, specifying the
 dimensionality, which variables in the embedding are represented by which
 variables in the `data` array, and what the embedding lags should be.
 """
-function customembed(data::SArray, which_pos::Vector{Int}, which_lags::Vector{Int})
+function cembed(data::SArray, which_pos, which_lags)
     if size(data, 1) > size(data, 2)
 		#info("Treating each row as a point")
 		dim = size(data, 2)
-		customembed([data[:, i] for i = 1:dim], which_pos, which_lags)
+		cembed([data[:, i] for i = 1:dim], which_pos, which_lags)
 	else
 		#info("Treating each column of data as a point")
 		dim = size(data, 1)
-		customembed([data[i, :] for i = 1:dim], which_pos, which_lags)
+		cembed([data[i, :] for i = 1:dim], which_pos, which_lags)
 	end
 end
 
-export customembed
+export cembed

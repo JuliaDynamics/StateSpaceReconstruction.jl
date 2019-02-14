@@ -5,7 +5,7 @@ import Distributions:
 import Statistics:
     std
 
-import StaticArrays: MArray, SArray
+import StaticArrays: MArray, SArray, MVector, SVector
 
 """
     addnoise!(pts, joggle_factor)
@@ -77,7 +77,7 @@ end
 
 Adding uniformly distributed noise to each observation of maximum magnitude `joggle_factor`.
 """
-function addnoise!(pts::Vector{MArray{Tuple{D},T,1,D}}; joggle_factor = 1e-8) where {D, T}
+function addnoise!(pts::Vector{MVector{D, T}}; joggle_factor = 1e-8) where {D, T}
 
     npts = length(pts)
 
@@ -98,7 +98,7 @@ end
 
 Adding uniformly distributed noise to each observation of maximum magnitude `joggle_factor`.
 """
-function addnoise!(pts::Vector{SArray{Tuple{D},T,1,D}}; joggle_factor = 1e-8) where {D, T}
+function addnoise!(pts::Vector{SVector{D, T}}; joggle_factor = 1e-8) where {D, T}
 
     npts = length(pts)
 

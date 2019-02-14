@@ -4,7 +4,7 @@ import DelayEmbeddings.Dataset
 
 # Some example data
 pts = rand(4, 25)
-E = customembed(pts)
+E = cembed(pts)
 D = Dataset(transpose(pts))
 
 # Test constructors

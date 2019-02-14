@@ -1,28 +1,28 @@
 import DelayEmbeddings: Dataset
 
 """
-    customembed(data::Dataset)
+    cembed(data::Dataset)
 
 Returns an embedding consisting of a zero-lagged, unmodified version of `data`.
 """
-function customembed(data::Dataset)
+function cembed(data::Dataset)
     if size(data, 1) > size(data, 2)
         #info("Treating each row as a point")
     	dim = size(data, 2)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-        customembed([data[:, i] for i = 1:dim], which_pos, which_lags)
+        cembed([data[:, i] for i = 1:dim], which_pos, which_lags)
     else
     	#info("Treating each column of data as a point")
     	dim = size(data, 1)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-        customembed([data[i, :] for i = 1:dim], which_pos, which_lags)
+        cembed([data[i, :] for i = 1:dim], which_pos, which_lags)
     end
 end
 
 """
-    customembed(d::Dataset,
+    cembed(d::Dataset,
         which_pos::Vector{Int},
         which_lags::Vector{Int})
 
@@ -40,31 +40,33 @@ Returns a state space embedding of the columns of `d`.
         `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
         lag in the second column is 0 and the lag in the third column is -1.
 """
-function customembed(data::Dataset,
-        which_pos::Vector{Int},
-        which_lags::Vector{Int})
+function cembed(data::Dataset,
+        which_pos,
+        which_lags)
 
     if size(data, 1) > size(data, 2)
         #info("Treating each row as a point")
     	dim = size(data, 2)
-    	customembed([data[:, i] for i = 1:dim], which_pos, which_lags)
+    	cembed([data[:, i] for i = 1:dim], which_pos, which_lags)
     else
     	#info("Treating each column of data as a point")
     	dim = size(data, 1)
-        customembed([data[i, :] for i = 1:dim], which_pos, which_lags)
+        cembed([data[i, :] for i = 1:dim], which_pos, which_lags)
     end
 end
 
 function Embedding(data::Dataset,
-        which_pos::Vector{Int},
-        which_lags::Vector{Int})
+        which_pos,
+        which_lags)
     if size(data, 1) > size(data, 2)
         #info("Treating each row as a point")
         dim = size(data, 2)
-        customembed([data[:, i] for i = 1:dim], which_pos, what_lags)
+        cembed([data[:, i] for i = 1:dim], which_pos, what_lags)
     else
         #info("Treating each column of data as a point")
         dim = size(data, 1)
-        customembed([data[i, :] for i = 1:dim], which_pos, what_lags)
+        cembed([data[i, :] for i = 1:dim], which_pos, what_lags)
     end
 end
+
+export cembed

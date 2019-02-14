@@ -54,7 +54,7 @@ function summarise(tp::Union{MatrixTriangulation, MutableMatrixTriangulation})
     n_simplices = nsimplices(tp)
     n_pts = maximum(size(tp.data))
     D = dimension(tp)
-    summary = "$_type from $n_simplices simplices and $n_pts points\n"
+    summary = "$_type from $n_simplices simplices and $n_pts points"
 end
 
 Base.show(io::IO, tp::Union{MatrixTriangulation, MutableMatrixTriangulation}) =

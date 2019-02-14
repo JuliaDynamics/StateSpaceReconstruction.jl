@@ -3,7 +3,7 @@ import Test
 import StaticArrays:
     SVector,
     MVector
-import StateSpaceReconstruction.Simplices
+import StateSpaceReconstruction: Simplices
 
 
 # Constructors
@@ -78,7 +78,7 @@ end
 
     s1 = Simplex(vertices_s1)
     s1_mutable = MutableSimplex(vertices_s1)
-    ss1 = SSimplex([SVector{3, Float64}(vertices_s1[i]) for i = 1:4])
+    #ss1 = SSimplex([SVector{3, Float64}(vertices_s1[i]) for i = 1:4])
     ss1_mutable = MutableSSimplex([MVector{3, Float64}(vertices_s1[i]) for i = 1:4])
 
 
@@ -125,4 +125,25 @@ end
     end
 
     @test all(x -> (x .== false), contained)
+end
+
+
+@testset "Subsampling" begin
+    
+    pts = [rand(3) for i = 1:20]
+    inv_pts = invariantize(pts);
+    triang = triangulate(inv_pts[1:end - 1])
+    triang_im = triangulate(inv_pts[2:end])
+
+    simplices = [Simplex(inv_pts[triang.simplexindices[i]]) for i in 1:length(triang.simplexindices)];
+    simplices_im = [Simplex(inv_pts[triang_im.simplexindices[i]]) for i in 1:length(triang_im.simplexindices)];
+   
+    @test refine(simplices[1]) isa Vector{Simplex{3,Float64}}
+    @test refine(simplices[1], simplices[2]) isa Tuple{Vector{Simplex{3,Float64}}, Vector{Simplex{3,Float64}}}
+
+    k = 2
+    dim = 3
+    rules = simplex_splitting_rules(k, dim)
+    @test refine(simplices[1], k = 2, splitting_rules = rules) isa Vector{Simplex{3,Float64}}
+    @test refine(simplices[1], simplices[2], k = 2, splitting_rules = rules) isa Tuple{Vector{Simplex{3,Float64}}, Vector{Simplex{3,Float64}}} 
 end

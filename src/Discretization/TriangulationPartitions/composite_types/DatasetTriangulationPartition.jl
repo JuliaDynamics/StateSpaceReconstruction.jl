@@ -58,7 +58,7 @@ function summarise(tp::Union{DatasetTriangulation, MutableDatasetTriangulation})
     n_simplices = nsimplices(tp)
     n_pts = length(tp.data)
     D = dimension(tp)
-    summary = "$_type from $n_simplices simplices and $n_pts Datasets\n"
+    summary = "$_type from $n_simplices simplices and $n_pts Datasets"
 end
 
 Base.show(io::IO, tp::Union{DatasetTriangulation, MutableDatasetTriangulation}) =

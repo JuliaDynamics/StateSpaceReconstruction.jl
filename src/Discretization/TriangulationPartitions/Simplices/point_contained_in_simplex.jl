@@ -1,4 +1,3 @@
-include("composite_types/MutableSimplex.jl")
 
 export
 point_contained,

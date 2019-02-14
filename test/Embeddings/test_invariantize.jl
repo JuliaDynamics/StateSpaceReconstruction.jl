@@ -2,8 +2,8 @@
 @testset "Invariantizing embeddings" begin
     pos = [1, 2, 3, 3]
     lags = [1, -1, -1, 0]
-    E1 = customembed([diff(rand(30)) for i = 1:4], pos, lags)
-    E2 = customembed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
+    E1 = cembed([diff(rand(30)) for i = 1:4], pos, lags)
+    E2 = cembed([diff(rand(1:10, 30)) for i = 1:4], pos, lags)
     inv_E1 = invariantize(E1)
     @test typeof(inv_E1) == LinearlyInvariantEmbedding{4, Float64}
 end

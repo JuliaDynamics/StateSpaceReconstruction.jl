@@ -1,6 +1,6 @@
 
 """
-    customembed(ts::Vector{Vector{T}}, in_which_pos::Vector{Int},
+    cembed(ts::Vector{Vector{T}}, in_which_pos::Vector{Int},
                 at_what_lags::Vector{Int}) where T <: Number ->
                 Embedding
 
@@ -26,9 +26,9 @@ Perform a state space embedding of the vectors in `ts`.
         `at_what_lags = [1, 0, -1]` means that the lag in column 1 is 1, the
         lag in the second column is 0 and the lag in the third column is -1.
 """
-function customembed(ts::Vector{Vector{T}},
-               in_which_pos::Vector{Int},
-               at_what_lags::Vector{Int};
+function cembed(ts::Vector{Vector{T}},
+               in_which_pos,
+               at_what_lags;
                  labels::Vector{String} = ["" for x in 1:length(ts)]) where {T<:Number}
     dim = length(in_which_pos)
     minlag, maxlag = minimum(at_what_lags), maximum(at_what_lags)
@@ -67,9 +67,9 @@ Returns an embedding of a vector of vectors, treating each
 vector as a dynamical variable. Zero lag is used for all the
 columns.
 """
-function customembed(v::Vector{Vector{T}}) where {T}
+function cembed(v::Vector{Vector{T}}) where {T}
     D = length(v)
-    customembed(v, [i for i = 1:D], [0 for i in 1:D])
+    cembed(v, [i for i = 1:D], [0 for i in 1:D])
 end
 
 """
@@ -79,20 +79,20 @@ Returns an embedding of an array, treating each
 column as a dynamical variable. Zero lag is used
 for all the columns.
 """
-function customembed(data::AbstractArray{T, 2}) where T
+function cembed(data::AbstractArray{T, 2}) where T
 
 	if size(data, 1) > size(data, 2)
         #info("Treating each row of data as a point")
         dim = size(data, 2)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-        return customembed([data[:, i] for i = 1:dim], which_pos, which_lags)
+        return cembed([data[:, i] for i = 1:dim], which_pos, which_lags)
     else
         #info("Treating each column of data as a point")
         dim = size(data, 1)
         which_pos = [i for i = 1:dim]
         which_lags = [0 for i in 1:dim]
-        return customembed([data[i, :] for i = 1:dim], which_pos, which_lags)
+        return cembed([data[i, :] for i = 1:dim], which_pos, which_lags)
 	end
 end
 
@@ -104,18 +104,18 @@ end
 Embedding of data represented by an array. Each
 column of the array must correspond to one data series.
 """
-function customembed(data::AbstractArray{T, 2},
-                in_which_pos::Vector{Int},
-                at_what_lags::Vector{Int}) where T
+function cembed(data::AbstractArray{T, 2},
+                in_which_pos,
+                at_what_lags) where T
     if size(data, 1) > size(data, 2)
         #info("Treating each row as a point")
         dim = size(data, 2)
-        customembed([data[:, i] for i = 1:dim], in_which_pos, at_what_lags)
+        cembed([data[:, i] for i = 1:dim], in_which_pos, at_what_lags)
     else
         #info("Treating each column of data as a point")
         dim = size(data, 1)
-        customembed([data[i, :] for i = 1:dim], in_which_pos, at_what_lags)
+        cembed([data[i, :] for i = 1:dim], in_which_pos, at_what_lags)
     end
 end
 
-export customembed
+export cembed

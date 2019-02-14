@@ -4,6 +4,50 @@
 
 mutable struct MutableSimplex{D, T} <: AbstractMutableSimplex{D, T}
     vertices::Vector{Vector{T}}
+
+    
+    """
+    MutableSimplex(pts::Vector{<:AbstractVector{T}})
+
+    Construct a simplex from a vector of vectors.
+    """
+    function MutableSimplex(pts::Vector{<:AbstractVector{T}}) where {T}
+        if !(length(pts) == length(pts[1]) + 1)
+            err = """ The input cannot be converted to a simplex.
+            Vertices need to have `dim` elements, and there needs to be `dim + 1` vertices.
+            """
+            throw(DomainError(pts, err))    end
+        dim = length(pts[1])
+        new{dim, T}([pts[i] for i = 1:length(pts)])
+    end
+
+
+    """
+    MutableSimplex(pts::AbstractArray{T, 2}) where T
+
+    Construct a simplex from an array of size `(dim + 1)-by-(dim)` or
+    `(dim)-by-(dim + 1)` (faster).
+    """
+    function MutableSimplex(pts::AbstractArray{T, 2}) where {T}
+        s = size(pts)
+
+        if (maximum(s) - minimum(s)) != 1
+            err = """ The input cannot be converted to a simplex.
+                    size(pts) must be (dim, dim + 1) or (dim + 1, dim).
+                """
+                throw(DomainError(pts, err))
+        end
+
+        if s[1] > s[2] # Rows are points
+            dim = s[2]
+            return new{dim, T}([pts[i, :] for i = 1:maximum(s)])
+        end
+
+        if s[2] > s[1] # Columns are points
+            dim = s[1]
+            return new{dim, T}([pts[:, i] for i = 1:maximum(s)])
+        end
+    end
 end
 
 # Overwriting the i-th vertex
@@ -22,49 +66,5 @@ function Base.setindex!(simplex::MutableSimplex, v, i::Int, j)
     end
     simplex[i][j] = v
 end
-
-"""
-    MutableSimplex(pts::Vector{<:AbstractVector{T}})
-
-Construct a simplex from a vector of vectors.
-"""
-function MutableSimplex(pts::Vector{<:AbstractVector{T}}) where {T}
-    if !(length(pts) == length(pts[1]) + 1)
-        err = """ The input cannot be converted to a simplex.
-        Vertices need to have `dim` elements, and there needs to be `dim + 1` vertices.
-        """
-        throw(DomainError(pts, err))    end
-    dim = length(pts[1])
-    MutableSimplex{dim, T}([pts[i] for i = 1:length(pts)])
-end
-
-
-"""
-    MutableSimplex(pts::AbstractArray{T, 2}) where T
-
-Construct a simplex from an array of size `(dim + 1)-by-(dim)` or
-`(dim)-by-(dim + 1)` (faster).
-"""
-function MutableSimplex(pts::AbstractArray{T, 2}) where {T}
-    s = size(pts)
-
-    if (maximum(s) - minimum(s)) != 1
-        err = """ The input cannot be converted to a simplex.
-                size(pts) must be (dim, dim + 1) or (dim + 1, dim).
-            """
-            throw(DomainError(pts, err))
-    end
-
-    if s[1] > s[2] # Rows are points
-        dim = s[2]
-        return MutableSimplex{dim, T}([pts[i, :] for i = 1:maximum(s)])
-    end
-
-    if s[2] > s[1] # Columns are points
-        dim = s[1]
-        return MutableSimplex{dim, T}([pts[:, i] for i = 1:maximum(s)])
-    end
-end
-
 
 export MutableSimplex

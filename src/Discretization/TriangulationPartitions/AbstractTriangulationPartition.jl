@@ -26,7 +26,7 @@ function summarise(tp::AbstractTriangulationPartition)
     _type = typeof(tp)
     n_simplices = nsimplices(tp)
     D = dimension(tp)
-    summary = "$_type with $n_simplices simplices.\n"
+    summary = "$_type with $n_simplices simplices"
 end
 
 Base.show(io::IO, tp::AbstractTriangulationPartition) = println(io, summarise(tp))

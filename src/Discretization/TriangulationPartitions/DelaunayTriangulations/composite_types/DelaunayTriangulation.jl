@@ -3,8 +3,9 @@ include("addnoise.jl")
 import ...Embeddings.AbstractEmbedding
 import DelayEmbeddings.Dataset
 import Simplices.Delaunay.delaunay
+import CausalityToolsBase: CustomReconstruction
 import StaticArrays:
-    SArray, MArray
+    SArray, MArray, SVector, MVector
 
 """
     DelaunayTriangulation
@@ -26,45 +27,43 @@ array where each column is a set of simplex vertex indices, i.e
 ``dt[:, 1]`` returns the indices of the 1st simplex.
 """
 struct DelaunayTriangulation <: AbstractDelaunayTriangulation
-    indices::Array{Array{Int32, 1}, 1}
+    indices::Vector{Vector{Int32}}
 end
 
 dimension(DT::DelaunayTriangulation) = length(DT.indices[1]) - 1
 
 
+
+
+function DelaunayTriangulation(vertices::Vector{Vector{T}}; joggle = 0.001) where T
+
+    # Slightly joggle points to avoid problems with QHull
+    if joggle > 0
+        addnoise!(vertices; joggle_factor = joggle)
+    end
+
+    DelaunayTriangulation(delaunay(vertices))
+end
+
 """
-    DelaunayTriangulation(vertices; joggle) where {T} -> DelaunayTriangulation
+DelaunayTriangulation(vertices; joggle) where {T} -> DelaunayTriangulation
 
 Construct a Delaunay triangulation from a set of points.
 """
-function DelaunayTriangulation(vertices; joggle = 0.001)
+function DelaunayTriangulation(vertices::AbstractArray{Float64, 2}; joggle = 0.001)
     # Slightly joggle points to avoid problems with QHull
     if joggle > 0
         addnoise!(vertices; joggle_factor = joggle)
     end
     # Get the indices of the simplices of the triangulation
     if size(vertices, 1) > size(vertices, 2)
-        simplex_indices = delaunay(vertices)
+        DelaunayTriangulation(delaunay(vertices))
     elseif size(vertices, 1) < size(vertices, 2)
-        simplex_indices = delaunay(transpose(vertices))
+        DelaunayTriangulation(delaunay(transpose(vertices)))
     end
-
-    return DelaunayTriangulation(simplex_indices)
 end
 
-function DelaunayTriangulation(vertices::Vector{AbstractVector{T}};
-        joggle = 0.001) where T
-
-    # Slightly joggle points to avoid problems with QHull
-    if joggle > 0
-        addnoise!(vertices; joggle_factor = joggle)
-    end
-
-    simplex_indices = delaunay(vertices)
-    return DelaunayTriangulation(simplex_indices)
-end
-
-function DelaunayTriangulation(vertices::Vector{SArray{Tuple{D},T,1,D}};
+function DelaunayTriangulation(vertices::Vector{SVector{D, T}};
         joggle = 0.001) where {D, T}
 
     # Slightly joggle points to avoid problems with QHull
@@ -74,6 +73,18 @@ function DelaunayTriangulation(vertices::Vector{SArray{Tuple{D},T,1,D}};
 
     simplex_indices = delaunay(vertices)
     return DelaunayTriangulation(simplex_indices)
+end
+
+function DelaunayTriangulation(vertices::Vector{MVector{D, T}};
+    joggle = 0.001) where {D, T}
+
+# Slightly joggle points to avoid problems with QHull
+if joggle > 0
+    addnoise!(vertices; joggle_factor = joggle)
+end
+
+simplex_indices = delaunay(vertices)
+return DelaunayTriangulation(simplex_indices)
 end
 
 
@@ -94,6 +105,10 @@ Construct a Delaunay triangulation from a Dataset.
 function DelaunayTriangulation(D::Dataset; joggle = 0.001)
     d = hcat(D.data...,)
     DelaunayTriangulation(d .+ joggle*rand(size(d)...,), joggle = joggle)
+end
+
+function DelaunayTriangulation(cr::CustomReconstruction; joggle = 0.001)
+    DelaunayTriangulation(cr.reconstructed_pts; joggle = joggle)
 end
 
 

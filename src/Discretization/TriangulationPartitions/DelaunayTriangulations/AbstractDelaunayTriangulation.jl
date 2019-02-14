@@ -26,7 +26,7 @@ function summarise(DT::AbstractDelaunayTriangulation)
     _type = typeof(DT)
     n_simplices = nsimplices(DT)
     D = dimension(DT)
-    summary = "$D-dimensional $_type with $n_simplices simplices\n"
+    summary = "$D-dimensional $_type with $n_simplices simplices"
 end
 
 Base.show(io::IO, DT::AbstractDelaunayTriangulation) = println(io, summarise(DT))

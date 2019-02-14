@@ -55,7 +55,7 @@ function summarise(tp::Union{PointTriangulation, MutablePointTriangulation})
     n_simplices = nsimplices(tp)
     n_pts = length(tp.data)
     D = dimension(tp)
-    summary = "$_type: $n_simplices simplices constructed from $n_pts points\n"
+    summary = "$_type: $n_simplices simplices constructed from $n_pts points"
 end
 
 Base.show(io::IO, tp::Union{PointTriangulation, MutablePointTriangulation}) =
