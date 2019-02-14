@@ -128,7 +128,7 @@ end
 end
 
 
-@testset "Subsampling" begin
+@testset "Refining simplices" begin
     
     pts = [rand(3) for i = 1:20]
     inv_pts = invariantize(pts);
@@ -146,4 +146,26 @@ end
     rules = simplex_splitting_rules(k, dim)
     @test refine(simplices[1], k = 2, splitting_rules = rules) isa Vector{Simplex{3,Float64}}
     @test refine(simplices[1], simplices[2], k = 2, splitting_rules = rules) isa Tuple{Vector{Simplex{3,Float64}}, Vector{Simplex{3,Float64}}} 
+end
+
+
+@testset "Subsampling" begin
+    dim = 3
+    inv_pts = invariantize([rand(dim) for i = 1:20])
+    triang = triangulate(inv_pts[1:end-1])
+    triang_im = triangulate(inv_pts[2:end])
+    simplices = [Simplex(inv_pts[triang.simplexindices[i]]) for i in 1:length(triang.simplexindices)];
+    simplices_im = [Simplex(inv_pts[triang_im.simplexindices[i]]) for i in 1:length(triang_im.simplexindices)];
+    
+    coeffs = subsample_coeffs(dim, 50, false)
+
+    # On single simplices.
+    @test subsample(simplices[1], coeffs) isa Vector{SVector{3, Float64}}
+    @test subsample(simplices[1]) isa Vector{SVector{3, Float64}}
+
+    # Pairwise
+    ss_simplices_coeffs_precomputed = subsample(simplices[1], simplices_im[1], coeffs)
+    ss_simplices_coeffs_computed_onthefly = subsample(simplices[1], simplices_im[1])
+    @test ss_simplices_coeffs_precomputed isa Tuple{Vector{SVector{3, Float64}}, Vector{SVector{3, Float64}}}
+    @test ss_simplices_coeffs_computed_onthefly isa Tuple{Vector{SVector{3, Float64}}, Vector{SVector{3, Float64}}}
 end

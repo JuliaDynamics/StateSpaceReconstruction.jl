@@ -1,3 +1,9 @@
+## Release 0.4.1
+
+### New functionality
+- Added the option to subsample simplices with pre-computed convex combination coefficients.
+- Added the option to subsample two simplices simultaneously with the same convex expansion coefficients.
+
 ## Release 0.4.0
 
 ### Breaking changes
