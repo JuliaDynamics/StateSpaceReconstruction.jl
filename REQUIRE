@@ -6,7 +6,7 @@ PyCall
 DelayEmbeddings
 Reexport
 StaticArrays
-Simplices 0.2.1
+Simplices 0.4.0
 NearestNeighbors
 Distances
 RecipesBase
