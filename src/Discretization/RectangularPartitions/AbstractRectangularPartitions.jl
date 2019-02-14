@@ -1,0 +1,3 @@
+abstract type AbstractRectangularPartition end
+
+export AbstractRectangularPartition

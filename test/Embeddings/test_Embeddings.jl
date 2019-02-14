@@ -11,12 +11,12 @@ function generate_embeddings(n, dim)
 	lags = [i for i = 1:dim]
 
 	# Regular arrays
-	E1a = embed(A, positions, lags)
-	E1b = embed(A)
+	E1a = cembed(A, positions, lags)
+	E1b = cembed(A)
 
 	# Static arrays
-	E2a = embed(S, positions, lags)
-	E2b = embed(S)
+	E2a = cembed(S, positions, lags)
+	E2b = cembed(S)
 
 
 	E1a, E1b, E2a, E2b
@@ -38,8 +38,8 @@ end
 
 @testset "Alignment with and without zero-lagged vector matches" begin
     ts = [rand(12) for i = 1:3]
-    E1 = embed(ts, [1, 2, 3, 3], [1, -1, -1, 0])
-    E2 = embed(ts, [1, 2, 3], [1, -1, -1])
+    E1 = cembed(ts, [1, 2, 3, 3], [1, -1, -1, 0])
+    E2 = cembed(ts, [1, 2, 3], [1, -1, -1])
 
     @test all(E1.points[1:3, :] .== E2.points)
     @test typeof(E1) <: Embeddings.AbstractEmbedding
@@ -48,7 +48,7 @@ end
 
 
 @testset "Interface with NearestNeighbors.jl" begin
-	E = StateSpaceReconstruction.embed([rand(100)], [1, 1, 1, 1], [0, -3, -4, 5])
+	E = StateSpaceReconstruction.cembed([rand(100)], [1, 1, 1, 1], [0, -3, -4, 5])
 	brutetree = BruteTree(E, Euclidean())
 	balltree = BallTree(E, Euclidean())
 	kdtree = KDTree(E, Minkowski(2.5))
