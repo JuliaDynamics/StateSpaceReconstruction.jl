@@ -6,7 +6,12 @@
 ### New functionality
 - Simplices may now be subsampled either with random points (irregular sampling), or subdividing the simplex using a shape-preserving simplex splitting routine and taking the centroids of the resulting subsimplices as the sampling points (regular sampling). If `s = Simplex(rand(3, 4)` is a simplex, then `subsample(s, n = 10)` will return ten points from within the simplex. The `sample_randomly` argument controls the type of sampling (regular/irregular). 
 - Simplices may now be refined into a triangulation of subsimplices. `s = Simplex(rand(4, 5)` is a simplex, then `refine(s, k= 2)` splits the simple with a splitting factor 2. The number of subsimplices generated for a `dim`-dimensional simplex is `k^dim`.
+- Triangulation partitions can be constructed from a set of points using `triangulate(pts)`. The input may be a vector of vectors, a vector of `SVector`/`MVector`, a `DynamicalSystems.dataset` instance or a `CustomReconstruction` instance (the latter is the return type of `customembed`, and is just a wrapper around a `Dataset`).
 
 ### Bug fixes
 
 - Fixed the `SVector` simplex constructor, which was not working.
+- Fixed multiple imports and some duplicate method definitions.
+
+### Improvement
+- Many minor improvements to documentation.
