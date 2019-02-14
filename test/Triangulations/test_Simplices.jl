@@ -3,7 +3,7 @@ import Test
 import StaticArrays:
     SVector,
     MVector
-import StateSpaceReconstruction: Simplices
+using StateSpaceReconstruction: Simplices
 
 
 # Constructors
@@ -92,13 +92,13 @@ end
     # Individual intersections should all be nonzero
     @test s1 ∩ s2 > 1e-12
     @test s1 ∩ s2_mutable > 1e-12
-    #@test s1 ∩ ss2 > 1e-12
+    @test s1 ∩ ss2 > 1e-12
     @test s1 ∩ ss2_mutable > 1e-12
 
     # Using the different types should give the same answer. Just try a few different
     # combinations.
     @test s1 ∩ s2 == s1 ∩ s2
-    #@test s1 ∩ s2 == s1 ∩ ss2
+    @test s1 ∩ s2 == s1 ∩ ss2
     @test s1 ∩ s2 == s1 ∩ s2_mutable
     @test s1 ∩ s2 == s1 ∩ ss2_mutable
 
