@@ -1,3 +1,7 @@
+## Release 0.4.2
+
+- Update to new PyCall version with new calling syntax. 
+
 ## Release 0.4.1
 
 ### New functionality
